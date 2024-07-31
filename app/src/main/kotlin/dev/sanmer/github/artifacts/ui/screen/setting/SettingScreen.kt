@@ -1,5 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.setting
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,8 +12,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -50,7 +51,11 @@ fun SettingScreen(
                 icon = {
                     SettingIcon(
                         icon = R.drawable.key,
-                        color = Color(0xFF64B5F6)
+                        color = if (isSystemInDarkTheme()) {
+                            colorResource(id = R.color.material_blue_900)
+                        } else {
+                            colorResource(id = R.color.material_blue_300)
+                        }
                     )
                 },
                 title = stringResource(id = R.string.settings_token_title),
@@ -62,7 +67,11 @@ fun SettingScreen(
                 icon = {
                     SettingIcon(
                         icon = R.drawable.git_branch,
-                        color = Color(0xFF81C784)
+                        color = if (isSystemInDarkTheme()) {
+                            colorResource(id = R.color.material_green_900)
+                        } else {
+                            colorResource(id = R.color.material_green_300)
+                        }
                     )
                 },
                 title = stringResource(id = R.string.settings_repo_title),
