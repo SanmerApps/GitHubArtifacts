@@ -21,7 +21,7 @@ data class RepoEntity(
         owner = repo.owner.login,
         name = repo.name,
         private = repo.private,
-        isTemplate = repo.private,
+        isTemplate = repo.isTemplate,
         archived = repo.archived,
         updatedAt = repo.pushedAt
     )
@@ -33,7 +33,7 @@ data class RepoEntity(
         owner = repo.owner.login,
         name = repo.name,
         private = repo.private,
-        isTemplate = repo.private,
+        isTemplate = repo.isTemplate,
         archived = repo.archived,
         updatedAt = repo.pushedAt
     )
