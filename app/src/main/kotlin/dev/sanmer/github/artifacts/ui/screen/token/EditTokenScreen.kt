@@ -112,6 +112,7 @@ fun EditTokenScreen(
                     } else {
                         VisualTransformation.None
                     },
+                    readOnly = viewModel.edit,
                     isError = viewModel.isFailed(EditTokenViewModel.Check.Token)
                 )
 
@@ -134,7 +135,7 @@ fun EditTokenScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.size(48.dp))
+                Icon(icon = R.drawable.hourglass_empty)
 
                 OutlinedTextField(
                     value = viewModel.updatedAt.toString(),
@@ -144,15 +145,7 @@ fun EditTokenScreen(
                     modifier = Modifier.weight(1f)
                 )
 
-                IconButton(
-                    enabled = viewModel.edit,
-                    onClick = { viewModel.updateInput { it.new() } }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.hourglass_empty),
-                        contentDescription = null
-                    )
-                }
+                Spacer(modifier = Modifier.size(48.dp))
             }
         }
     }

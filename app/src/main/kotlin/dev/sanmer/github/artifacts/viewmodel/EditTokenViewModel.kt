@@ -94,10 +94,6 @@ class EditTokenViewModel @Inject constructor(
             name = name.trim(),
             updatedAt = updatedAt
         )
-
-        fun new() = copy(
-            updatedAt = Clock.System.now()
-        )
     }
 
     enum class Check(val ok: (String) -> Boolean) {
