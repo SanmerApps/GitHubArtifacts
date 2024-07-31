@@ -10,8 +10,8 @@ plugins {
 }
 
 val baseVersionName = "0.0.1"
-val devVersion = true //exec("git tag --contains HEAD").isEmpty()
-val commitShaSuffix = "" //commitSha.let { ".${it.substring(0, 7)}" }
+val devVersion = exec("git tag --contains HEAD").isEmpty()
+val commitShaSuffix = commitSha.let { ".${it.substring(0, 7)}" }
 val devSuffix = if (devVersion) ".dev" else ""
 
 android {
@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId = namespace
         versionName = "${baseVersionName}${commitShaSuffix}${devSuffix}"
-        versionCode = 1 //commitCount
+        versionCode = commitCount
 
         resourceConfigurations += arrayOf("en")
     }
