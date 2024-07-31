@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home -->
+    <string name="repo_private">Private</string>
+    <string name="repo_private_template">Private template</string>
+    <string name="repo_private_archive">Private archive</string>
+    <string name="repo_public">Public</string>
+    <string name="repo_public_template">Public template</string>
+    <string name="repo_public_archive">Public archive</string>
+
+    <!-- Workflow -->
+    <string name="no_workflow">No workflow</string>
+    <string name="artifact_expired">Expired</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_token_title">Token</string>
+    <string name="settings_token_desc">Manage all tokens</string>
+    <string name="settings_repo_title">Repository</string>
+    <string name="settings_repo_desc">Manage all Repositories</string>
+
+    <!-- Repo -->
+    <string name="no_repo">No repository</string>
+
+    <!-- Token -->
+    <string name="no_token">No token</string>
+
+    <!-- Edit -->
+    <string name="edit_token_title">Edit Token</string>
+    <string name="add_token_title">Add Token</string>
+    <string name="edit_repo_title">Edit Repository</string>
+    <string name="add_repo_title">Add Repository</string>
+    <string name="edit_owner">Owner</string>
+    <string name="edit_name">Name</string>
+    <string name="edit_token">Token</string>
+
+    <!-- Message -->
+    <string name="empty_list">Empty list</string>
+    <string name="message_loading">Loading…</string>
+    <string name="emm">Emm…</string>
+
+    <!-- Job -->
+    <string name="artifact_job">Artifact Job</string>
+    <string name="download_success">Download successful</string>
+    <string name="download_fail">Download failed</string>
+
+</resources>
