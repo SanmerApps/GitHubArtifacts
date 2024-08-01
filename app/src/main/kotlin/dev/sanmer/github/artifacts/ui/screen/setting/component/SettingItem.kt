@@ -27,7 +27,8 @@ fun SettingItem(
     icon: @Composable () -> Unit,
     title: String,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enabled: Boolean = true
 ) = Row(
     modifier = Modifier
         .fillMaxWidth()
@@ -37,7 +38,10 @@ fun SettingItem(
             border = CardDefaults.outlinedCardBorder(),
             shape = MaterialTheme.shapes.large
         )
-        .clickable(onClick = onClick)
+        .clickable(
+            enabled = enabled,
+            onClick = onClick
+        )
         .padding(all = 20.dp),
     horizontalArrangement = Arrangement.spacedBy(20.dp),
     verticalAlignment = Alignment.CenterVertically
