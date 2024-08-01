@@ -2,14 +2,19 @@ package dev.sanmer.github
 
 import okhttp3.Request
 
-sealed class Auth(val token: String) {
-    data object None : Auth("")
-    class Bearer(token: String) : Auth(token);
+sealed class Auth {
+    data object None : Auth()
+    class Bearer(val token: String) : Auth()
 
-    companion object {
+    companion object Util {
         fun Request.Builder.addAuth(auth: Auth): Request.Builder {
             return when (auth) {
-                is Bearer -> header("Authorization", "Bearer ${auth.token}")
+                is Bearer -> if (auth.token.isNotBlank()) {
+                    header("Authorization", "Bearer ${auth.token}")
+                } else {
+                    this
+                }
+
                 else -> this
             }
         }

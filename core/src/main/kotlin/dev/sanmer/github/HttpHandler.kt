@@ -1,7 +1,7 @@
 package dev.sanmer.github
 
 import android.util.Log
-import dev.sanmer.github.Auth.Companion.addAuth
+import dev.sanmer.github.Auth.Util.addAuth
 import okhttp3.ConnectionSpec
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
