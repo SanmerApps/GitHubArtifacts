@@ -7,17 +7,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.ktx.viewUrl
 import dev.sanmer.github.artifacts.ui.component.NavigateUpTopBar
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.main.Screen
@@ -88,6 +94,18 @@ private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) = NavigateUpTopBar(
     title = stringResource(id = R.string.settings_title),
+    actions = {
+        val context = LocalContext.current
+
+        IconButton(
+            onClick = { context.viewUrl(Const.GITHUB_URL) }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.brand_github),
+                contentDescription = null
+            )
+        }
+    },
     navController = navController,
     scrollBehavior = scrollBehavior
 )

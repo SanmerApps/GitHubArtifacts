@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.screen.home.component.Title
@@ -32,8 +33,9 @@ fun WorkflowItem(
     trailing: @Composable (() -> Unit)? = null
 ) = Row(
     modifier = Modifier
+        .clip(shape = MaterialTheme.shapes.medium)
         .clickable(onClick = onClick)
-        .padding(all = 15.dp)
+        .padding(horizontal = 15.dp, vertical = 10.dp)
         .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(10.dp)

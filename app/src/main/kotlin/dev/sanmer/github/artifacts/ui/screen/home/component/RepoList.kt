@@ -1,13 +1,13 @@
 package dev.sanmer.github.artifacts.ui.screen.home.component
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,31 +29,13 @@ fun RepoList(
         .animateContentSize(),
     state = state,
     contentPadding = contentPadding,
-    horizontalAlignment = Alignment.CenterHorizontally
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    val size = repos.size
-    itemsIndexed(repos) { index, repo ->
+    items(repos) { repo ->
         RepoItem(
             repo = repo,
-            onClick = {
-                navController.navigateSingleTopTo(
-                    Screen.Workflow(repo.id)
-                )
-            }
-        )
-
-        ListDivider(
-            index = index,
-            size = size
+            onClick = { navController.navigateSingleTopTo(Screen.Workflow(repo.id)) }
         )
     }
-}
-
-@Composable
-fun ListDivider(
-    index: Int,
-    size: Int
-) = if (index < size - 1) {
-    HorizontalDivider()
-} else {
 }

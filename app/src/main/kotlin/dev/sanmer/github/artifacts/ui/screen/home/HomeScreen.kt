@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -24,14 +23,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ktx.viewUrl
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
@@ -114,17 +110,5 @@ private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.app_name)) },
-    actions = {
-        val context = LocalContext.current
-
-        IconButton(
-            onClick = { context.viewUrl(Const.GITHUB_URL) }
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.brand_github),
-                contentDescription = null
-            )
-        }
-    },
     scrollBehavior = scrollBehavior
 )

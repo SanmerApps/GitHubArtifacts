@@ -14,10 +14,10 @@
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
-    <string name="settings_token_title">Token</string>
+    <string name="settings_token_title">Tokens</string>
     <string name="settings_token_desc">Manage all tokens</string>
-    <string name="settings_repo_title">Repository</string>
-    <string name="settings_repo_desc">Manage all Repositories</string>
+    <string name="settings_repo_title">Repositories</string>
+    <string name="settings_repo_desc">Manage all repositories</string>
 
     <!-- Repo -->
     <string name="no_repo">No repository</string>

@@ -18,6 +18,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -35,9 +36,10 @@ fun RepoItem(
     onClick: () -> Unit
 ) = Column(
     modifier = Modifier
-        .fillMaxWidth()
+        .clip(shape = MaterialTheme.shapes.medium)
         .clickable(onClick = onClick)
-        .padding(all = 15.dp)
+        .padding(horizontal = 15.dp, vertical = 10.dp)
+        .fillMaxWidth()
 ) {
     Title(
         title = repo.fullName,
