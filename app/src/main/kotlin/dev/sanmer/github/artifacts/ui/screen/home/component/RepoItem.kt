@@ -41,6 +41,12 @@ fun RepoItem(
         .padding(horizontal = 15.dp, vertical = 10.dp)
         .fillMaxWidth()
 ) {
+    val pushedAt by remember {
+        derivedStateOf {
+            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+        }
+    }
+
     Title(
         title = repo.fullName,
         subtitle = repo.state()
@@ -57,7 +63,12 @@ fun RepoItem(
     CompositionLocalProvider(
         LocalContentColor provides MaterialTheme.colorScheme.outline
     ) {
-        BottomRow(repo = repo)
+        BottomRow(
+            repo = repo,
+            modifier = Modifier.padding(vertical = 5.dp)
+        )
+
+        Value(text = pushedAt)
     }
 }
 
@@ -81,18 +92,13 @@ private fun Repository.state(): String {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BottomRow(
-    repo: Repository
+    repo: Repository,
+    modifier: Modifier = Modifier
 ) = FlowRow(
-    modifier = Modifier.padding(top = 5.dp),
+    modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    val pushedAt by remember {
-        derivedStateOf {
-            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
-        }
-    }
-
     if (repo.language.isNotBlank()) {
         Value(
             icon = {
@@ -128,10 +134,6 @@ private fun BottomRow(
             value = repo.openIssuesCount.format()
         )
     }
-
-    Value(
-        value = pushedAt
-    )
 }
 
 @Composable

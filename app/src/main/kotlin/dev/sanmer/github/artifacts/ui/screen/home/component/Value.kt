@@ -17,10 +17,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Value(
-    value: Any,
+    text: Any,
     modifier: Modifier = Modifier
 ) = Text(
-    text = value.toString(),
+    text = text.toString(),
     style = MaterialTheme.typography.bodyMedium,
     modifier = modifier
 )
@@ -29,7 +29,7 @@ fun Value(
 fun RowScope.Value(
     value: Any
 ) = Value(
-    value = value,
+    text = value,
     modifier = Modifier.align(Alignment.CenterVertically)
 )
 

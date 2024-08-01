@@ -40,6 +40,12 @@ fun WorkflowItem(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(10.dp)
 ) {
+    val updatedAt by remember {
+        derivedStateOf {
+            run.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+        }
+    }
+
     Column(
         modifier = Modifier.weight(1f)
     ) {
@@ -51,7 +57,12 @@ fun WorkflowItem(
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.outline
         ) {
-            BottomRow(run = run)
+            BottomRow(
+                run = run,
+                modifier = Modifier.padding(vertical = 5.dp)
+            )
+
+            Value(text = updatedAt)
         }
     }
 
@@ -61,18 +72,13 @@ fun WorkflowItem(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BottomRow(
-    run: WorkflowRun
+    run: WorkflowRun,
+    modifier: Modifier = Modifier
 ) = FlowRow(
-    modifier = Modifier.padding(top = 5.dp),
+    modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    val updatedAt by remember {
-        derivedStateOf {
-            run.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
-        }
-    }
-
     Value(
         value = run.name
     )
@@ -85,9 +91,5 @@ private fun BottomRow(
     Value(
         icon = R.drawable.user,
         value = run.actor.login
-    )
-
-    Value(
-        value = updatedAt
     )
 }
