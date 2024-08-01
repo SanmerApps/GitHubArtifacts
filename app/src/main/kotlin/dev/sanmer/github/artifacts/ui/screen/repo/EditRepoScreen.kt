@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -185,7 +184,8 @@ private fun TokenItem(
     modifier = modifier
         .clip(shape = MaterialTheme.shapes.medium)
         .border(
-            border = CardDefaults.outlinedCardBorder(),
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline,
             shape = MaterialTheme.shapes.medium
         )
         .clickable(onClick = onClick)
