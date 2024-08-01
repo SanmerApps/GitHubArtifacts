@@ -15,13 +15,14 @@ data class License(
 ) {
     val isEmpty inline get() = key.isBlank()
 
-    companion object {
-        val EMPTY = License(
-            key = "",
-            name = "",
-            spdxId = "",
-            url = "",
-            nodeId = ""
-        )
+    companion object Empty {
+        operator fun invoke() =
+            License(
+                key = "",
+                name = "",
+                spdxId = "",
+                url = "",
+                nodeId = ""
+            )
     }
 }

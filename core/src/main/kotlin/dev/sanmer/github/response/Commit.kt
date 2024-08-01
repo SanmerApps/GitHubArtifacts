@@ -11,6 +11,6 @@ data class Commit(
     val treeId: String,
     val message: String,
     val timestamp: Instant,
-    val author: Author = Author.EMPTY,
-    val committer: Author = Author.EMPTY
+    val author: Author = Author.Empty(),
+    val committer: Author = Author.Empty()
 )

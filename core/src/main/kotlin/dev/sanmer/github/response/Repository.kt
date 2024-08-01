@@ -38,5 +38,5 @@ data class Repository(
     val createdAt: Instant = Instant.fromEpochSeconds(0L),
     @JsonNames("updated_at")
     val updatedAt: Instant = Instant.fromEpochSeconds(0L),
-    val license: License = License.EMPTY
+    val license: License = License.Empty()
 )

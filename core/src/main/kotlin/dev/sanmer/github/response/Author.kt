@@ -7,10 +7,11 @@ data class Author(
     val name: String,
     val email: String
 ) {
-    companion object {
-        val EMPTY = Author(
-            name = "",
-            email = ""
-        )
+    companion object Empty {
+        operator fun invoke() =
+            Author(
+                name = "",
+                email = ""
+            )
     }
 }

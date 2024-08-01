@@ -197,7 +197,7 @@ class ArtifactJob : LifecycleService() {
         class Failure(val artifact: Artifact, val error: Throwable) : JobState(artifact.id)
     }
 
-    companion object {
+    companion object Util {
         private const val GROUP_KEY = "dev.sanmer.github.artifacts.ARTIFACT_JOB_GROUP_KEY"
         private const val EXTRA_ARTIFACT = "dev.sanmer.github.artifacts.extra.Artifact"
         private const val EXTRA_TOKEN = "dev.sanmer.github.artifacts.extra.Token"
