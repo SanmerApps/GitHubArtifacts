@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TokenDao {
     @Query("SELECT * FROM token ORDER BY name ASC")
+    fun getAllAsFlow(): Flow<List<TokenEntity>>
+
+    @Query("SELECT * FROM token ORDER BY name ASC")
     suspend fun getAll(): List<TokenEntity>
 
     @Transaction

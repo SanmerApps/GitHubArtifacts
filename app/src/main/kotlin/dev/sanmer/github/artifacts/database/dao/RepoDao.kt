@@ -22,9 +22,6 @@ interface RepoDao {
     @Query("SELECT * FROM repo WHERE id = :id")
     fun getAsFlow(id: Long): Flow<RepoEntity?>
 
-    @Query("SELECT * FROM repo WHERE owner = :owner AND name = :name")
-    suspend fun getBy(owner: String, name: String): RepoEntity
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(value: RepoEntity)
 

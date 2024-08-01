@@ -15,6 +15,8 @@ class DbRepository @Inject constructor(
     private val tokenDao: TokenDao,
     private val repoDao: RepoDao
 ) {
+    val tokenFlow get() = tokenDao.getAllAsFlow()
+
     val tokenAndRepoFlow get() = tokenDao.getAllWithRepoAsFlow()
 
     suspend fun getTokenAll() = withContext(Dispatchers.IO) {
