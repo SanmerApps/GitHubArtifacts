@@ -37,10 +37,18 @@ class DbRepository @Inject constructor(
 
     val repoAndTokenFlow get() = repoDao.getAllWithTokenAsFlow()
 
+    suspend fun getRepoAll() = withContext(Dispatchers.IO) {
+        repoDao.getAll()
+    }
+
     fun getRepoAsFlow(id: Long) = repoDao.getAsFlow(id).filterNotNull()
 
     suspend fun insertRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
         repoDao.insert(repo)
+    }
+
+    suspend fun insertRepo(repos: List<RepoEntity>) = withContext(Dispatchers.IO) {
+        repoDao.insert(repos)
     }
 
     suspend fun deleteRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {

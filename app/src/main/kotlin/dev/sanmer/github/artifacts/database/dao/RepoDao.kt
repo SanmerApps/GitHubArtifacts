@@ -15,6 +15,9 @@ interface RepoDao {
     @Query("SELECT * FROM repo ORDER BY updatedAt DESC")
     fun getAllAsFlow(): Flow<List<RepoEntity>>
 
+    @Query("SELECT * FROM repo ORDER BY updatedAt DESC")
+    suspend fun getAll(): List<RepoEntity>
+
     @Transaction
     @Query("SELECT * FROM repo ORDER BY updatedAt DESC")
     fun getAllWithTokenAsFlow(): Flow<List<RepoWithToken>>
@@ -24,6 +27,9 @@ interface RepoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(value: RepoEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(values: List<RepoEntity>)
 
     @Delete
     suspend fun delete(value: RepoEntity)

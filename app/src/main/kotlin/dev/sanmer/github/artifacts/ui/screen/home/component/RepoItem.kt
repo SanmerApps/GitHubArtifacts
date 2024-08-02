@@ -25,14 +25,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.Languages
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ktx.format
-import dev.sanmer.github.response.Repository
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun RepoItem(
-    repo: Repository,
+    repo: RepoEntity,
     onClick: () -> Unit
 ) = Column(
     modifier = Modifier
@@ -73,7 +73,7 @@ fun RepoItem(
 }
 
 @Composable
-private fun Repository.state(): String {
+private fun RepoEntity.state(): String {
     return if (private) {
         when {
             archived -> stringResource(id = R.string.repo_private_archive)
@@ -92,7 +92,7 @@ private fun Repository.state(): String {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BottomRow(
-    repo: Repository,
+    repo: RepoEntity,
     modifier: Modifier = Modifier
 ) = FlowRow(
     modifier = modifier,
@@ -111,10 +111,10 @@ private fun BottomRow(
         )
     }
 
-    if (!repo.license.isEmpty) {
+    if (repo.license.isNotEmpty()) {
         Value(
             icon = R.drawable.scale,
-            value = repo.license.name
+            value = repo.license
         )
     }
 

@@ -1,17 +1,14 @@
 package dev.sanmer.github.artifacts.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.GitHubHandler
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.repository.DbRepository
-import dev.sanmer.github.response.Repository
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -20,25 +17,24 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val dbRepository: DbRepository
 ) : ViewModel() {
-    private val cache = mutableStateMapOf<Long, Repository>()
-    val repos get() = cache.values.sortedByDescending { it.pushedAt }
-
-    var isEmpty by mutableStateOf(false)
-        private set
+    val repos = dbRepository.repoFlow
+        .map { repos ->
+            repos.sortedByDescending { it.pushedAt }
+        }
 
     init {
         Timber.d("HomeViewModel init")
-        repoObserver()
+        updateRepo()
     }
 
-    private fun repoObserver() {
+    private fun updateRepo() {
         viewModelScope.launch {
-            dbRepository.repoFlow
-                .distinctUntilChanged()
-                .collect { repos ->
-                    repos.forEach { getRepo(it) }
-                    isEmpty = repos.isEmpty()
-                }
+            val news = dbRepository.getRepoAll()
+                .map { async { getRepo(it) } }
+                .awaitAll()
+                .filterNotNull()
+
+            dbRepository.insertRepo(news)
         }
     }
 
@@ -48,10 +44,9 @@ class HomeViewModel @Inject constructor(
                 .getRepo(
                     owner = repo.owner,
                     name = repo.name
-                )
-        }.onSuccess {
-            cache[repo.id] = it
-            dbRepository.insertRepo(repo.copy(it))
+                ).let {
+                    repo.copy(it)
+                }
         }.onFailure {
             Timber.e(it)
         }.getOrNull()

@@ -8,33 +8,47 @@ import kotlinx.datetime.Instant
 data class RepoEntity(
     val token: String,
     val id: Long,
-    val owner: String,
     val name: String,
+    val fullName: String,
+    val owner: String,
     val private: Boolean,
+    val description: String,
+    val language: String,
+    val forksCount: Int,
+    val stargazersCount: Int,
+    val watchersCount: Int,
+    val openIssuesCount: Int,
     val isTemplate: Boolean,
+    val hasIssues: Boolean,
     val archived: Boolean,
-    val updatedAt: Instant
+    val pushedAt: Instant,
+    val updatedAt: Instant,
+    val license: String
 ) {
     constructor(token: String, repo: Repository) : this(
         token = token,
         id = repo.id,
-        owner = repo.owner.login,
         name = repo.name,
+        fullName = repo.fullName,
+        owner = repo.owner.login,
         private = repo.private,
+        description = repo.description,
+        language = repo.language,
+        forksCount = repo.forksCount,
+        stargazersCount = repo.stargazersCount,
+        watchersCount = repo.watchersCount,
+        openIssuesCount = repo.openIssuesCount,
         isTemplate = repo.isTemplate,
+        hasIssues = repo.hasIssues,
         archived = repo.archived,
-        updatedAt = repo.pushedAt
+        pushedAt = repo.pushedAt,
+        updatedAt = repo.updatedAt,
+        license = repo.license.name
     )
 
-    val fullName inline get() = "$owner/$name"
-
-    fun copy(repo: Repository) = copy(
-        id = repo.id,
-        owner = repo.owner.login,
-        name = repo.name,
-        private = repo.private,
-        isTemplate = repo.isTemplate,
-        archived = repo.archived,
-        updatedAt = repo.pushedAt
-    )
+    fun copy(repo: Repository) =
+        RepoEntity(
+            token = token,
+            repo = repo
+        )
 }

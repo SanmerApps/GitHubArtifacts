@@ -13,13 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.main.Screen
-import dev.sanmer.github.response.Repository
 
 @Composable
 fun RepoList(
-    repos: List<Repository>,
+    repos: List<RepoEntity>,
     navController: NavController,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)

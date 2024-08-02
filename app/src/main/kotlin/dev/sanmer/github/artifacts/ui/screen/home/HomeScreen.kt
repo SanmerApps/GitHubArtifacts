@@ -17,18 +17,16 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
@@ -41,7 +39,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val repos by remember { derivedStateOf { viewModel.repos } }
+    val repos by viewModel.repos.collectAsStateWithLifecycle(initialValue = emptyList())
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val isScrollingUp by listState.isScrollingUp()
@@ -67,13 +65,7 @@ fun HomeScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (repos.isEmpty() && !viewModel.isEmpty) {
-                Loading(
-                    modifier = Modifier.padding(contentPadding)
-                )
-            }
-
-            if (viewModel.isEmpty) {
+            if (repos.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.git_branch,
                     text = R.string.no_repo,
