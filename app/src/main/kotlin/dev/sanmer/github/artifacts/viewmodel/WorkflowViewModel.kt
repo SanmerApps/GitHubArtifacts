@@ -13,8 +13,8 @@ import dev.sanmer.github.GitHubHandler
 import dev.sanmer.github.GitHubHandler.Event
 import dev.sanmer.github.GitHubHandler.Status
 import dev.sanmer.github.artifacts.job.ArtifactJob
-import dev.sanmer.github.artifacts.model.Data
-import dev.sanmer.github.artifacts.model.Data.None.data
+import dev.sanmer.github.artifacts.model.LoadData
+import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
 import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.response.Artifact
 import dev.sanmer.github.response.WorkflowRun
@@ -31,18 +31,17 @@ class WorkflowViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val id = savedStateHandle.id
-    var owner by mutableStateOf("")
-        private set
+    private var owner by mutableStateOf("")
     var name by mutableStateOf("")
         private set
 
     private var token = ""
     private val handler by lazy { GitHubHandler(token) }
 
-    private val workflowRunsFlow = MutableStateFlow<Data<List<WorkflowRun>>>(Data.Loading)
+    private val workflowRunsFlow = MutableStateFlow<LoadData<List<WorkflowRun>>>(LoadData.Loading)
     val workflowRuns get() = workflowRunsFlow.asStateFlow()
 
-    private val artifacts = mutableStateMapOf<Long, Data<List<Artifact>>>()
+    private val artifacts = mutableStateMapOf<Long, LoadData<List<Artifact>>>()
 
     init {
         Timber.d("WorkflowViewModel init")
@@ -74,13 +73,13 @@ class WorkflowViewModel @Inject constructor(
                         perPage = 30,
                         page = 1
                     )
-                }.data()
+                }.asLoadData()
             }
         }
     }
 
     fun updateWorkflows() {
-        workflowRunsFlow.update { Data.Loading }
+        workflowRunsFlow.update { LoadData.Loading }
         listWorkflows()
     }
 
@@ -93,11 +92,11 @@ class WorkflowViewModel @Inject constructor(
                         name = name,
                         runId = run.id
                     )
-                }.data()
+                }.asLoadData()
             }
         }
 
-        artifacts.getOrDefault(run.id, Data.Loading)
+        artifacts.getOrDefault(run.id, LoadData.Loading)
     }
 
     fun downloadArtifact(context: Context, artifact: Artifact) {

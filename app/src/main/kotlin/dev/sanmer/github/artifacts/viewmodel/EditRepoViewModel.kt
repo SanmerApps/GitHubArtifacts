@@ -12,8 +12,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.GitHubHandler
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
-import dev.sanmer.github.artifacts.model.Data
-import dev.sanmer.github.artifacts.model.Data.None.data
+import dev.sanmer.github.artifacts.model.LoadData
+import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
 import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.response.Repository
 import kotlinx.coroutines.launch
@@ -33,7 +33,7 @@ class EditRepoViewModel @Inject constructor(
 
     val tokens = mutableStateListOf<TokenEntity>()
 
-    var data: Data<Repository> by mutableStateOf(Data.None)
+    var data: LoadData<Repository> by mutableStateOf(LoadData.None)
         private set
 
     private val checks = mutableStateMapOf<Check, Boolean>()
@@ -73,10 +73,10 @@ class EditRepoViewModel @Inject constructor(
     }
 
     fun save(block: () -> Unit = {}) {
-        if (!check() || data == Data.Loading) return
+        if (!check() || data == LoadData.Loading) return
 
         viewModelScope.launch {
-            data = Data.Loading
+            data = LoadData.Loading
             data = runCatching {
                 GitHubHandler(input.token)
                     .getRepo(
@@ -95,12 +95,12 @@ class EditRepoViewModel @Inject constructor(
             }.onFailure {
                 Timber.e(it)
 
-            }.data()
+            }.asLoadData()
         }
     }
 
     fun rewind() {
-        data = Data.None
+        data = LoadData.None
     }
 
     data class Input(

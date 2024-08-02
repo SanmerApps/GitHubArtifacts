@@ -20,7 +20,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,14 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.job.ArtifactJob
-import dev.sanmer.github.artifacts.model.Data
+import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.response.Artifact
 import dev.sanmer.github.response.WorkflowRun
 
 @Composable
 fun WorkflowList(
     workflowRuns: List<WorkflowRun>,
-    getArtifacts: (WorkflowRun) -> Data<List<Artifact>>,
+    getArtifacts: (WorkflowRun) -> LoadData<List<Artifact>>,
     downloadArtifact: (Context, Artifact) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -69,7 +68,7 @@ fun WorkflowList(
 @Composable
 private fun WorkflowItem(
     run: WorkflowRun,
-    getArtifacts: (WorkflowRun) -> Data<List<Artifact>>,
+    getArtifacts: (WorkflowRun) -> LoadData<List<Artifact>>,
     downloadArtifact: (Context, Artifact) -> Unit
 ) {
     var progress by remember { mutableStateOf(false) }
@@ -92,7 +91,7 @@ private fun WorkflowItem(
 
     if (expend) {
         val data = getArtifacts(run).apply { progress = !isCompleted }
-        if (data is Data.Success && data.value.isNotEmpty()) {
+        if (data is LoadData.Success && data.value.isNotEmpty()) {
             ArtifactList(
                 artifacts = data.value,
                 download = downloadArtifact
@@ -133,7 +132,6 @@ private fun ArtifactList(
         )
 ) {
     val context = LocalContext.current
-    val size by remember { derivedStateOf { artifacts.size } }
 
     artifacts.forEachIndexed { index, artifact ->
         val jobState by ArtifactJob.getJobState(artifact.id).collectAsStateWithLifecycle(
@@ -150,7 +148,7 @@ private fun ArtifactList(
             }
         )
 
-        if (index < size - 1) {
+        if (index < artifacts.size - 1) {
             HorizontalDivider()
         }
     }

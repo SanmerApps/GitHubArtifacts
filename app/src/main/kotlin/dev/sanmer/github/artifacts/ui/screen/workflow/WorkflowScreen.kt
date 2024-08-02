@@ -18,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.model.Data
+import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.component.Failed
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.component.NavigateUpTopBar
@@ -51,16 +51,16 @@ fun WorkflowScreen(
             label = "WorkflowScreen"
         ) { data ->
             when (data) {
-                Data.Loading, Data.None -> Loading(
+                LoadData.Loading, LoadData.None -> Loading(
                     modifier = Modifier.padding(contentPadding)
                 )
 
-                is Data.Failure -> Failed(
+                is LoadData.Failure -> Failed(
                     message = data.error.message,
                     modifier = Modifier.padding(contentPadding)
                 )
 
-                is Data.Success -> if (data.value.isEmpty()) {
+                is LoadData.Success -> if (data.value.isEmpty()) {
                     Failed(
                         message = stringResource(id = R.string.no_workflow),
                         modifier = Modifier.padding(contentPadding)

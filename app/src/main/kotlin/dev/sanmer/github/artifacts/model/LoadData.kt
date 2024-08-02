@@ -1,24 +1,24 @@
 package dev.sanmer.github.artifacts.model
 
-sealed class Data<out V> {
+sealed class LoadData<out V> {
     abstract val isCompleted: Boolean
 
-    data object Loading : Data<Nothing>() {
+    data object Loading : LoadData<Nothing>() {
         override val isCompleted = false
     }
 
-    data class Success<out V>(val value: V) : Data<V>() {
+    data class Success<out V>(val value: V) : LoadData<V>() {
         override val isCompleted = true
     }
 
-    data class Failure(val error: Throwable) : Data<Nothing>() {
+    data class Failure(val error: Throwable) : LoadData<Nothing>() {
         override val isCompleted = true
     }
 
-    companion object None : Data<Nothing>() {
+    companion object None : LoadData<Nothing>() {
         override val isCompleted = false
 
-        fun <V> Result<V>.data(): Data<V> {
+        fun <V> Result<V>.asLoadData(): LoadData<V> {
             return when {
                 isSuccess -> Success(getOrThrow())
                 else -> Failure(requireNotNull(exceptionOrNull()))

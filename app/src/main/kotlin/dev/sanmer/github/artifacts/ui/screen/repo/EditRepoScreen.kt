@@ -39,7 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
-import dev.sanmer.github.artifacts.model.Data
+import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.component.Failed
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.ktx.plus
@@ -53,7 +53,7 @@ fun EditRepoScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     BackHandler(
-        enabled = viewModel.data is Data.Failure,
+        enabled = viewModel.data is LoadData.Failure,
         onBack = viewModel::rewind
     )
 
@@ -77,16 +77,16 @@ fun EditRepoScreen(
             label = "EditRepoScreen"
         ) { data ->
             when (data) {
-                Data.Loading -> Loading(
+                LoadData.Loading -> Loading(
                     modifier = Modifier.padding(contentPadding)
                 )
 
-                is Data.Failure -> Failed(
+                is LoadData.Failure -> Failed(
                     message = data.error.message,
                     modifier = Modifier.padding(contentPadding)
                 )
 
-                is Data.Success, Data.None -> EditContent(
+                is LoadData.Success, LoadData.None -> EditContent(
                     contentPadding = contentPadding
                 )
             }
