@@ -8,6 +8,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.GitHubHandler
 import dev.sanmer.github.GitHubHandler.Event
@@ -18,9 +24,8 @@ import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
 import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.response.Artifact
 import dev.sanmer.github.response.WorkflowRun
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -38,8 +43,8 @@ class WorkflowViewModel @Inject constructor(
     private var token = ""
     private val handler by lazy { GitHubHandler(token) }
 
-    private val workflowRunsFlow = MutableStateFlow<LoadData<List<WorkflowRun>>>(LoadData.Loading)
-    val workflowRuns get() = workflowRunsFlow.asStateFlow()
+    var workflowRuns: Flow<PagingData<WorkflowRun>> = emptyFlow()
+        private set
 
     private val artifacts = mutableStateMapOf<Long, LoadData<List<Artifact>>>()
 
@@ -56,31 +61,15 @@ class WorkflowViewModel @Inject constructor(
                     owner = repo.owner
                     name = repo.name
 
-                    listWorkflows()
-                }
-        }
-    }
-
-    private fun listWorkflows() = with(handler) {
-        viewModelScope.launch {
-            workflowRunsFlow.update {
-                runCatching {
-                    listWorkflowRuns(
+                    workflowRuns = WorkflowRunPagingSource(
+                        handler = handler,
                         owner = owner,
                         name = name,
-                        event = Event.Push,
-                        status = Status.Success,
-                        perPage = 30,
-                        page = 1
-                    )
-                }.asLoadData()
-            }
+                        perPage = 20
+                    ).asPager().flow
+                        .cachedIn(this)
+                }
         }
-    }
-
-    fun updateWorkflows() {
-        workflowRunsFlow.update { LoadData.Loading }
-        listWorkflows()
     }
 
     fun getArtifacts(run: WorkflowRun) = with(handler) {
@@ -104,6 +93,49 @@ class WorkflowViewModel @Inject constructor(
             context = context,
             artifact = artifact,
             token = token
+        )
+    }
+
+    data class WorkflowRunPagingSource(
+        private val handler: GitHubHandler,
+        private val owner: String,
+        private val name: String,
+        private val event: Event = Event.Push,
+        private val status: Status = Status.Success,
+        private val perPage: Int = 30
+    ) : PagingSource<Int, WorkflowRun>() {
+        override fun getRefreshKey(state: PagingState<Int, WorkflowRun>): Int? {
+            return state.anchorPosition?.let { anchorPosition ->
+                state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
+                    ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+            }
+        }
+
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, WorkflowRun> {
+            return try {
+                val page = params.key ?: 1
+                val workflowRuns = handler.listWorkflowRuns(
+                    owner = owner,
+                    name = name,
+                    event = event,
+                    status = status,
+                    perPage = perPage,
+                    page = page
+                )
+
+                LoadResult.Page(
+                    data = workflowRuns,
+                    prevKey = if (page == 1) null else page.minus(1),
+                    nextKey = if (workflowRuns.size != perPage) null else page.plus(1),
+                )
+            } catch (e: Exception) {
+                LoadResult.Error(e)
+            }
+        }
+
+        fun asPager() = Pager(
+            config = PagingConfig(pageSize = perPage),
+            pagingSourceFactory = { copy() }
         )
     }
 

@@ -9,16 +9,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.component.Failed
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.component.NavigateUpTopBar
@@ -30,14 +28,14 @@ fun WorkflowScreen(
     viewModel: WorkflowViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val workflowRuns by viewModel.workflowRuns.collectAsStateWithLifecycle()
+    val workflowRuns = viewModel.workflowRuns.collectAsLazyPagingItems()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
         topBar = {
             TopBar(
                 name = viewModel.name,
-                onRefresh = viewModel::updateWorkflows,
+                onRefresh = workflowRuns::refresh,
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
@@ -47,32 +45,25 @@ fun WorkflowScreen(
             modifier = Modifier
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize(),
-            targetState = workflowRuns,
+            targetState = workflowRuns.loadState.refresh,
             label = "WorkflowScreen"
-        ) { data ->
-            when (data) {
-                LoadData.Loading, LoadData.None -> Loading(
+        ) { state ->
+            when (state) {
+                is LoadState.Error -> Failed(
+                    message = state.error.message,
                     modifier = Modifier.padding(contentPadding)
                 )
 
-                is LoadData.Failure -> Failed(
-                    message = data.error.message,
+                is LoadState.Loading -> Loading(
                     modifier = Modifier.padding(contentPadding)
                 )
 
-                is LoadData.Success -> if (data.value.isEmpty()) {
-                    Failed(
-                        message = stringResource(id = R.string.no_workflow),
-                        modifier = Modifier.padding(contentPadding)
-                    )
-                } else {
-                    WorkflowList(
-                        workflowRuns = data.value,
-                        getArtifacts = viewModel::getArtifacts,
-                        downloadArtifact = viewModel::downloadArtifact,
-                        contentPadding = contentPadding
-                    )
-                }
+                else -> WorkflowList(
+                    workflowRuns = workflowRuns,
+                    getArtifacts = viewModel::getArtifacts,
+                    downloadArtifact = viewModel::downloadArtifact,
+                    contentPadding = contentPadding
+                )
             }
         }
     }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,15 +33,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
+import dev.sanmer.github.artifacts.ui.ktx.items
 import dev.sanmer.github.response.Artifact
 import dev.sanmer.github.response.WorkflowRun
 
 @Composable
 fun WorkflowList(
-    workflowRuns: List<WorkflowRun>,
+    workflowRuns: LazyPagingItems<WorkflowRun>,
     getArtifacts: (WorkflowRun) -> LoadData<List<Artifact>>,
     downloadArtifact: (Context, Artifact) -> Unit,
     state: LazyListState = rememberLazyListState(),
@@ -56,7 +57,10 @@ fun WorkflowList(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    items(workflowRuns) { run ->
+    items(
+        items = workflowRuns,
+        key = { it.id }
+    ) { run ->
         WorkflowItem(
             run = run,
             getArtifacts = getArtifacts,
