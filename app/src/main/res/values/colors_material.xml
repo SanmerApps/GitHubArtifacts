@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
-    <!-- google's material design colours from
-    http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
+    <!-- https://m2.material.io/design/color/the-color-system.html#tools-for-picking-colors -->
 
-    <!--reds-->
+    <!-- reds -->
     <color name="material_red_50">#FFEBEE</color>
     <color name="material_red_100">#FFCDD2</color>
     <color name="material_red_200">#EF9A9A</color>
@@ -83,7 +82,7 @@
     <color name="material_indigo_A400">#3D5AFE</color>
     <color name="material_indigo_A700">#304FFE</color>
 
-    <!--blue-->
+    <!-- blue -->
     <color name="material_blue_50">#E3F2FD</color>
     <color name="material_blue_100">#BBDEFB</color>
     <color name="material_blue_200">#90CAF9</color>
@@ -99,7 +98,7 @@
     <color name="material_blue_A400">#2979FF</color>
     <color name="material_blue_A700">#2962FF</color>
 
-    <!-- light blue-->
+    <!-- light blue -->
     <color name="material_light_blue_50">#E1F5FE</color>
     <color name="material_light_blue_100">#B3E5FC</color>
     <color name="material_light_blue_200">#81D4fA</color>
@@ -163,7 +162,7 @@
     <color name="material_green_A400">#00E676</color>
     <color name="material_green_A700">#00C853</color>
 
-    <!--light green-->
+    <!-- light green -->
     <color name="material_light_green_50">#F1F8E9</color>
     <color name="material_light_green_100">#DCEDC8</color>
     <color name="material_light_green_200">#C5E1A5</color>
@@ -179,7 +178,7 @@
     <color name="material_light_green_A400">#76FF03</color>
     <color name="material_light_green_A700">#64DD17</color>
 
-    <!-- lime-->
+    <!-- lime -->
     <color name="material_lime_50">#F9FBE7</color>
     <color name="material_lime_100">#F0F4C3</color>
     <color name="material_lime_200">#E6EE9C</color>
@@ -195,7 +194,7 @@
     <color name="material_lime_A400">#C6FF00</color>
     <color name="material_lime_A700">#AEEA00</color>
 
-    <!--yellow -->
+    <!-- yellow -->
     <color name="material_yellow_50">#FFFDE7</color>
     <color name="material_yellow_100">#FFF9C4</color>
     <color name="material_yellow_200">#FFF590</color>
@@ -211,7 +210,7 @@
     <color name="material_yellow_A400">#FFEA00</color>
     <color name="material_yellow_A700">#FFD600</color>
 
-    <!--amber-->
+    <!-- amber -->
     <color name="material_amber_50">#FFF8E1</color>
     <color name="material_amber_100">#FFECB3</color>
     <color name="material_amber_200">#FFE082</color>
@@ -227,7 +226,7 @@
     <color name="material_amber_A400">#FFC400</color>
     <color name="material_amber_A700">#FFAB00</color>
 
-    <!--orange-->
+    <!-- orange -->
     <color name="material_orange_50">#FFF3E0</color>
     <color name="material_orange_100">#FFE0B2</color>
     <color name="material_orange_200">#FFCC80</color>
@@ -243,7 +242,7 @@
     <color name="material_orange_A400">#FF9100</color>
     <color name="material_orange_A700">#FF6D00</color>
 
-    <!--deep orange-->
+    <!-- deep orange -->
     <color name="material_deep_orange_50">#FBE9A7</color>
     <color name="material_deep_orange_100">#FFCCBC</color>
     <color name="material_deep_orange_200">#FFAB91</color>
@@ -259,7 +258,7 @@
     <color name="material_deep_orange_A400">#FF3D00</color>
     <color name="material_deep_orange_A700">#DD2600</color>
 
-    <!--brown -->
+    <!-- brown -->
     <color name="material_brown_50">#EFEBE9</color>
     <color name="material_brown_100">#D7CCC8</color>
     <color name="material_brown_200">#BCAAA4</color>
@@ -271,7 +270,7 @@
     <color name="material_brown_800">#4E342E</color>
     <color name="material_brown_900">#3E2723</color>
 
-    <!--grey-->
+    <!-- grey -->
     <color name="material_grey_50" tools:override="true">#FAFAFA</color>
     <color name="material_grey_100" tools:override="true">#F5F5F5</color>
     <color name="material_grey_200">#EEEEEE</color>
@@ -286,7 +285,7 @@
     <color name="material_black_1000">#000000</color>
     <color name="material_white_1000">#ffffff</color>
 
-    <!--blue grey-->
+    <!-- blue grey -->
     <color name="material_blue_grey_50">#ECEFF1</color>
     <color name="material_blue_grey_100">#CFD8DC</color>
     <color name="material_blue_grey_200">#B0BBC5</color>
