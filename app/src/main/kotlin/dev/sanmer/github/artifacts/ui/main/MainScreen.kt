@@ -6,9 +6,11 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -30,21 +32,20 @@ import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowScreen
 fun MainScreen() {
     val navController = rememberNavController()
 
-    Surface(
-        color = MaterialTheme.colorScheme.background
+    NavHost(
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .fillMaxSize(),
+        navController = navController,
+        startDestination = Screen.Home()
     ) {
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home()
-        ) {
-            Screen.Home(navController).addTo(this)
-            Screen.Workflow(navController).addTo(this)
-            Screen.Setting(navController).addTo(this)
-            Screen.Token(navController).addTo(this)
-            Screen.EditToken(navController).addTo(this)
-            Screen.Repo(navController).addTo(this)
-            Screen.EditRepo(navController).addTo(this)
-        }
+        Screen.Home(navController).addTo(this)
+        Screen.Workflow(navController).addTo(this)
+        Screen.Setting(navController).addTo(this)
+        Screen.Token(navController).addTo(this)
+        Screen.EditToken(navController).addTo(this)
+        Screen.Repo(navController).addTo(this)
+        Screen.EditRepo(navController).addTo(this)
     }
 }
 
