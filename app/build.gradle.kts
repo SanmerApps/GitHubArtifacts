@@ -72,7 +72,7 @@ android {
     applicationVariants.configureEach {
         outputs.configureEach {
             if (this is ApkVariantOutputImpl) {
-                outputFileName = "Artifacts-${versionName}-${versionCode}-${name}.apk"
+                outputFileName = "GitHubArtifacts-${versionName}-${versionCode}-${name}.apk"
             }
         }
     }
