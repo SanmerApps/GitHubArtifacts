@@ -112,7 +112,7 @@ class ArtifactJob : LifecycleService() {
             .url(artifact.archiveDownloadUrl)
             .build()
 
-        val response = GitHubHandler(token).okhttp.newCall(request).execute()
+        val response = GitHubHandler(token).call(request)
         require(response.code == 200) { "Expect code = 200" }
         require(response.headers["Content-Type"] == "zip") { "Expect Content-Type = zip" }
         val body = requireNotNull(response.body) { "Expect body" }

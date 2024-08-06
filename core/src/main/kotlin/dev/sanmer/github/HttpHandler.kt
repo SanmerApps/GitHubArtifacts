@@ -2,6 +2,8 @@ package dev.sanmer.github
 
 import android.util.Log
 import dev.sanmer.github.Auth.Util.addAuth
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.ConnectionSpec
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
@@ -19,14 +21,14 @@ abstract class HttpHandler(
 ) {
     private val headers = hashMapOf<String, String>()
 
-    val okhttp by lazy {
+    val okhttp: OkHttpClient by lazy {
         createOkHttpClient {
             headers(headers.toHeaders())
             addAuth(auth)
         }.build()
     }
 
-    internal val retrofit by lazy {
+    val retrofit: Retrofit by lazy {
         createRetrofit()
             .client(okhttp)
             .baseUrl(baseUrl)
@@ -37,9 +39,13 @@ abstract class HttpHandler(
         headers[name] = value
     }
 
-    internal inline fun <reified T : Any> create() = retrofit.create<T>()
+    suspend inline fun call(request: Request) = withContext(Dispatchers.IO) {
+        okhttp.newCall(request).execute()
+    }
 
-    internal companion object Util {
+    inline fun <reified T : Any> create() = retrofit.create<T>()
+
+    internal companion object Builder {
         fun createOkHttpClient(
             header: Request.Builder.() -> Request.Builder = { this }
         ): OkHttpClient.Builder {

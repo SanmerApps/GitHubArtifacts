@@ -1,9 +1,6 @@
 package dev.sanmer.github
 
 import androidx.annotation.IntRange
-import dev.sanmer.github.response.Owner
-import dev.sanmer.github.response.Repository
-import dev.sanmer.github.response.WorkflowRun
 import dev.sanmer.github.stub.Artifacts
 import dev.sanmer.github.stub.Repositories
 import dev.sanmer.github.stub.WorkflowRuns
@@ -22,7 +19,7 @@ class GitHubHandler private constructor(
 
     init {
         addHeader("X-GitHub-Api-Version", API_VERSION)
-        addHeader("User-Agent", "GithubHandler/$API_VERSION")
+        addHeader("User-Agent", "GitHubHandler/$API_VERSION")
     }
 
     suspend fun listRepo(
@@ -39,17 +36,6 @@ class GitHubHandler private constructor(
         ).repositories
     }
 
-    suspend fun Owner.listRepo(
-        sort: Sort = Sort.Pushed,
-        @IntRange(1, 100) perPage: Int = 30,
-        page: Int = 1
-    ) = listRepo(
-        owner = login,
-        sort = sort,
-        perPage = perPage,
-        page = page
-    )
-
     suspend fun getRepo(
         owner: String,
         name: String
@@ -59,13 +45,6 @@ class GitHubHandler private constructor(
             name = name
         )
     }
-
-    suspend fun Owner.getRepo(
-        name: String
-    ) = getRepo(
-        owner = login,
-        name = name
-    )
 
     suspend fun listWorkflowRuns(
         owner: String,
@@ -85,20 +64,6 @@ class GitHubHandler private constructor(
         ).workflowRuns
     }
 
-    suspend fun Repository.listWorkflowRuns(
-        event: Event = Event.Push,
-        status: Status = Status.Success,
-        @IntRange(1, 100) perPage: Int = 30,
-        page: Int = 1
-    ) = listWorkflowRuns(
-        owner = owner.login,
-        name = name,
-        event = event,
-        status = status,
-        perPage = perPage,
-        page = page
-    )
-
     suspend fun getArtifacts(
         owner: String,
         name: String,
@@ -110,14 +75,6 @@ class GitHubHandler private constructor(
             runId = runId
         ).artifacts
     }
-
-    suspend fun Repository.getArtifacts(
-        run: WorkflowRun
-    ) = getArtifacts(
-        owner = owner.login,
-        name = name,
-        runId = run.id
-    )
 
     suspend fun listArtifacts(
         owner: String,
@@ -132,16 +89,6 @@ class GitHubHandler private constructor(
             page = page
         ).artifacts
     }
-
-    suspend fun Repository.listArtifacts(
-        @IntRange(1, 100) perPage: Int = 30,
-        page: Int = 1
-    ) = listArtifacts(
-        owner = owner.login,
-        name = name,
-        perPage = perPage,
-        page = page
-    )
 
     enum class Sort(internal val value: String) {
         Created("created"),
