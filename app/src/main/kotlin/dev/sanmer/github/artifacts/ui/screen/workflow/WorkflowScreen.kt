@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
@@ -19,7 +22,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.Failed
 import dev.sanmer.github.artifacts.ui.component.Loading
-import dev.sanmer.github.artifacts.ui.component.NavigateUpTopBar
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowList
 import dev.sanmer.github.artifacts.viewmodel.WorkflowViewModel
 
@@ -75,8 +77,24 @@ private fun TopBar(
     onRefresh: () -> Unit,
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
-) = NavigateUpTopBar(
-    title = name,
+) = TopAppBar(
+    title = {
+        Text(
+            text = name,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+    },
+    navigationIcon = {
+        IconButton(
+            onClick = { navController.navigateUp() },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.arrow_left),
+                contentDescription = null
+            )
+        }
+    },
     actions = {
         IconButton(
             onClick = onRefresh
@@ -87,6 +105,5 @@ private fun TopBar(
             )
         }
     },
-    navController = navController,
     scrollBehavior = scrollBehavior
 )

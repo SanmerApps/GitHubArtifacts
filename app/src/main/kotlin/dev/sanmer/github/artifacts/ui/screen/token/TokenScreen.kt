@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -24,7 +27,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ui.component.NavigateUpTopBar
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
@@ -102,8 +104,17 @@ private fun ActionButton(
 private fun TopBar(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
-) = NavigateUpTopBar(
-    title = stringResource(id = R.string.settings_token_title),
-    navController = navController,
+) = TopAppBar(
+    title = { Text(text = stringResource(id = R.string.settings_token_title)) },
+    navigationIcon = {
+        IconButton(
+            onClick = { navController.navigateUp() },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.arrow_left),
+                contentDescription = null
+            )
+        }
+    },
     scrollBehavior = scrollBehavior
 )

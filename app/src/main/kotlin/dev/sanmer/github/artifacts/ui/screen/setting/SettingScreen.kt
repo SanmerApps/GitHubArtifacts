@@ -10,6 +10,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -25,7 +27,6 @@ import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ktx.viewUrl
-import dev.sanmer.github.artifacts.ui.component.NavigateUpTopBar
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.artifacts.ui.screen.setting.component.SettingIcon
@@ -96,8 +97,18 @@ fun SettingScreen(
 private fun TopBar(
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
-) = NavigateUpTopBar(
-    title = stringResource(id = R.string.settings_title),
+) = TopAppBar(
+    title = { Text(text = stringResource(id = R.string.settings_title)) },
+    navigationIcon = {
+        IconButton(
+            onClick = { navController.navigateUp() },
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.arrow_left),
+                contentDescription = null
+            )
+        }
+    },
     actions = {
         val context = LocalContext.current
 
@@ -110,6 +121,5 @@ private fun TopBar(
             )
         }
     },
-    navController = navController,
     scrollBehavior = scrollBehavior
 )

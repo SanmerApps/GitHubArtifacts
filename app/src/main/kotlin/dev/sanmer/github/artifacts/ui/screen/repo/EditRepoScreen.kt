@@ -216,11 +216,7 @@ private fun TopBar(
     title = {
         Text(
             text = stringResource(
-                id = if (edit) {
-                    R.string.edit_repo_title
-                } else {
-                    R.string.add_repo_title
-                }
+                id = if (edit) R.string.edit_repo_title else R.string.add_repo_title
             )
         )
     },
