@@ -120,7 +120,8 @@ private fun EditContent(
                 shape = MaterialTheme.shapes.medium,
                 placeholder = { Text(text = stringResource(id = R.string.edit_owner)) },
                 modifier = Modifier.weight(1f),
-                isError = viewModel.isFailed(EditRepoViewModel.Check.Owner)
+                isError = viewModel.isFailed(EditRepoViewModel.Check.Owner),
+                readOnly = viewModel.edit
             )
 
             Spacer(modifier = Modifier.size(48.dp))
@@ -145,7 +146,8 @@ private fun EditContent(
                 shape = MaterialTheme.shapes.medium,
                 placeholder = { Text(text = stringResource(id = R.string.edit_name)) },
                 modifier = Modifier.weight(1f),
-                isError = viewModel.isFailed(EditRepoViewModel.Check.Name)
+                isError = viewModel.isFailed(EditRepoViewModel.Check.Name),
+                readOnly = viewModel.edit
             )
 
             Spacer(modifier = Modifier.size(48.dp))
