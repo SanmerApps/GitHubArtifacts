@@ -1,11 +1,12 @@
 package dev.sanmer.github.artifacts.job
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.net.Uri
 import android.os.Environment
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -41,19 +42,19 @@ import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-@OptIn(FlowPreview::class)
 @AndroidEntryPoint
 class ArtifactJob : LifecycleService() {
     private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
     init {
         lifecycleScope.launch {
+            @OptIn(FlowPreview::class)
             jobStateFlow.sample(500.milliseconds).collect {
                 when (it) {
                     JobState.Empty -> {}
                     is JobState.Pending -> notifyProgress(it.artifact, 0f)
                     is JobState.Running -> notifyProgress(it.artifact, it.progress)
-                    is JobState.Success -> notifySuccess(it.artifact)
+                    is JobState.Success -> notifySuccess(it.artifact, it.uri)
                     is JobState.Failure -> notifyFailure(it.artifact)
                 }
             }
@@ -68,17 +69,15 @@ class ArtifactJob : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val sticky = super.onStartCommand(intent, flags, startId)
-        if (intent == null) return sticky
-
-        val artifact = intent.artifact
-        val token = intent.token
-
         lifecycleScope.launch {
+            intent ?: return@launch
+            val artifact = intent.artifact
+            val token = intent.token
+
             runCatching {
                 download(artifact, token)
-            }.onSuccess {
-                jobStateFlow.update { JobState.Success(artifact) }
+            }.onSuccess { uri ->
+                jobStateFlow.update { JobState.Success(artifact, uri) }
             }.onFailure { error ->
                 Timber.e(error)
                 jobStateFlow.update { JobState.Failure(artifact, error) }
@@ -87,7 +86,7 @@ class ArtifactJob : LifecycleService() {
             pendingJobs.removeAt(0)
         }
 
-        return sticky
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onCreate() {
@@ -97,7 +96,7 @@ class ArtifactJob : LifecycleService() {
     }
 
     override fun onDestroy() {
-        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         Timber.d("onDestroy")
         super.onDestroy()
     }
@@ -105,7 +104,7 @@ class ArtifactJob : LifecycleService() {
     private suspend fun download(artifact: Artifact, token: String) = withContext(Dispatchers.IO) {
         val uri = createMediaStoreUri(
             file = File(Environment.DIRECTORY_DOWNLOADS, "${artifact.name}.zip"),
-            mimeType = "android/zip"
+            mimeType = "application/zip"
         )
 
         val request = Request.Builder()
@@ -125,6 +124,8 @@ class ArtifactJob : LifecycleService() {
                 }
             }
         }
+
+        uri
     }
 
     private fun setForeground() {
@@ -156,13 +157,21 @@ class ArtifactJob : LifecycleService() {
         notify(artifact.id.toInt(), notification)
     }
 
-    private fun notifySuccess(artifact: Artifact) {
+    private fun notifySuccess(artifact: Artifact, uri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/zip")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        val pending = PendingIntent.getActivity(this, 0, intent, flag)
+
         val notification = newNotificationBuilder()
             .setContentTitle(artifact.name)
             .setContentText(getText(R.string.download_success))
+            .setContentIntent(pending)
             .setSilent(true)
             .setOngoing(false)
-            .setGroup(GROUP_KEY)
+            .setAutoCancel(true)
             .build()
 
         notify(artifact.id.toInt(), notification)
@@ -174,7 +183,6 @@ class ArtifactJob : LifecycleService() {
             .setContentText(getText(R.string.download_fail))
             .setSilent(false)
             .setOngoing(false)
-            .setGroup(GROUP_KEY)
             .build()
 
         notify(artifact.id.toInt(), notification)
@@ -184,7 +192,7 @@ class ArtifactJob : LifecycleService() {
         NotificationCompat.Builder(this, Const.CHANNEL_ID_ARTIFACT_JOB)
             .setSmallIcon(R.drawable.box)
 
-    @SuppressLint("MissingPermission")
+    @Throws(SecurityException::class)
     private fun notify(id: Int, notification: Notification) {
         notificationManager.notify(id, notification)
     }
@@ -193,7 +201,7 @@ class ArtifactJob : LifecycleService() {
         data object Empty : JobState(0)
         class Pending(val artifact: Artifact) : JobState(artifact.id)
         class Running(val artifact: Artifact, val progress: Float) : JobState(artifact.id)
-        class Success(val artifact: Artifact) : JobState(artifact.id)
+        class Success(val artifact: Artifact, val uri: Uri) : JobState(artifact.id)
         class Failure(val artifact: Artifact, val error: Throwable) : JobState(artifact.id)
     }
 
