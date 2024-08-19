@@ -126,7 +126,7 @@ fun Failed(
     modifier: Modifier = Modifier,
     height: Dp = Dp.Unspecified
 ) = PageIndicator(
-    icon = R.drawable.ufo,
+    icon = R.drawable.ghost_3,
     text = message ?: stringResource(id = R.string.emm),
     modifier = modifier,
     height = height
