@@ -7,6 +7,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 
+fun <T : Any> LazyPagingItems<T>.isEmpty() = itemCount == 0
+
 inline fun <T : Any> LazyListScope.items(
     items: LazyPagingItems<T>,
     noinline key: ((T) -> Any)? = null,

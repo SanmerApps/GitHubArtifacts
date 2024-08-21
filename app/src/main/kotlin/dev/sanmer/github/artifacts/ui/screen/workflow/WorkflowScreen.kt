@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -22,6 +23,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.Failed
 import dev.sanmer.github.artifacts.ui.component.Loading
+import dev.sanmer.github.artifacts.ui.component.PageIndicator
+import dev.sanmer.github.artifacts.ui.ktx.isEmpty
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowList
 import dev.sanmer.github.artifacts.viewmodel.WorkflowViewModel
 
@@ -60,12 +63,20 @@ fun WorkflowScreen(
                     modifier = Modifier.padding(contentPadding)
                 )
 
-                else -> WorkflowList(
-                    workflowRuns = workflowRuns,
-                    getArtifacts = viewModel::getArtifacts,
-                    downloadArtifact = viewModel::downloadArtifact,
-                    contentPadding = contentPadding
-                )
+                else -> if (workflowRuns.isEmpty()) {
+                    PageIndicator(
+                        icon = R.drawable.cloud_computing,
+                        text = stringResource(id = R.string.workflow_empty),
+                        modifier = Modifier.padding(contentPadding)
+                    )
+                } else {
+                    WorkflowList(
+                        workflowRuns = workflowRuns,
+                        getArtifacts = viewModel::getArtifacts,
+                        downloadArtifact = viewModel::downloadArtifact,
+                        contentPadding = contentPadding
+                    )
+                }
             }
         }
     }
