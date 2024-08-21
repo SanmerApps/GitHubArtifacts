@@ -70,7 +70,7 @@ fun TokenScreen(
             if (tokens.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.key,
-                    text = R.string.no_token,
+                    text = R.string.token_empty,
                     modifier = Modifier.padding(contentPadding)
                 )
             }

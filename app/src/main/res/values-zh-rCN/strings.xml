@@ -9,7 +9,7 @@
     <string name="repo_public_archive">公开归档</string>
 
     <!-- Workflow -->
-    <string name="no_workflow">没有工作流</string>
+    <string name="workflow_empty">空工作流</string>
     <string name="artifact_expired">已过期</string>
 
     <!-- Settings -->
@@ -20,10 +20,10 @@
     <string name="settings_repo_desc">管理所有存储库</string>
 
     <!-- Repo -->
-    <string name="no_repo">没有存储库</string>
+    <string name="repo_empty">空存储库</string>
 
     <!-- Token -->
-    <string name="no_token">没有令牌</string>
+    <string name="token_empty">空令牌</string>
 
     <!-- Edit -->
     <string name="edit_token_title">编辑令牌</string>
@@ -37,7 +37,7 @@
     <!-- Message -->
     <string name="empty_list">空列表</string>
     <string name="message_loading">加载中…</string>
-    <string name="emm">嗯…</string>
+    <string name="emm">Emm…</string>
 
     <!-- Job -->
     <string name="artifact_job">工件任务</string>

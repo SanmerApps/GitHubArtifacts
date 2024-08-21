@@ -9,7 +9,7 @@
     <string name="repo_public_archive">Public archive</string>
 
     <!-- Workflow -->
-    <string name="no_workflow">No workflow</string>
+    <string name="workflow_empty">Empty workflow</string>
     <string name="artifact_expired">Expired</string>
 
     <!-- Settings -->
@@ -20,10 +20,10 @@
     <string name="settings_repo_desc">Manage all repositories</string>
 
     <!-- Repo -->
-    <string name="no_repo">No repository</string>
+    <string name="repo_empty">Empty repository</string>
 
     <!-- Token -->
-    <string name="no_token">No token</string>
+    <string name="token_empty">Empty token</string>
 
     <!-- Edit -->
     <string name="edit_token_title">Edit Token</string>

@@ -68,7 +68,7 @@ fun HomeScreen(
             if (repos.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.git_branch,
-                    text = R.string.no_repo,
+                    text = R.string.repo_empty,
                     modifier = Modifier.padding(contentPadding)
                 )
             }
