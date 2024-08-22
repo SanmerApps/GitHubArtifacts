@@ -238,6 +238,7 @@ class ArtifactJob : LifecycleService() {
             token: String
         ) {
             fun start() {
+                if (pendingJobs.contains(artifact.id)) return
                 pendingJobs.add(artifact.id)
                 jobStateFlow.update { JobState.Pending(artifact) }
                 context.startService(
