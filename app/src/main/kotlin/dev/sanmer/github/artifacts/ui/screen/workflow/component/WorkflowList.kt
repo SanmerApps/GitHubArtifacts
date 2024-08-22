@@ -1,8 +1,13 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow.component
 
 import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -93,7 +98,11 @@ private fun WorkflowItem(
         }
     )
 
-    if (expend) {
+    AnimatedVisibility(
+        visible = expend,
+        enter = fadeIn() + expandVertically(),
+        exit = fadeOut() + shrinkVertically()
+    ) {
         val data = getArtifacts(run).apply { progress = !isCompleted }
         if (data is LoadData.Success && data.value.isNotEmpty()) {
             ArtifactList(
