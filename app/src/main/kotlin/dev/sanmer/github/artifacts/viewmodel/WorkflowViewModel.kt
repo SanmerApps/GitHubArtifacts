@@ -135,7 +135,7 @@ class WorkflowViewModel @Inject constructor(
         )
     }
 
-    companion object Util {
+    companion object Default {
         private val SavedStateHandle.id: Long
             inline get() = checkNotNull(get("id"))
     }

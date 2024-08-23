@@ -6,7 +6,7 @@ sealed class Auth {
     data object None : Auth()
     class Bearer(val token: String) : Auth()
 
-    companion object Util {
+    companion object Default {
         fun Request.Builder.addAuth(auth: Auth): Request.Builder {
             return when (auth) {
                 is Bearer -> if (auth.token.isNotBlank()) {

@@ -1,7 +1,7 @@
 package dev.sanmer.github
 
 import android.util.Log
-import dev.sanmer.github.Auth.Util.addAuth
+import dev.sanmer.github.Auth.Default.addAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ConnectionSpec
