@@ -1,6 +1,11 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.viewmodel.EditTokenViewModel
+import dev.sanmer.github.artifacts.viewmodel.EditTokenViewModel.Value
 
 @Composable
 fun EditTokenScreen(
@@ -47,6 +54,7 @@ fun EditTokenScreen(
     val visualTransformation = remember { PasswordVisualTransformation() }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopBar(
                 edit = viewModel.edit,
@@ -57,10 +65,22 @@ fun EditTokenScreen(
                 scrollBehavior = scrollBehavior
             )
         },
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = viewModel.isReplaceable,
+                enter = fadeIn() + scaleIn(),
+                exit = scaleOut() + fadeOut(),
+                label = "ActionButton"
+            ) {
+                ActionButton(
+                    replace = viewModel::replace,
+                    navController = navController
+                )
+            }
+        }
     ) { contentPadding ->
         Column(
             modifier = Modifier
-                .imePadding()
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState())
                 .padding(contentPadding)
@@ -82,9 +102,9 @@ fun EditTokenScreen(
                         imeAction = ImeAction.Next
                     ),
                     shape = MaterialTheme.shapes.medium,
-                    placeholder = { Text(text = stringResource(id = R.string.edit_name)) },
-                    modifier = Modifier.weight(1f),
-                    isError = viewModel.isFailed(EditTokenViewModel.Check.Name)
+                    label = { Text(text = stringResource(id = R.string.edit_name)) },
+                    isError = viewModel.isError(Value.Name),
+                    modifier = Modifier.weight(1f)
                 )
 
                 Spacer(modifier = Modifier.size(48.dp))
@@ -102,18 +122,18 @@ fun EditTokenScreen(
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Ascii,
-                        imeAction = ImeAction.Done
+                        imeAction = ImeAction.Next
                     ),
                     shape = MaterialTheme.shapes.medium,
-                    placeholder = { Text(text = stringResource(id = R.string.edit_token)) },
-                    modifier = Modifier.weight(1f),
+                    label = { Text(text = stringResource(id = R.string.edit_token)) },
                     visualTransformation = if (viewModel.hidden) {
                         visualTransformation
                     } else {
                         VisualTransformation.None
                     },
                     readOnly = viewModel.edit,
-                    isError = viewModel.isFailed(EditTokenViewModel.Check.Token)
+                    isError = viewModel.isError(Value.Token),
+                    modifier = Modifier.weight(1f)
                 )
 
                 IconButton(
@@ -135,10 +155,10 @@ fun EditTokenScreen(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(icon = R.drawable.hourglass_empty)
+                Icon(icon = R.drawable.calendar_event)
 
                 OutlinedTextField(
-                    value = viewModel.updatedAt.toString(),
+                    value = viewModel.createdAt.toString(),
                     onValueChange = {},
                     readOnly = true,
                     shape = MaterialTheme.shapes.medium,
@@ -147,7 +167,45 @@ fun EditTokenScreen(
 
                 Spacer(modifier = Modifier.size(48.dp))
             }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(icon = R.drawable.hourglass_empty)
+
+                OutlinedTextField(
+                    value = viewModel.input.lifetime,
+                    onValueChange = { lifetime ->
+                        viewModel.updateInput { it.copy(lifetime = lifetime) }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    shape = MaterialTheme.shapes.medium,
+                    readOnly = viewModel.edit,
+                    isError = viewModel.isError(Value.Lifetime),
+                    modifier = Modifier.weight(1f)
+                )
+
+                Spacer(modifier = Modifier.size(48.dp))
+            }
         }
+    }
+}
+
+@Composable
+private fun ActionButton(
+    replace: (() -> Unit) -> Unit,
+    navController: NavController
+) {
+    FloatingActionButton(
+        onClick = { replace { navController.navigateUp() } }
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.replace),
+            contentDescription = null
+        )
     }
 }
 

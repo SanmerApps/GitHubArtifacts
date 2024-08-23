@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
@@ -93,13 +94,13 @@ private fun BottomRow(
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    val updatedAt by remember {
+    val expiredAt by remember {
         derivedStateOf {
-            token.updatedAt.toLocalDate(TimeZone.currentSystemDefault())
+            token.expiredAt.toLocalDate(TimeZone.currentSystemDefault())
         }
     }
 
-    Value(value = updatedAt)
+    Value(value = stringResource(id = R.string.token_expire, expiredAt))
 }
 
 @Composable

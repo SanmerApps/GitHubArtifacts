@@ -36,7 +36,7 @@ class EditRepoViewModel @Inject constructor(
     var data: LoadData<Repository> by mutableStateOf(LoadData.None)
         private set
 
-    private val checks = mutableStateMapOf<Check, Boolean>()
+    private val result = mutableStateMapOf<Value, Boolean>()
 
     init {
         Timber.d("EditRepoViewModel init")
@@ -55,25 +55,29 @@ class EditRepoViewModel @Inject constructor(
 
     private fun loadToken() {
         viewModelScope.launch {
-            dbRepository.getTokenAll().apply { tokens.addAll(this) }
-            if (!edit) updateInput { it.copy(token = tokens.first().token) }
+            dbRepository.getTokenAll().apply {
+                tokens.addAll(this)
+                if (!edit) {
+                    updateInput { it.copy(token = first().token) }
+                }
+            }
         }
     }
 
-    private fun check(): Boolean {
-        Check.Owner.check(input.owner, checks::put)
-        Check.Name.check(input.name, checks::put)
-        return checks.all { it.value }
+    private fun isAllOk(): Boolean {
+        Value.Owner.ok(input.owner, result::put)
+        Value.Name.ok(input.name, result::put)
+        return result.all { it.value }
     }
 
-    fun isFailed(value: Check) = !(checks[value] ?: true)
+    fun isError(value: Value) = !(result[value] ?: true)
 
     fun updateInput(block: (Input) -> Input) {
         input = block(input)
     }
 
     fun save(block: () -> Unit = {}) {
-        if (!check() || data == LoadData.Loading) return
+        if (!isAllOk() || data == LoadData.Loading) return
 
         viewModelScope.launch {
             data = LoadData.Loading
@@ -91,10 +95,8 @@ class EditRepoViewModel @Inject constructor(
                     )
                 )
                 block()
-
             }.onFailure {
                 Timber.e(it)
-
             }.asLoadData()
         }
     }
@@ -115,16 +117,16 @@ class EditRepoViewModel @Inject constructor(
         )
     }
 
-    enum class Check(val ok: (String) -> Boolean) {
+    enum class Value(val ok: (String) -> Boolean) {
         Owner(String::isNotBlank),
         Name(String::isNotBlank)
     }
 
-    private inline fun Check.check(value: String, block: (Check, Boolean) -> Unit) {
+    private inline fun Value.ok(value: String, block: (Value, Boolean) -> Unit) {
         block(this, ok(value))
     }
 
-    companion object Util {
+    companion object Default {
         val SavedStateHandle.id: Long
             inline get() = checkNotNull(get("id"))
     }

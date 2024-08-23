@@ -24,6 +24,7 @@
 
     <!-- Token -->
     <string name="token_empty">No tokens</string>
+    <string name="token_expire">Expires on %1$s</string>
 
     <!-- Edit -->
     <string name="edit_token_title">Edit Token</string>

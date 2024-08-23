@@ -44,6 +44,7 @@ import dev.sanmer.github.artifacts.ui.component.Failed
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.viewmodel.EditRepoViewModel
+import dev.sanmer.github.artifacts.viewmodel.EditRepoViewModel.Value
 
 @Composable
 fun EditRepoScreen(
@@ -67,7 +68,7 @@ fun EditRepoScreen(
                 navController = navController,
                 scrollBehavior = scrollBehavior
             )
-        },
+        }
     ) { contentPadding ->
         Crossfade(
             modifier = Modifier
@@ -118,10 +119,10 @@ private fun EditContent(
                     imeAction = ImeAction.Next
                 ),
                 shape = MaterialTheme.shapes.medium,
-                placeholder = { Text(text = stringResource(id = R.string.edit_owner)) },
-                modifier = Modifier.weight(1f),
-                isError = viewModel.isFailed(EditRepoViewModel.Check.Owner),
-                readOnly = viewModel.edit
+                label = { Text(text = stringResource(id = R.string.edit_owner)) },
+                readOnly = viewModel.edit,
+                isError = viewModel.isError(Value.Owner),
+                modifier = Modifier.weight(1f)
             )
 
             Spacer(modifier = Modifier.size(48.dp))
@@ -144,10 +145,10 @@ private fun EditContent(
                     imeAction = ImeAction.Done
                 ),
                 shape = MaterialTheme.shapes.medium,
-                placeholder = { Text(text = stringResource(id = R.string.edit_name)) },
-                modifier = Modifier.weight(1f),
-                isError = viewModel.isFailed(EditRepoViewModel.Check.Name),
-                readOnly = viewModel.edit
+                label = { Text(text = stringResource(id = R.string.edit_name)) },
+                readOnly = viewModel.edit,
+                isError = viewModel.isError(Value.Name),
+                modifier = Modifier.weight(1f)
             )
 
             Spacer(modifier = Modifier.size(48.dp))

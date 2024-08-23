@@ -24,6 +24,7 @@
 
     <!-- Token -->
     <string name="token_empty">没有令牌</string>
+    <string name="token_expire">%1$s 到期</string>
 
     <!-- Edit -->
     <string name="edit_token_title">编辑令牌</string>
@@ -43,4 +44,5 @@
     <string name="artifact_job">工件任务</string>
     <string name="download_success">下载成功</string>
     <string name="download_fail">下载失败</string>
+
 </resources>

@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,17 +19,26 @@ import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import kotlinx.datetime.Instant
 import javax.inject.Singleton
 
-@Database(version = 1, entities = [TokenEntity::class, RepoEntity::class])
+@Database(version = 2, entities = [TokenEntity::class, RepoEntity::class])
 @TypeConverters(AppDatabase.Converter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun token(): TokenDao
     abstract fun repo(): RepoDao
 
     companion object Default {
-        fun build(context: Context) =
+        operator fun invoke(context: Context) =
             Room.databaseBuilder(
                 context, AppDatabase::class.java, "artifacts"
+            ).addMigrations(
+                MIGRATION_1_2
             ).build()
+
+        private val MIGRATION_1_2 = Migration(1, 2) {
+            it.execSQL("CREATE TABLE IF NOT EXISTS token_new (token TEXT NOT NULL, name TEXT NOT NULL, createdAt TEXT NOT NULL, lifetime INTEGER NOT NULL, PRIMARY KEY(token))")
+            it.execSQL("INSERT INTO token_new (token, name, createdAt, lifetime) SELECT token, name, updatedAt, 90 FROM token")
+            it.execSQL("DROP TABLE token")
+            it.execSQL("ALTER TABLE token_new RENAME TO token")
+        }
     }
 
     @Suppress("FunctionName")
@@ -47,7 +57,7 @@ abstract class AppDatabase : RoomDatabase() {
         @Singleton
         fun AppDatabase(
             @ApplicationContext context: Context
-        ) = build(context)
+        ) = Default(context)
 
         @Provides
         @Singleton
