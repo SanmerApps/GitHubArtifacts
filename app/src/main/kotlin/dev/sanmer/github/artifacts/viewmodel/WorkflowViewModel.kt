@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
@@ -24,8 +23,6 @@ import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
 import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.response.Artifact
 import dev.sanmer.github.response.WorkflowRun
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -43,8 +40,14 @@ class WorkflowViewModel @Inject constructor(
     private var token = ""
     private val handler by lazy { GitHubHandler(token) }
 
-    var workflowRuns: Flow<PagingData<WorkflowRun>> = emptyFlow()
-        private set
+    val workflowRuns by lazy {
+        WorkflowRunPagingSource(
+            handler = handler,
+            owner = owner,
+            name = name,
+            perPage = 20
+        ).asPager().flow.cachedIn(viewModelScope)
+    }
 
     private val artifacts = mutableStateMapOf<Long, LoadData<List<Artifact>>>()
 
@@ -60,14 +63,6 @@ class WorkflowViewModel @Inject constructor(
                     token = repo.token
                     owner = repo.owner
                     name = repo.name
-
-                    workflowRuns = WorkflowRunPagingSource(
-                        handler = handler,
-                        owner = owner,
-                        name = name,
-                        perPage = 20
-                    ).asPager().flow
-                        .cachedIn(this)
                 }
         }
     }
@@ -129,13 +124,14 @@ class WorkflowViewModel @Inject constructor(
                     nextKey = if (workflowRuns.size != perPage) null else page.plus(1),
                 )
             } catch (e: Exception) {
+                Timber.e(e)
                 LoadResult.Error(e)
             }
         }
 
         fun asPager() = Pager(
             config = PagingConfig(pageSize = perPage),
-            pagingSourceFactory = { copy() }
+            pagingSourceFactory = ::copy
         )
     }
 

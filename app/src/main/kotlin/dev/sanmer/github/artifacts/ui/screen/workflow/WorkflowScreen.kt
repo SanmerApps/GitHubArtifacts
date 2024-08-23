@@ -33,6 +33,7 @@ fun WorkflowScreen(
     viewModel: WorkflowViewModel = hiltViewModel(),
     navController: NavController
 ) {
+    if (viewModel.name.isEmpty()) return
     val workflowRuns = viewModel.workflowRuns.collectAsLazyPagingItems()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
