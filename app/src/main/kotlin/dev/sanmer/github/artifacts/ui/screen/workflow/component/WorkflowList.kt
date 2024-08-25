@@ -84,7 +84,7 @@ private fun WorkflowItem(
     var expend by rememberSaveable(run) { mutableStateOf(false) }
     val degrees by animateFloatAsState(
         targetValue = if (expend) 90f else 0f,
-        label = "WorkflowItem Icon"
+        label = "WorkflowItemIcon"
     )
 
     WorkflowItem(

@@ -1,6 +1,10 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -11,7 +15,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -21,6 +27,7 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.ktx.isLoading
 import dev.sanmer.github.artifacts.ui.component.Failed
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
@@ -41,6 +48,7 @@ fun WorkflowScreen(
         topBar = {
             TopBar(
                 name = viewModel.name,
+                isLoading = workflowRuns.loadState.append.isLoading,
                 onRefresh = workflowRuns::refresh,
                 navController = navController,
                 scrollBehavior = scrollBehavior
@@ -86,6 +94,7 @@ fun WorkflowScreen(
 @Composable
 private fun TopBar(
     name: String,
+    isLoading: Boolean,
     onRefresh: () -> Unit,
     navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
@@ -109,13 +118,29 @@ private fun TopBar(
     },
     actions = {
         IconButton(
-            onClick = onRefresh
+            onClick = onRefresh,
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.refresh),
-                contentDescription = null
-            )
+            Refreshing(isLoading)
         }
     },
     scrollBehavior = scrollBehavior
 )
+
+@Composable
+private fun Refreshing(isLoading: Boolean) {
+    val infiniteTransition = rememberInfiniteTransition(label = "Refreshing")
+    val degrees by infiniteTransition.animateFloat(
+        label = "RefreshingDegrees",
+        initialValue = if (isLoading) 360f else 0f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            tween(1000)
+        )
+    )
+
+    Icon(
+        painter = painterResource(id = R.drawable.refresh),
+        contentDescription = null,
+        modifier = Modifier.rotate(degrees)
+    )
+}
