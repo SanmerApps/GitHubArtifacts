@@ -101,6 +101,6 @@ private fun ActionButton(
 private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
-    title = { Text(text = stringResource(id = R.string.app_name)) },
+    title = { Text(text = stringResource(id = R.string.launch_name)) },
     scrollBehavior = scrollBehavior
 )
