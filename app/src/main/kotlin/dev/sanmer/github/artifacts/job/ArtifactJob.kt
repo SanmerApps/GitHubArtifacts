@@ -29,6 +29,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -42,24 +44,12 @@ import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+@OptIn(FlowPreview::class)
 @AndroidEntryPoint
 class ArtifactJob : LifecycleService() {
     private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
     init {
-        lifecycleScope.launch {
-            @OptIn(FlowPreview::class)
-            jobStateFlow.sample(500.milliseconds).collect {
-                when (it) {
-                    JobState.Empty -> {}
-                    is JobState.Pending -> notifyProgress(it.artifact, 0f)
-                    is JobState.Running -> notifyProgress(it.artifact, it.progress)
-                    is JobState.Success -> notifySuccess(it.artifact, it.uri)
-                    is JobState.Failure -> notifyFailure(it.artifact)
-                }
-            }
-        }
-
         lifecycleScope.launch {
             while (currentCoroutineContext().isActive) {
                 if (pendingJobs.isEmpty()) stopSelf()
@@ -68,10 +58,41 @@ class ArtifactJob : LifecycleService() {
         }
     }
 
+    override fun onCreate() {
+        Timber.d("onCreate")
+        super.onCreate()
+        setForeground()
+
+        lifecycleScope.launch {
+            jobStateFlow.onEach {
+                when (it) {
+                    is JobState.Pending -> notifyProgress(it.artifact, 0f)
+                    is JobState.Success -> notifySuccess(it.artifact, it.uri)
+                    is JobState.Failure -> notifyFailure(it.artifact)
+                    else -> {}
+                }
+            }.filterIsInstance<JobState.Running>()
+                .sample(500.milliseconds)
+                .collect {
+                    notifyProgress(it.artifact, it.progress)
+                }
+        }
+    }
+
+    override fun onDestroy() {
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        Timber.d("onDestroy")
+        super.onDestroy()
+    }
+
+    override fun onTimeout(startId: Int) {
+        stopSelf()
+        super.onTimeout(startId)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
-            intent ?: return@launch
-            val artifact = intent.artifact
+            val artifact = intent?.artifact ?: return@launch
             val token = intent.token
 
             runCatching {
@@ -83,22 +104,10 @@ class ArtifactJob : LifecycleService() {
                 jobStateFlow.update { JobState.Failure(artifact, error) }
             }
 
-            pendingJobs.removeAt(0)
+            pendingJobs.remove(artifact.id)
         }
 
         return super.onStartCommand(intent, flags, startId)
-    }
-
-    override fun onCreate() {
-        Timber.d("onCreate")
-        super.onCreate()
-        setForeground()
-    }
-
-    override fun onDestroy() {
-        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        Timber.d("onDestroy")
-        super.onDestroy()
     }
 
     private suspend fun download(artifact: Artifact, token: String) = withContext(Dispatchers.IO) {
@@ -146,6 +155,7 @@ class ArtifactJob : LifecycleService() {
     }
 
     private fun notifyProgress(artifact: Artifact, progress: Float) {
+        if (progress == 1f) return
         val notification = newNotificationBuilder()
             .setContentTitle(artifact.name)
             .setProgress(100, (100 * progress).toInt(), false)
