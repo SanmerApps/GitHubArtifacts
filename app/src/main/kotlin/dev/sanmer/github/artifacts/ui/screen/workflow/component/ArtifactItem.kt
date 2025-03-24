@@ -63,7 +63,7 @@ fun ArtifactItem(
         }
     }
 
-    trailing?.invoke()
+    if (!artifact.expired) trailing?.invoke()
 }
 
 @OptIn(ExperimentalLayoutApi::class)
