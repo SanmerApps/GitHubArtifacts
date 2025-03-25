@@ -17,9 +17,10 @@ data class Artifact(
     val archiveDownloadUrl: String,
     val expired: Boolean,
     @JsonNames("created_at")
-    val createdAt: Instant = Instant.fromEpochSeconds(0L),
+    val createdAt: Instant,
     @JsonNames("expires_at")
-    val expiresAt: Instant = Instant.fromEpochSeconds(0L),
+    val expiresAt: Instant,
     @JsonNames("updated_at")
-    val updatedAt: Instant = Instant.fromEpochSeconds(0L)
+    val updatedAt: Instant,
+    val digest: String = ""
 )

@@ -20,7 +20,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.github.artifacts.compat.PermissionCompat
-import dev.sanmer.github.artifacts.ktx.copyTo
+import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
 import dev.sanmer.github.response.Artifact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -36,7 +36,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.Request
 import timber.log.Timber
@@ -125,13 +124,19 @@ class ArtifactJob : LifecycleService() {
         require(response.headers["Content-Type"] == "zip") { "Expect Content-Type = zip" }
         val body = requireNotNull(response.body) { "Expect body" }
 
-        contentResolver.openOutputStream(uri).let(::requireNotNull).use { output ->
+        val digest = contentResolver.openOutputStream(uri).let(::requireNotNull).use { output ->
             body.byteStream().buffered().use { input ->
-                input.copyTo(output) { bytesCopied ->
+                input.copyToWithSHA256(output) { bytesCopied ->
                     val progress = bytesCopied / artifact.sizeInBytes.toFloat()
                     jobStateFlow.update { JobState.Running(artifact, progress) }
                 }
             }
+        }
+
+        Timber.d("SHA-256 = $digest")
+        val target = artifact.digest.removePrefix("sha256:")
+        if (target != artifact.digest) {
+            require(digest == target) { "Expect SHA-256 = $target, but $digest" }
         }
 
         uri

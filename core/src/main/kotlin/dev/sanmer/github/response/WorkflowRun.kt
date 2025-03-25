@@ -11,7 +11,7 @@ data class WorkflowRun(
     @JsonNames("node_id")
     val nodeId: String,
     @JsonNames("head_branch")
-    val headBranch: String = "",
+    val headBranch: String,
     @JsonNames("head_sha")
     val headSha: String,
     @JsonNames("run_number")

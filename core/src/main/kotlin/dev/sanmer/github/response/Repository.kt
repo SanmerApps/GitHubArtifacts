@@ -33,10 +33,10 @@ data class Repository(
     val hasIssues: Boolean,
     val archived: Boolean,
     @JsonNames("pushed_at")
-    val pushedAt: Instant = Instant.fromEpochSeconds(0L),
+    val pushedAt: Instant,
     @JsonNames("created_at")
-    val createdAt: Instant = Instant.fromEpochSeconds(0L),
+    val createdAt: Instant,
     @JsonNames("updated_at")
-    val updatedAt: Instant = Instant.fromEpochSeconds(0L),
+    val updatedAt: Instant,
     val license: License = License.Empty()
 )
