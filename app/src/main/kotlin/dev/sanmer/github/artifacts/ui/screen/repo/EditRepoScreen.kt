@@ -74,8 +74,7 @@ fun EditRepoScreen(
             modifier = Modifier
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize(),
-            targetState = viewModel.data,
-            label = "EditRepoScreen"
+            targetState = viewModel.data
         ) { data ->
             when (data) {
                 LoadData.Loading -> Loading(

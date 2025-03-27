@@ -69,8 +69,7 @@ fun EditTokenScreen(
             AnimatedVisibility(
                 visible = viewModel.isReplaceable,
                 enter = fadeIn() + scaleIn(),
-                exit = scaleOut() + fadeOut(),
-                label = "ActionButton"
+                exit = scaleOut() + fadeOut()
             ) {
                 ActionButton(
                     replace = viewModel::replace,
