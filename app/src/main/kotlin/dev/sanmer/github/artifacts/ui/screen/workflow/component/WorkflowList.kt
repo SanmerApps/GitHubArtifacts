@@ -3,13 +3,18 @@ package dev.sanmer.github.artifacts.ui.screen.workflow.component
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,7 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -82,10 +87,6 @@ private fun WorkflowItem(
 ) {
     var progress by remember { mutableStateOf(false) }
     var expend by rememberSaveable(run) { mutableStateOf(false) }
-    val degrees by animateFloatAsState(
-        targetValue = if (expend) 90f else 0f,
-        label = "WorkflowItemIcon"
-    )
 
     WorkflowItem(
         run = run,
@@ -93,7 +94,7 @@ private fun WorkflowItem(
         trailing = {
             WorkflowTrailing(
                 progress = progress,
-                degrees = degrees
+                expend = expend
             )
         }
     )
@@ -101,7 +102,7 @@ private fun WorkflowItem(
     AnimatedVisibility(
         visible = expend,
         enter = fadeIn() + expandVertically(),
-        exit = fadeOut() + shrinkVertically()
+        exit = shrinkVertically() + fadeOut()
     ) {
         val data = getArtifacts(run).apply { progress = !isCompleted }
         if (data is LoadData.Success && data.value.isNotEmpty()) {
@@ -116,19 +117,38 @@ private fun WorkflowItem(
 @Composable
 private fun WorkflowTrailing(
     progress: Boolean,
-    degrees: Float
-) = if (progress) {
-    CircularProgressIndicator(
-        strokeWidth = 2.dp,
-        strokeCap = StrokeCap.Round,
-        modifier = Modifier.size(24.dp)
+    expend: Boolean
+) = Box(
+    contentAlignment = Alignment.Center
+) {
+    val animateDegrees by animateFloatAsState(
+        targetValue = if (expend && !progress) 90f else 0f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
     )
-} else {
-    Icon(
-        painter = painterResource(id = R.drawable.chevron_right),
-        contentDescription = null,
-        modifier = Modifier.rotate(degrees)
-    )
+
+    AnimatedVisibility(
+        visible = progress,
+        enter = fadeIn() + scaleIn(),
+        exit = scaleOut() + fadeOut()
+    ) {
+        CircularProgressIndicator(
+            strokeWidth = 2.dp,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+
+    AnimatedVisibility(
+        visible = !progress,
+        enter = fadeIn() + scaleIn(),
+        exit = scaleOut() + fadeOut()
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.chevron_right),
+            contentDescription = null,
+            modifier = Modifier
+                .rotate(animateDegrees)
+        )
+    }
 }
 
 @Composable
@@ -170,22 +190,37 @@ private fun ArtifactList(
 @Composable
 private fun ArtifactTrailing(
     jobState: ArtifactJob.JobState
-) = when (jobState) {
-    is ArtifactJob.JobState.Pending -> CircularProgressIndicator(
-        strokeWidth = 2.dp,
-        strokeCap = StrokeCap.Round,
-        modifier = Modifier.size(24.dp)
+) = Box(
+    contentAlignment = Alignment.Center
+) {
+    val animatedScale by animateFloatAsState(
+        targetValue = if (jobState.isStarting) 0.65f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
     )
 
-    is ArtifactJob.JobState.Running -> CircularProgressIndicator(
-        strokeWidth = 2.dp,
-        progress = { jobState.progress },
-        strokeCap = StrokeCap.Round,
-        modifier = Modifier.size(24.dp)
-    )
+    when (jobState) {
+        is ArtifactJob.JobState.Pending -> CircularProgressIndicator(
+            strokeWidth = 2.dp,
+            modifier = Modifier.size(24.dp)
+        )
 
-    else -> Icon(
-        painter = painterResource(id = R.drawable.download),
-        contentDescription = null
+        is ArtifactJob.JobState.Running -> CircularProgressIndicator(
+            strokeWidth = 2.dp,
+            progress = { jobState.progress },
+            modifier = Modifier.size(24.dp)
+        )
+
+        else -> Unit
+    }
+
+    Icon(
+        painter = painterResource(
+            id = if (jobState.isStarting) R.drawable.file_type_zip else R.drawable.download
+        ),
+        contentDescription = null,
+        modifier = Modifier.scale(animatedScale)
     )
 }
+
+private val ArtifactJob.JobState.isStarting
+    inline get() = this is ArtifactJob.JobState.Pending || this is ArtifactJob.JobState.Running
