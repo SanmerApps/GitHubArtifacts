@@ -8,7 +8,9 @@ import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -22,18 +24,30 @@ class HomeViewModel @Inject constructor(
             repos.sortedByDescending { it.pushedAt }
         }
 
+    private var allSize = -1f
+    private val updatedSize = MutableStateFlow(1)
+    val progressFlow get() = updatedSize.map { it / allSize }
+
     init {
         Timber.d("HomeViewModel init")
-        updateRepo()
+        updateRepoAll()
     }
 
-    private fun updateRepo() {
+    fun updateRepoAll() {
         viewModelScope.launch {
-            val news = dbRepository.getRepoAll()
-                .map { async { getRepo(it) } }
-                .awaitAll()
+            val olds = dbRepository.getRepoAll()
+            if (olds.isEmpty()) return@launch
+
+            allSize = olds.size.toFloat()
+            updatedSize.update { 0 }
+            val news = olds.map {
+                async {
+                    getRepo(it).apply { updatedSize.update { it + 1 } }
+                }
+            }.awaitAll()
                 .filterNotNull()
 
+            allSize = -1f
             dbRepository.insertRepo(news)
         }
     }
