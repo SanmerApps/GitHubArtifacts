@@ -94,13 +94,19 @@ class ArtifactJob : LifecycleService() {
             val artifact = intent?.artifact ?: return@launch
             val token = intent.token
 
+            val uri = createMediaStoreUri(
+                file = File(Environment.DIRECTORY_DOWNLOADS, "${artifact.name}.zip"),
+                mimeType = "application/zip"
+            )
+
             runCatching {
-                download(artifact, token)
-            }.onSuccess { uri ->
+                download(token, artifact, uri)
+            }.onSuccess {
                 jobStateFlow.update { JobState.Success(artifact, uri) }
             }.onFailure { error ->
                 Timber.e(error)
                 jobStateFlow.update { JobState.Failure(artifact, error) }
+                contentResolver.delete(uri, null)
             }
 
             pendingJobs.remove(artifact.id)
@@ -109,12 +115,11 @@ class ArtifactJob : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private suspend fun download(artifact: Artifact, token: String) = withContext(Dispatchers.IO) {
-        val uri = createMediaStoreUri(
-            file = File(Environment.DIRECTORY_DOWNLOADS, "${artifact.name}.zip"),
-            mimeType = "application/zip"
-        )
-
+    private suspend fun download(
+        token: String,
+        artifact: Artifact,
+        uri: Uri
+    ) = withContext(Dispatchers.IO) {
         val request = Request.Builder()
             .url(artifact.archiveDownloadUrl)
             .build()
@@ -139,7 +144,7 @@ class ArtifactJob : LifecycleService() {
             require(digest == target) { "Expect SHA-256 = $target, but $digest" }
         }
 
-        uri
+        digest
     }
 
     private fun setForeground() {
