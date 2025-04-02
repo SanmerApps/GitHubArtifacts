@@ -212,9 +212,14 @@ class ArtifactJob : LifecycleService() {
         NotificationCompat.Builder(this, Const.CHANNEL_ID_ARTIFACT_JOB)
             .setSmallIcon(R.drawable.box)
 
-    @Throws(SecurityException::class)
     private fun notify(id: Int, notification: Notification) {
-        notificationManager.notify(id, notification)
+        val granted = if (BuildCompat.atLeastT) {
+            PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            true
+        }
+
+        if (granted) notificationManager.notify(id, notification)
     }
 
     sealed class JobState(val id: Long) {

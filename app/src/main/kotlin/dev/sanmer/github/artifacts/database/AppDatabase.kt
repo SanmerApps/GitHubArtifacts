@@ -25,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun token(): TokenDao
     abstract fun repo(): RepoDao
 
-    companion object Default {
+    companion object Build {
         operator fun invoke(context: Context) =
             Room.databaseBuilder(
                 context, AppDatabase::class.java, "artifacts"
@@ -52,12 +52,12 @@ abstract class AppDatabase : RoomDatabase() {
 
     @Module
     @InstallIn(SingletonComponent::class)
-    object Provider {
+    object Impl {
         @Provides
         @Singleton
         fun AppDatabase(
             @ApplicationContext context: Context
-        ) = Default(context)
+        ) = Build(context)
 
         @Provides
         @Singleton
