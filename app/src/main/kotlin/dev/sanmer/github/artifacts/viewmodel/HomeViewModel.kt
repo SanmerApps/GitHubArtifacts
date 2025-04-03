@@ -9,6 +9,7 @@ import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,9 +25,8 @@ class HomeViewModel @Inject constructor(
             repos.sortedByDescending { it.pushedAt }
         }
 
-    private var allSize = -1f
-    private val updatedSize = MutableStateFlow(1)
-    val progressFlow get() = updatedSize.map { it / allSize }
+    private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Pending)
+    val updateState get() = _updateState.asStateFlow()
 
     init {
         Timber.d("HomeViewModel init")
@@ -38,16 +38,23 @@ class HomeViewModel @Inject constructor(
             val olds = dbRepository.getRepoAll()
             if (olds.isEmpty()) return@launch
 
-            allSize = olds.size.toFloat()
-            updatedSize.update { 0 }
-            val news = olds.map {
+            _updateState.update { UpdateState.Ready(olds.size) }
+            val news = olds.map { repo ->
                 async {
-                    getRepo(it).apply { updatedSize.update { it + 1 } }
+                    getRepo(repo).also { result ->
+                        _updateState.update { state ->
+                            if (result != null) {
+                                UpdateState.Updating(state.size, state.succeed + 1, state.failed)
+                            } else {
+                                UpdateState.Updating(state.size, state.succeed, state.failed + 1)
+                            }
+                        }
+                    }
                 }
             }.awaitAll()
                 .filterNotNull()
 
-            allSize = -1f
+            _updateState.update { UpdateState.Finished(it.size, it.succeed, it.failed) }
             dbRepository.insertRepo(news)
         }
     }
@@ -64,4 +71,38 @@ class HomeViewModel @Inject constructor(
         }.onFailure {
             Timber.e(it)
         }.getOrNull()
+
+    sealed class UpdateState {
+        abstract val size: Int
+        abstract val succeed: Int
+        abstract val failed: Int
+
+        data object Pending : UpdateState() {
+            override val size = 1
+            override val succeed = 0
+            override val failed = -1
+        }
+        data class Ready(
+            override val size: Int
+        ) : UpdateState() {
+            override val succeed = 0
+            override val failed = 0
+        }
+        data class Updating(
+            override val size: Int,
+            override val succeed: Int,
+            override val failed: Int
+        ) : UpdateState()
+        data class Finished(
+            override val size: Int,
+            override val succeed: Int,
+            override val failed: Int
+        ) : UpdateState()
+
+        val finished inline get() = succeed + failed
+        val progress inline get() = finished / size.toFloat()
+
+        val isRunning inline get() = this is Ready || this is Updating
+
+    }
 }

@@ -48,7 +48,7 @@ fun HomeScreen(
     navController: NavController
 ) {
     val repos by viewModel.repos.collectAsStateWithLifecycle(initialValue = emptyList())
-    val progress by viewModel.progressFlow.collectAsStateWithLifecycle(initialValue = -1f)
+    val updateState by viewModel.updateState.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
@@ -57,7 +57,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopBar(
-                progress = progress,
+                updateState = updateState,
                 onRefresh = viewModel::updateRepoAll,
                 scrollBehavior = scrollBehavior
             )
@@ -112,7 +112,7 @@ private fun ActionButton(
 
 @Composable
 private fun TopBar(
-    progress: Float,
+    updateState: HomeViewModel.UpdateState,
     onRefresh: () ->  Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
@@ -122,17 +122,17 @@ private fun TopBar(
             onClick = onRefresh,
         ) {
             val animatedScale by animateFloatAsState(
-                targetValue = if (progress >= 0) 0.65f else 1f,
+                targetValue = if (updateState.isRunning) 0.65f else 1f,
                 animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
             )
 
             AnimatedVisibility(
-                visible = progress >= 0,
+                visible = updateState.isRunning,
                 enter = fadeIn() + scaleIn(),
                 exit = scaleOut() + fadeOut()
             ) {
                 CircularProgressIndicator(
-                    progress = { progress },
+                    progress = { updateState.progress },
                     strokeWidth = 2.dp,
                     modifier = Modifier.size(24.dp)
                 )
