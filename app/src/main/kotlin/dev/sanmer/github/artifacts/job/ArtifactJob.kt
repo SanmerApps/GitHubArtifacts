@@ -213,13 +213,10 @@ class ArtifactJob : LifecycleService() {
             .setSmallIcon(R.drawable.box)
 
     private fun notify(id: Int, notification: Notification) {
-        val granted = if (BuildCompat.atLeastT) {
-            PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            true
-        }
-
-        if (granted) notificationManager.notify(id, notification)
+        if (
+            !BuildCompat.atLeastT
+            || PermissionCompat.checkPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+        ) notificationManager.notify(id, notification)
     }
 
     sealed class JobState(val id: Long) {
