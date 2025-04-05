@@ -202,8 +202,9 @@ private fun TokenItem(
 
     if (selected) {
         Icon(
-            painter = painterResource(id = R.drawable.circle_check),
-            contentDescription = null
+            painter = painterResource(id = R.drawable.circle_check_filled),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 }
