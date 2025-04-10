@@ -23,7 +23,7 @@ interface RepoDao {
     fun getAllWithTokenAsFlow(): Flow<List<RepoWithToken>>
 
     @Query("SELECT * FROM repo WHERE id = :id")
-    fun getAsFlow(id: Long): Flow<RepoEntity?>
+    fun getAsFlow(id: Long): Flow<RepoEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(value: RepoEntity)

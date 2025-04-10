@@ -5,7 +5,6 @@ import dev.sanmer.github.artifacts.database.dao.TokenDao
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +22,7 @@ class DbRepository @Inject constructor(
         tokenDao.getAll()
     }
 
-    fun getTokenAsFlow(token: String) = tokenDao.getAsFlow(token).filterNotNull()
+    fun getTokenAsFlow(token: String) = tokenDao.getAsFlow(token)
 
     suspend fun insertToken(token: TokenEntity) = withContext(Dispatchers.IO) {
         tokenDao.insert(token)
@@ -41,7 +40,7 @@ class DbRepository @Inject constructor(
         repoDao.getAll()
     }
 
-    fun getRepoAsFlow(id: Long) = repoDao.getAsFlow(id).filterNotNull()
+    fun getRepoAsFlow(id: Long) = repoDao.getAsFlow(id)
 
     suspend fun insertRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
         repoDao.insert(repo)

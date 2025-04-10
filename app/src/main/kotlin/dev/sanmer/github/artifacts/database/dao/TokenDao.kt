@@ -23,7 +23,7 @@ interface TokenDao {
     fun getAllWithRepoAsFlow(): Flow<List<TokenWithRepo>>
 
     @Query("SELECT * FROM token WHERE token = :token")
-    fun getAsFlow(token: String): Flow<TokenEntity?>
+    fun getAsFlow(token: String): Flow<TokenEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(value: TokenEntity)
