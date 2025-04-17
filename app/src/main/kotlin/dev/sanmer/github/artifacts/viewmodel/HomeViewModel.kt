@@ -26,7 +26,7 @@ class HomeViewModel @Inject constructor(
         }
 
     private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Pending)
-    val updateState get() = _updateState.asStateFlow()
+    val updateState = _updateState.asStateFlow()
 
     init {
         Timber.d("HomeViewModel init")

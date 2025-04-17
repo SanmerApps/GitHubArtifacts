@@ -13,7 +13,7 @@ import javax.inject.Inject
 class TokenViewModel @Inject constructor(
     private val dbRepository: DbRepository
 ) : ViewModel() {
-    val tokens get() = dbRepository.tokenAndRepoFlow
+    val tokens = dbRepository.tokenAndRepoFlow
 
     init {
         Timber.d("TokenViewModel init")
