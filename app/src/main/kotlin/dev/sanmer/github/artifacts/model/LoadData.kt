@@ -24,5 +24,9 @@ sealed class LoadData<out V> {
                 else -> Failure(requireNotNull(exceptionOrNull()))
             }
         }
+
+        inline fun <V> LoadData<V>.getValue(default: () -> V): V {
+            return (this as? Success)?.value ?: default()
+        }
     }
 }

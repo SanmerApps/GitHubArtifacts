@@ -24,7 +24,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
@@ -39,7 +38,6 @@ fun RepoScreen(
     viewModel: RepoViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val repos by viewModel.repos.collectAsStateWithLifecycle(initialValue = emptyList())
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val isScrollingUp by listState.isScrollingUp()
@@ -66,7 +64,7 @@ fun RepoScreen(
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize()
         ) {
-            if (repos.isEmpty()) {
+            if (viewModel.loadData.isCompleted && viewModel.repos.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.git_branch,
                     text = R.string.repo_empty,
@@ -75,7 +73,7 @@ fun RepoScreen(
             }
 
             RepoList(
-                repos = repos,
+                repos = viewModel.repos,
                 onDelete = viewModel::delete,
                 navController = navController,
                 state = listState,

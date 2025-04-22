@@ -20,10 +20,10 @@ class SettingViewModel @Inject constructor(
 
     init {
         Timber.d("SettingViewModel init")
-        tokenObserver()
+        dbObserver()
     }
 
-    private fun tokenObserver() {
+    private fun dbObserver() {
         viewModelScope.launch {
             dbRepository.tokenFlow
                 .collect { tokens ->

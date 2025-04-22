@@ -24,7 +24,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
@@ -39,7 +38,6 @@ fun TokenScreen(
     viewModel: TokenViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val tokens by viewModel.tokens.collectAsStateWithLifecycle(initialValue = emptyList())
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val isScrollingUp by listState.isScrollingUp()
@@ -66,7 +64,7 @@ fun TokenScreen(
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize()
         ) {
-            if (tokens.isEmpty()) {
+            if (viewModel.loadData.isCompleted && viewModel.tokens.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.key,
                     text = R.string.token_empty,
@@ -75,7 +73,7 @@ fun TokenScreen(
             }
 
             TokenList(
-                tokens = tokens,
+                tokens = viewModel.tokens,
                 onDelete = viewModel::delete,
                 navController = navController,
                 state = listState,

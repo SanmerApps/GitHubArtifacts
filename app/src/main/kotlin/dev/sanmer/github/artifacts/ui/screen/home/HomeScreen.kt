@@ -47,7 +47,6 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     navController: NavController
 ) {
-    val repos by viewModel.repos.collectAsStateWithLifecycle(initialValue = emptyList())
     val updateState by viewModel.updateState.collectAsStateWithLifecycle()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -78,7 +77,7 @@ fun HomeScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (repos.isEmpty()) {
+            if (viewModel.loadData.isCompleted && viewModel.repos.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.git_branch,
                     text = R.string.repo_empty,
@@ -87,7 +86,7 @@ fun HomeScreen(
             }
 
             RepoList(
-                repos = repos,
+                repos = viewModel.repos,
                 navController = navController,
                 state = listState,
                 contentPadding = contentPadding
@@ -113,7 +112,7 @@ private fun ActionButton(
 @Composable
 private fun TopBar(
     updateState: HomeViewModel.UpdateState,
-    onRefresh: () ->  Unit,
+    onRefresh: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.launch_name)) },

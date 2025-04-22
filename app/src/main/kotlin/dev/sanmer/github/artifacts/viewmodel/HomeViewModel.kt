@@ -1,16 +1,21 @@
 package dev.sanmer.github.artifacts.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.GitHubHandler
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
+import dev.sanmer.github.artifacts.model.LoadData
+import dev.sanmer.github.artifacts.model.LoadData.None.getValue
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -20,17 +25,28 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val dbRepository: DbRepository
 ) : ViewModel() {
-    val repos = dbRepository.repoFlow
-        .map { repos ->
-            repos.sortedByDescending { it.pushedAt }
-        }
+    var loadData by mutableStateOf<LoadData<List<RepoEntity>>>(LoadData.Loading)
+        private set
+    val repos inline get() = loadData.getValue { emptyList() }
 
     private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Pending)
     val updateState = _updateState.asStateFlow()
 
     init {
         Timber.d("HomeViewModel init")
+        dbObserver()
         updateRepoAll()
+    }
+
+    private fun dbObserver() {
+        viewModelScope.launch {
+            dbRepository.repoFlow
+                .collectLatest { repos ->
+                    loadData = LoadData.Success(
+                        repos.sortedByDescending { it.pushedAt }
+                    )
+                }
+        }
     }
 
     fun updateRepoAll() {
@@ -82,17 +98,20 @@ class HomeViewModel @Inject constructor(
             override val succeed = 0
             override val failed = -1
         }
+
         data class Ready(
             override val size: Int
         ) : UpdateState() {
             override val succeed = 0
             override val failed = 0
         }
+
         data class Updating(
             override val size: Int,
             override val succeed: Int,
             override val failed: Int
         ) : UpdateState()
+
         data class Finished(
             override val size: Int,
             override val succeed: Int,
