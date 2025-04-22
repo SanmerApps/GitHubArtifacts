@@ -94,15 +94,15 @@ fun WorkflowScreen(
                         text = stringResource(id = R.string.workflow_empty),
                         modifier = Modifier.padding(contentPadding)
                     )
-                } else {
-                    WorkflowList(
-                        workflowRuns = workflowRuns,
-                        getArtifacts = viewModel::getArtifacts,
-                        downloadArtifact = viewModel::downloadArtifact,
-                        contentPadding = contentPadding
-                    )
                 }
             }
+
+            WorkflowList(
+                workflowRuns = workflowRuns,
+                getArtifacts = viewModel::getArtifacts,
+                downloadArtifact = viewModel::downloadArtifact,
+                contentPadding = contentPadding
+            )
         }
     }
 }
