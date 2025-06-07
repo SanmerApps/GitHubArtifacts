@@ -35,11 +35,6 @@
     <string name="edit_name">Name</string>
     <string name="edit_token">Token</string>
 
-    <!-- Message -->
-    <string name="empty_list">Empty list</string>
-    <string name="message_loading">Loading…</string>
-    <string name="emm">Emm…</string>
-
     <!-- Job -->
     <string name="artifact_job">Artifact Job</string>
     <string name="download_success">Download successful</string>

@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -80,7 +79,7 @@ fun WorkflowScreen(
         ) { state ->
             when {
                 state is LoadState.Error -> Failed(
-                    message = state.error.message,
+                    error = state.error,
                     modifier = Modifier.padding(contentPadding)
                 )
 
@@ -91,7 +90,7 @@ fun WorkflowScreen(
                 else -> if (workflowRuns.isEmpty()) {
                     PageIndicator(
                         icon = R.drawable.cloud_computing,
-                        text = stringResource(id = R.string.workflow_empty),
+                        text = R.string.workflow_empty,
                         modifier = Modifier.padding(contentPadding)
                     )
                 }

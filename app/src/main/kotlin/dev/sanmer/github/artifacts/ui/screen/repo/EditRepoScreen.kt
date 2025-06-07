@@ -82,7 +82,7 @@ fun EditRepoScreen(
                 )
 
                 is LoadData.Failure -> Failed(
-                    message = data.error.message,
+                    error = data.error,
                     modifier = Modifier.padding(contentPadding)
                 )
 
