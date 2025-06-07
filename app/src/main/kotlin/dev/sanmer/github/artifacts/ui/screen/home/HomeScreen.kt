@@ -100,7 +100,7 @@ private fun ActionButton(
     navController: NavController
 ) {
     FloatingActionButton(
-        onClick = { navController.navigateSingleTopTo(Screen.Setting()) }
+        onClick = { navController.navigateSingleTopTo(Screen.Setting) }
     ) {
         Icon(
             painter = painterResource(id = R.drawable.settings_2),

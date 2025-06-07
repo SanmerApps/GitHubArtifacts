@@ -70,7 +70,7 @@ fun SettingScreen(
                 },
                 title = stringResource(id = R.string.settings_token_title),
                 text = stringResource(id = R.string.settings_token_desc),
-                onClick = { navController.navigateSingleTopTo(Screen.Token()) }
+                onClick = { navController.navigateSingleTopTo(Screen.Token) }
             )
 
             SettingItem(
@@ -86,7 +86,7 @@ fun SettingScreen(
                 },
                 title = stringResource(id = R.string.settings_repo_title),
                 text = stringResource(id = R.string.settings_repo_desc),
-                onClick = { navController.navigateSingleTopTo(Screen.Repo()) },
+                onClick = { navController.navigateSingleTopTo(Screen.Repo) },
                 enabled = viewModel.hasToken
             )
         }

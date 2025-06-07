@@ -9,11 +9,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.ktx.isLong
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.repository.DbRepository
+import dev.sanmer.github.artifacts.ui.main.Screen
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -26,8 +28,8 @@ class EditTokenViewModel @Inject constructor(
     private val dbRepository: DbRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val token = savedStateHandle.token
-    val edit = token.isNotBlank()
+    private val editToken = savedStateHandle.toRoute<Screen.EditToken>()
+    val edit get() = editToken.edit
 
     var input by mutableStateOf(Input())
         private set
@@ -54,7 +56,7 @@ class EditTokenViewModel @Inject constructor(
 
     private fun tokenObserver() {
         viewModelScope.launch {
-            dbRepository.getTokenAsFlow(token)
+            dbRepository.getTokenAsFlow(editToken.token)
                 .collect { token ->
                     updateInput { Input(token) }
                 }
@@ -140,10 +142,5 @@ class EditTokenViewModel @Inject constructor(
 
     private inline fun Value.ok(value: String, block: (Value, Boolean) -> Unit) {
         block(this, ok(value))
-    }
-
-    companion object Default {
-        val SavedStateHandle.token: String
-            inline get() = checkNotNull(get("token"))
     }
 }

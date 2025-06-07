@@ -1,13 +1,11 @@
 package dev.sanmer.github.artifacts.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -20,7 +18,7 @@ import dev.sanmer.github.GitHubHandler.Status
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
-import dev.sanmer.github.artifacts.repository.DbRepository
+import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.response.Artifact
 import dev.sanmer.github.response.WorkflowRun
 import kotlinx.coroutines.launch
@@ -29,22 +27,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WorkflowViewModel @Inject constructor(
-    private val dbRepository: DbRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val id = savedStateHandle.id
-    private var owner by mutableStateOf("")
-    var name by mutableStateOf("")
-        private set
+    private val workflow = savedStateHandle.toRoute<Screen.Workflow>()
+    private val handler by lazy { GitHubHandler(workflow.token) }
 
-    private var token = ""
-    private val handler by lazy { GitHubHandler(token) }
+    val name get() = workflow.name
 
     val workflowRuns by lazy {
         WorkflowRunPagingSource(
             handler = handler,
-            owner = owner,
-            name = name,
+            owner = workflow.owner,
+            name = workflow.name,
             perPage = 20
         ).asPager().flow.cachedIn(viewModelScope)
     }
@@ -53,18 +47,6 @@ class WorkflowViewModel @Inject constructor(
 
     init {
         Timber.d("WorkflowViewModel init")
-        repoObserver()
-    }
-
-    private fun repoObserver() {
-        viewModelScope.launch {
-            dbRepository.getRepoAsFlow(id)
-                .collect { repo ->
-                    token = repo.token
-                    owner = repo.owner
-                    name = repo.name
-                }
-        }
     }
 
     fun getArtifacts(run: WorkflowRun) = with(handler) {
@@ -72,8 +54,8 @@ class WorkflowViewModel @Inject constructor(
             artifacts.getOrPut(run.id) {
                 runCatching {
                     getArtifacts(
-                        owner = owner,
-                        name = name,
+                        owner = workflow.owner,
+                        name = workflow.name,
                         runId = run.id
                     )
                 }.asLoadData()
@@ -87,7 +69,7 @@ class WorkflowViewModel @Inject constructor(
         ArtifactJob.start(
             context = context,
             artifact = artifact,
-            token = token
+            token = workflow.token
         )
     }
 
@@ -133,10 +115,5 @@ class WorkflowViewModel @Inject constructor(
             config = PagingConfig(pageSize = perPage),
             pagingSourceFactory = ::copy
         )
-    }
-
-    companion object Default {
-        private val SavedStateHandle.id: Long
-            inline get() = checkNotNull(get("id"))
     }
 }

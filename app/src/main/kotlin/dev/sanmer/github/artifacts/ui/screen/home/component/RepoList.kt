@@ -35,7 +35,7 @@ fun RepoList(
     items(repos) { repo ->
         RepoItem(
             repo = repo,
-            onClick = { navController.navigateSingleTopTo(Screen.Workflow(repo.id)) }
+            onClick = { navController.navigateSingleTopTo(Screen.Workflow(repo)) }
         )
     }
 }

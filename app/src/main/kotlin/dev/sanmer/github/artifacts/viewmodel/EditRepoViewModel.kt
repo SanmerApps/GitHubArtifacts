@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.GitHubHandler
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
@@ -15,6 +16,7 @@ import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
 import dev.sanmer.github.artifacts.repository.DbRepository
+import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.response.Repository
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -25,8 +27,8 @@ class EditRepoViewModel @Inject constructor(
     private val dbRepository: DbRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val id = savedStateHandle.id
-    val edit = id != 0L
+    private val editRepo = savedStateHandle.toRoute<Screen.EditRepo>()
+    val edit get() = editRepo.edit
 
     var input by mutableStateOf(Input())
         private set
@@ -46,7 +48,7 @@ class EditRepoViewModel @Inject constructor(
 
     private fun repoObserver() {
         viewModelScope.launch {
-            dbRepository.getRepoAsFlow(id)
+            dbRepository.getRepoAsFlow(editRepo.id)
                 .collect { repo ->
                     updateInput { Input(repo) }
                 }
@@ -124,10 +126,5 @@ class EditRepoViewModel @Inject constructor(
 
     private inline fun Value.ok(value: String, block: (Value, Boolean) -> Unit) {
         block(this, ok(value))
-    }
-
-    companion object Default {
-        val SavedStateHandle.id: Long
-            inline get() = checkNotNull(get("id"))
     }
 }
