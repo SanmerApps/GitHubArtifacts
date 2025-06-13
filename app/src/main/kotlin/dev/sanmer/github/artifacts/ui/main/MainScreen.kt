@@ -9,10 +9,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ui.screen.home.HomeScreen
-import dev.sanmer.github.artifacts.ui.screen.repo.EditRepoScreen
+import dev.sanmer.github.artifacts.ui.screen.repo.AddRepoScreen
 import dev.sanmer.github.artifacts.ui.screen.repo.RepoScreen
 import dev.sanmer.github.artifacts.ui.screen.setting.SettingScreen
-import dev.sanmer.github.artifacts.ui.screen.token.EditTokenScreen
+import dev.sanmer.github.artifacts.ui.screen.token.AddTokenScreen
 import dev.sanmer.github.artifacts.ui.screen.token.TokenScreen
 import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowScreen
 import kotlinx.serialization.Serializable
@@ -52,8 +52,8 @@ fun MainScreen() {
             )
         }
 
-        composable<Screen.EditToken> {
-            EditTokenScreen(
+        composable<Screen.AddToken> {
+            AddTokenScreen(
                 navController = navController
             )
         }
@@ -64,8 +64,8 @@ fun MainScreen() {
             )
         }
 
-        composable<Screen.EditRepo> {
-            EditRepoScreen(
+        composable<Screen.AddRepo> {
+            AddRepoScreen(
                 navController = navController
             )
         }
@@ -96,17 +96,17 @@ sealed class Screen {
     data object Token : Screen()
 
     @Serializable
-    data class EditToken(
-        val token: String = ""
+    data class AddToken(
+        val token: String = "-1"
     ) : Screen() {
-        val isEdit = token != ""
+        val isEdit = token != "-1"
     }
 
     @Serializable
     data object Repo : Screen()
 
     @Serializable
-    data class EditRepo(
+    data class AddRepo(
         val id: Long = -1L
     ) : Screen() {
         val isEdit = id != -1L

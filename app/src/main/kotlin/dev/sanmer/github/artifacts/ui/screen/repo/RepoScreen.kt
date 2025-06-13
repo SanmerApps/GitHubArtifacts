@@ -74,7 +74,6 @@ fun RepoScreen(
 
             RepoList(
                 repos = viewModel.repos,
-                onDelete = viewModel::delete,
                 navController = navController,
                 state = listState,
                 contentPadding = contentPadding
@@ -88,7 +87,7 @@ private fun ActionButton(
     navController: NavController
 ) {
     FloatingActionButton(
-        onClick = { navController.navigateSingleTopTo(Screen.EditRepo()) }
+        onClick = { navController.navigateSingleTopTo(Screen.AddRepo()) }
     ) {
         Icon(
             painter = painterResource(id = R.drawable.pencil_plus),

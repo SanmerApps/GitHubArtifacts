@@ -74,7 +74,6 @@ fun TokenScreen(
 
             TokenList(
                 tokens = viewModel.tokens,
-                onDelete = viewModel::delete,
                 navController = navController,
                 state = listState,
                 contentPadding = contentPadding
@@ -88,7 +87,7 @@ private fun ActionButton(
     navController: NavController
 ) {
     FloatingActionButton(
-        onClick = { navController.navigateSingleTopTo(Screen.EditToken()) }
+        onClick = { navController.navigateSingleTopTo(Screen.AddToken()) }
     ) {
         Icon(
             painter = painterResource(id = R.drawable.pencil_plus),

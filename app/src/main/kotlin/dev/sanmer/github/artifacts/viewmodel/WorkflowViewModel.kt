@@ -15,7 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
+import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.repository.GitHubRepository
 import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.query.workflow.run.WorkflowRunEvent

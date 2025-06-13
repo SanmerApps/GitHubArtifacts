@@ -9,7 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.model.LoadData.None.getValue
+import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
 import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.artifacts.repository.GitHubRepository
 import kotlinx.coroutines.async
@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     var loadData by mutableStateOf<LoadData<List<RepoEntity>>>(LoadData.Loading)
         private set
-    val repos inline get() = loadData.getValue { emptyList() }
+    val repos inline get() = loadData.getValue(emptyList()) { it }
 
     private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Pending)
     val updateState = _updateState.asStateFlow()
@@ -73,7 +73,7 @@ class HomeViewModel @Inject constructor(
                 .filterNotNull()
 
             _updateState.update { UpdateState.Finished(it.size, it.succeed, it.failed) }
-            dbRepository.insertRepo(news)
+            dbRepository.updateRepo(news)
         }
     }
 

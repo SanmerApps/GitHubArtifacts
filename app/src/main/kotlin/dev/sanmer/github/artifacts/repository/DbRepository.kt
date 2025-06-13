@@ -25,11 +25,23 @@ class DbRepository @Inject constructor(
 
     fun getTokenAsFlow(token: String) = tokenDao.getAsFlow(token).filterNotNull()
 
+    suspend fun getTokenWithRepo(token: String) = withContext(Dispatchers.IO) {
+        tokenDao.getWithRepo(token)
+    }
+
     suspend fun insertToken(token: TokenEntity) = withContext(Dispatchers.IO) {
         tokenDao.insert(token)
     }
 
+    suspend fun updateToken(token: TokenEntity) = withContext(Dispatchers.IO) {
+        tokenDao.update(token)
+    }
+
     suspend fun deleteToken(token: TokenEntity) = withContext(Dispatchers.IO) {
+        tokenDao.delete(token)
+    }
+
+    suspend fun deleteToken(token: String) = withContext(Dispatchers.IO) {
         tokenDao.delete(token)
     }
 
@@ -47,11 +59,19 @@ class DbRepository @Inject constructor(
         repoDao.insert(repo)
     }
 
-    suspend fun insertRepo(repos: List<RepoEntity>) = withContext(Dispatchers.IO) {
-        repoDao.insert(repos)
+    suspend fun updateRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
+        repoDao.update(repo)
+    }
+
+    suspend fun updateRepo(repos: List<RepoEntity>) = withContext(Dispatchers.IO) {
+        repoDao.update(repos)
     }
 
     suspend fun deleteRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
         repoDao.delete(repo)
+    }
+
+    suspend fun deleteRepoById(repoId: Long) = withContext(Dispatchers.IO) {
+        repoDao.deleteById(repoId)
     }
 }

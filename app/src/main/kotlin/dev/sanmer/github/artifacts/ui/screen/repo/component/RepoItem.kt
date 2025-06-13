@@ -1,17 +1,13 @@
 package dev.sanmer.github.artifacts.ui.screen.repo.component
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilledTonalIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,13 +16,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.RepoWithToken
-import dev.sanmer.github.artifacts.ui.component.SwipeContent
 import dev.sanmer.github.artifacts.ui.screen.home.component.Title
 import dev.sanmer.github.artifacts.ui.screen.home.component.Value
 import kotlinx.datetime.TimeZone
@@ -35,39 +30,18 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 fun RepoItem(
     repo: RepoWithToken,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) = SwipeContent(
-    content = { release ->
-        RepoButtons(
-            onEdit = {
-                release()
-                onEdit()
-            },
-            onDelete = {
-                release()
-                onDelete()
-            }
-        )
-    },
-    surface = {
-        RepoContent(repo = repo)
-    }
-)
-
-@Composable
-private fun RepoContent(
-    repo: RepoWithToken
+    onClick: () -> Unit
 ) = Column(
     modifier = Modifier
         .fillMaxWidth()
-        .background(
-            color = MaterialTheme.colorScheme.surface,
-            shape = MaterialTheme.shapes.medium
-        )
         .border(
             border = CardDefaults.outlinedCardBorder(),
             shape = MaterialTheme.shapes.medium
+        )
+        .clip(shape = MaterialTheme.shapes.medium)
+        .clickable(
+            onClick = onClick,
+            enabled = true
         )
         .padding(all = 15.dp)
 ) {
@@ -120,35 +94,4 @@ private fun BottomRow(
     )
 
     Value(value = updatedAt)
-}
-
-@Composable
-private fun RepoButtons(
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) = Row(
-    modifier = Modifier.padding(horizontal = 10.dp),
-    horizontalArrangement = Arrangement.spacedBy(5.dp)
-) {
-    FilledTonalIconButton(
-        onClick = onEdit
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.edit),
-            contentDescription = null
-        )
-    }
-
-    FilledTonalIconButton(
-        onClick = onDelete,
-        colors = IconButtonDefaults.filledTonalIconButtonColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer
-        )
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.trash_x),
-            contentDescription = null
-        )
-    }
 }

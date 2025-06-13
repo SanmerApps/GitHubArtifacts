@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.database.entity.TokenWithRepo
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.ktx.plus
@@ -21,7 +20,6 @@ import dev.sanmer.github.artifacts.ui.main.Screen
 @Composable
 fun TokenList(
     tokens: List<TokenWithRepo>,
-    onDelete: (TokenEntity) -> Unit,
     navController: NavController,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -36,8 +34,7 @@ fun TokenList(
     items(tokens) {
         TokenItem(
             token = it,
-            onEdit = { navController.navigateSingleTopTo(Screen.EditToken(it.token.token)) },
-            onDelete = { onDelete(it.token) }
+            onClick = { navController.navigateSingleTopTo(Screen.AddToken(it.token.token)) }
         )
     }
 }

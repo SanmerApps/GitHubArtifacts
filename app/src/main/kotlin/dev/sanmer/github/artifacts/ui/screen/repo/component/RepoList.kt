@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.RepoWithToken
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.ktx.plus
@@ -21,7 +20,6 @@ import dev.sanmer.github.artifacts.ui.main.Screen
 @Composable
 fun RepoList(
     repos: List<RepoWithToken>,
-    onDelete: (RepoEntity) -> Unit,
     navController: NavController,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
@@ -36,8 +34,7 @@ fun RepoList(
     items(repos) {
         RepoItem(
             repo = it,
-            onEdit = { navController.navigateSingleTopTo(Screen.EditRepo(it.repo.id)) },
-            onDelete = { onDelete(it.repo) }
+            onClick = { navController.navigateSingleTopTo(Screen.AddRepo(it.repo.id)) },
         )
     }
 }

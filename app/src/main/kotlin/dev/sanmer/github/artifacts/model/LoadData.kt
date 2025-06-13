@@ -15,18 +15,23 @@ sealed class LoadData<out V> {
         override val isCompleted = true
     }
 
-    companion object None : LoadData<Nothing>() {
-        override val isCompleted = false
-
+    companion object Default {
         fun <V> Result<V>.asLoadData(): LoadData<V> {
             return when {
                 isSuccess -> Success(getOrThrow())
                 else -> Failure(requireNotNull(exceptionOrNull()))
             }
         }
+        fun <V> LoadData<V>.getOrThrow(): V {
+            return when (this) {
+                is Failure -> throw error
+                Loading -> throw IllegalStateException("Loading")
+                is Success<V> -> value
+            }
+        }
 
-        inline fun <V> LoadData<V>.getValue(default: () -> V): V {
-            return (this as? Success)?.value ?: default()
+        inline fun <V, R> LoadData<V>.getValue(fallback: R, transform: (V) -> R): R {
+            return (this as? Success)?.value?.let(transform) ?: fallback
         }
     }
 }
