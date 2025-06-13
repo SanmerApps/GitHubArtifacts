@@ -1,16 +1,16 @@
-package dev.sanmer.github.response
+package dev.sanmer.github.response.repository
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class Owner(
     val login: String,
     val id: Long,
-    @JsonNames("node_id")
+    @SerialName("node_id")
     val nodeId: String,
-    @JsonNames("avatar_url")
+    @SerialName("avatar_url")
     val avatarUrl: String,
-    @JsonNames("html_url")
+    @SerialName("html_url")
     val htmlUrl: String
 )

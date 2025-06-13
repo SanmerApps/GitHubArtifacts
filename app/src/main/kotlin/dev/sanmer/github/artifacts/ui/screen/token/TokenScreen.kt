@@ -88,7 +88,7 @@ private fun ActionButton(
     navController: NavController
 ) {
     FloatingActionButton(
-        onClick = { navController.navigateSingleTopTo(Screen.EditToken("", false)) }
+        onClick = { navController.navigateSingleTopTo(Screen.EditToken()) }
     ) {
         Icon(
             painter = painterResource(id = R.drawable.pencil_plus),

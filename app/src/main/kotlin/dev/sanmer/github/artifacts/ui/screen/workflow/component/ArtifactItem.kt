@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.screen.home.component.Title
 import dev.sanmer.github.artifacts.ui.screen.home.component.Value
-import dev.sanmer.github.response.Artifact
+import dev.sanmer.github.response.artifact.Artifact
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 

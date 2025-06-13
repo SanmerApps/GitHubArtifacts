@@ -1,42 +1,42 @@
-package dev.sanmer.github.response
+package dev.sanmer.github.response.repository
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class Repository(
     val id: Long,
-    @JsonNames("node_id")
+    @SerialName("node_id")
     val nodeId: String,
     val name: String,
-    @JsonNames("full_name")
+    @SerialName("full_name")
     val fullName: String,
     val owner: Owner,
     val private: Boolean,
-    @JsonNames("html_url")
+    @SerialName("html_url")
     val htmlUrl: String,
     val description: String = "",
     val homepage: String = "",
     val language: String = "",
-    @JsonNames("forks_count")
+    @SerialName("forks_count")
     val forksCount: Int,
-    @JsonNames("stargazers_count")
+    @SerialName("stargazers_count")
     val stargazersCount: Int,
-    @JsonNames("watchers_count")
+    @SerialName("watchers_count")
     val watchersCount: Int,
-    @JsonNames("open_issues_count")
+    @SerialName("open_issues_count")
     val openIssuesCount: Int,
-    @JsonNames("is_template")
+    @SerialName("is_template")
     val isTemplate: Boolean,
-    @JsonNames("has_issues")
+    @SerialName("has_issues")
     val hasIssues: Boolean,
     val archived: Boolean,
-    @JsonNames("pushed_at")
+    @SerialName("pushed_at")
     val pushedAt: Instant,
-    @JsonNames("created_at")
+    @SerialName("created_at")
     val createdAt: Instant,
-    @JsonNames("updated_at")
+    @SerialName("updated_at")
     val updatedAt: Instant,
-    val license: License = License.Empty()
+    val license: License = License()
 )

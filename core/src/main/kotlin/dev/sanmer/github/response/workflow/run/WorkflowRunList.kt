@@ -1,12 +1,12 @@
-package dev.sanmer.github.response
+package dev.sanmer.github.response.workflow.run
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class WorkflowRunList(
-    @JsonNames("total_count")
+    @SerialName("total_count")
     val totalCount: Int,
-    @JsonNames("workflow_runs")
+    @SerialName("workflow_runs")
     val workflowRuns: List<WorkflowRun>
 )

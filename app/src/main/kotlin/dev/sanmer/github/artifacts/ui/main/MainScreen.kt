@@ -78,12 +78,12 @@ sealed class Screen {
 
     @Serializable
     data class Workflow(
-        val token: String,
+        val id: Long,
         val owner: String,
         val name: String
     ) : Screen() {
         constructor(entity: RepoEntity) : this(
-            token = entity.token,
+            id = entity.id,
             owner = entity.owner,
             name = entity.name
         )
@@ -97,16 +97,18 @@ sealed class Screen {
 
     @Serializable
     data class EditToken(
-        val token: String,
-        val edit: Boolean
-    ) : Screen()
+        val token: String = ""
+    ) : Screen() {
+        val isEdit = token != ""
+    }
 
     @Serializable
     data object Repo : Screen()
 
     @Serializable
     data class EditRepo(
-        val id: Long,
-        val edit: Boolean
-    ) : Screen()
+        val id: Long = -1L
+    ) : Screen() {
+        val isEdit = id != -1L
+    }
 }

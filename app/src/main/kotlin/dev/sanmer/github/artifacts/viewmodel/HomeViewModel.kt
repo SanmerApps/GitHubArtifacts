@@ -6,11 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.github.GitHubHandler
+import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.None.getValue
 import dev.sanmer.github.artifacts.repository.DbRepository
+import dev.sanmer.github.artifacts.repository.GitHubRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val dbRepository: DbRepository
+    private val dbRepository: DbRepository,
+    private val gitHubRepository: GitHubRepository
 ) : ViewModel() {
     var loadData by mutableStateOf<LoadData<List<RepoEntity>>>(LoadData.Loading)
         private set
@@ -77,13 +79,15 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getRepo(repo: RepoEntity) =
         runCatching {
-            GitHubHandler(repo.token)
-                .getRepo(
-                    owner = repo.owner,
-                    name = repo.name
-                ).let {
-                    repo.copy(it)
-                }
+            gitHubRepository.getOrNew(
+                auth = repo.token.toBearerAuth(),
+                id = repo.id
+            ).repositories.get(
+                owner = repo.owner,
+                name = repo.name
+            ).let {
+                repo.copy(it)
+            }
         }.onFailure {
             Timber.e(it)
         }.getOrNull()

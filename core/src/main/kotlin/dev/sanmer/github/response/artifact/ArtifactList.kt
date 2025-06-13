@@ -1,11 +1,11 @@
-package dev.sanmer.github.response
+package dev.sanmer.github.response.artifact
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class ArtifactList(
-    @JsonNames("total_count")
+    @SerialName("total_count")
     val totalCount: Int,
     val artifacts: List<Artifact>
 )

@@ -29,7 +29,7 @@ class EditTokenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val editToken = savedStateHandle.toRoute<Screen.EditToken>()
-    val edit get() = editToken.edit
+    val edit get() = editToken.isEdit
 
     var input by mutableStateOf(Input())
         private set

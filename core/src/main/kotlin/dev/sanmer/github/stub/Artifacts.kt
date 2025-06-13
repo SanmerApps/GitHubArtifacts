@@ -1,6 +1,7 @@
 package dev.sanmer.github.stub
 
-import dev.sanmer.github.response.ArtifactList
+import androidx.annotation.IntRange
+import dev.sanmer.github.response.artifact.ArtifactList
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
@@ -12,7 +13,7 @@ interface Artifacts {
     suspend fun list(
         @Path("owner") owner: String,
         @Path("name") name: String,
-        @Query("per_page") perPage: Int,
+        @IntRange(1, 100) @Query("per_page") perPage: Int,
         @Query("page") page: Int
     ): ArtifactList
 }

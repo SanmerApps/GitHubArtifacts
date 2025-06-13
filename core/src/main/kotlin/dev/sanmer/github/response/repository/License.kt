@@ -1,16 +1,16 @@
-package dev.sanmer.github.response
+package dev.sanmer.github.response.repository
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class License(
     val key: String,
     val name: String,
-    @JsonNames("spdx_id")
+    @SerialName("spdx_id")
     val spdxId: String,
     val url: String = "",
-    @JsonNames("node_id")
+    @SerialName("node_id")
     val nodeId: String
 ) {
     val isEmpty inline get() = key.isBlank()

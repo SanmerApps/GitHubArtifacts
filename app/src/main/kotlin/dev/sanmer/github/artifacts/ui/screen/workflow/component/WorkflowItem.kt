@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.screen.home.component.Title
 import dev.sanmer.github.artifacts.ui.screen.home.component.Value
-import dev.sanmer.github.response.WorkflowRun
+import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 

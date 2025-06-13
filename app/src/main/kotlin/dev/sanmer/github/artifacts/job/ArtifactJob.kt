@@ -14,14 +14,17 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import dev.sanmer.github.GitHubHandler
+import dev.sanmer.github.Auth.Default.toBearerAuth
+import dev.sanmer.github.GitHub
+import dev.sanmer.github.JsonCompat.decodeJson
+import dev.sanmer.github.JsonCompat.encodeJson
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.github.artifacts.compat.PermissionCompat
 import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
-import dev.sanmer.github.response.Artifact
+import dev.sanmer.github.response.artifact.Artifact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.currentCoroutineContext
@@ -36,8 +39,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import okhttp3.Request
 import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
@@ -120,17 +121,9 @@ class ArtifactJob : LifecycleService() {
         artifact: Artifact,
         uri: Uri
     ) = withContext(Dispatchers.IO) {
-        val request = Request.Builder()
-            .url(artifact.archiveDownloadUrl)
-            .build()
-
-        val response = GitHubHandler(token).call(request)
-        require(response.code == 200) { "Expect code = 200" }
-        require(response.headers["Content-Type"] == "zip") { "Expect Content-Type = zip" }
-        val body = requireNotNull(response.body) { "Expect body" }
-
-        val digest = contentResolver.openOutputStream(uri).let(::requireNotNull).use { output ->
-            body.byteStream().buffered().use { input ->
+        val github = GitHub(auth = token.toBearerAuth())
+        val digest = github.download(artifact.archiveDownloadUrl) { input ->
+             contentResolver.openOutputStream(uri).let(::requireNotNull).use { output ->
                 input.copyToWithSHA256(output) { bytesCopied ->
                     val progress = bytesCopied / artifact.sizeInBytes.toFloat()
                     jobStateFlow.update { JobState.Running(artifact, progress) }
@@ -229,15 +222,15 @@ class ArtifactJob : LifecycleService() {
 
     companion object Default {
         private const val GROUP_KEY = "dev.sanmer.github.artifacts.ARTIFACT_JOB_GROUP_KEY"
-        private const val EXTRA_ARTIFACT = "dev.sanmer.github.artifacts.extra.Artifact"
-        private const val EXTRA_TOKEN = "dev.sanmer.github.artifacts.extra.Token"
+        private const val EXTRA_ARTIFACT = "dev.sanmer.github.artifacts.extra.ARTIFACT"
+        private const val EXTRA_TOKEN = "dev.sanmer.github.artifacts.extra.TOKEN"
 
         private fun Intent.putArtifact(value: Artifact) {
-            putExtra(EXTRA_ARTIFACT, Json.encodeToString(value))
+            putExtra(EXTRA_ARTIFACT, value.encodeJson(pretty = false))
         }
 
         private val Intent.artifact: Artifact
-            inline get() = Json.decodeFromString(checkNotNull(getStringExtra(EXTRA_ARTIFACT)))
+            inline get() = checkNotNull(getStringExtra(EXTRA_ARTIFACT)).decodeJson()
 
         private fun Intent.putToken(value: String) {
             putExtra(EXTRA_TOKEN, value)

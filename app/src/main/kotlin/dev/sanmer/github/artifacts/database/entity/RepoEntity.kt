@@ -1,7 +1,7 @@
 package dev.sanmer.github.artifacts.database.entity
 
 import androidx.room.Entity
-import dev.sanmer.github.response.Repository
+import dev.sanmer.github.response.repository.Repository
 import kotlinx.datetime.Instant
 
 @Entity(tableName = "repo", primaryKeys = ["id"])

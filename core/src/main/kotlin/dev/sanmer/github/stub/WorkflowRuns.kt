@@ -1,7 +1,10 @@
 package dev.sanmer.github.stub
 
-import dev.sanmer.github.response.ArtifactList
-import dev.sanmer.github.response.WorkflowRunList
+import androidx.annotation.IntRange
+import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
+import dev.sanmer.github.response.artifact.ArtifactList
+import dev.sanmer.github.response.workflow.run.WorkflowRunList
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
@@ -13,9 +16,9 @@ interface WorkflowRuns {
     suspend fun list(
         @Path("owner") owner: String,
         @Path("name") name: String,
-        @Query("event") event: String,
-        @Query("status") status: String,
-        @Query("per_page") perPage: Int,
+        @Query("event") event: WorkflowRunEvent,
+        @Query("status") status: WorkflowRunStatus,
+        @IntRange(1, 100) @Query("per_page") perPage: Int,
         @Query("page") page: Int
     ): WorkflowRunList
 

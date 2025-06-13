@@ -10,14 +10,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.github.GitHubHandler
+import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
 import dev.sanmer.github.artifacts.repository.DbRepository
+import dev.sanmer.github.artifacts.repository.GitHubRepository
 import dev.sanmer.github.artifacts.ui.main.Screen
-import dev.sanmer.github.response.Repository
+import dev.sanmer.github.response.repository.Repository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -25,10 +26,11 @@ import javax.inject.Inject
 @HiltViewModel
 class EditRepoViewModel @Inject constructor(
     private val dbRepository: DbRepository,
+    private val gitHubRepository: GitHubRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val editRepo = savedStateHandle.toRoute<Screen.EditRepo>()
-    val edit get() = editRepo.edit
+    val edit get() = editRepo.isEdit
 
     var input by mutableStateOf(Input())
         private set
@@ -84,11 +86,12 @@ class EditRepoViewModel @Inject constructor(
         viewModelScope.launch {
             data = LoadData.Loading
             data = runCatching {
-                GitHubHandler(input.token)
-                    .getRepo(
-                        owner = input.owner.trim(),
-                        name = input.name.trim()
-                    )
+                gitHubRepository.new(
+                    auth = input.token.toBearerAuth()
+                ).repositories.get(
+                    owner = input.owner.trim(),
+                    name = input.name.trim()
+                )
             }.onSuccess {
                 dbRepository.insertRepo(
                     RepoEntity(

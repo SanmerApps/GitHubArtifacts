@@ -12,31 +12,33 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.github.GitHubHandler
-import dev.sanmer.github.GitHubHandler.Event
-import dev.sanmer.github.GitHubHandler.Status
+import dev.sanmer.github.GitHub
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.None.asLoadData
+import dev.sanmer.github.artifacts.repository.GitHubRepository
 import dev.sanmer.github.artifacts.ui.main.Screen
-import dev.sanmer.github.response.Artifact
-import dev.sanmer.github.response.WorkflowRun
+import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
+import dev.sanmer.github.response.artifact.Artifact
+import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class WorkflowViewModel @Inject constructor(
+    private val gitHubRepository: GitHubRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val workflow = savedStateHandle.toRoute<Screen.Workflow>()
-    private val handler by lazy { GitHubHandler(workflow.token) }
+    private val github by lazy { gitHubRepository.get(workflow.id) }
 
     val name get() = workflow.name
 
     val workflowRuns by lazy {
         WorkflowRunPagingSource(
-            handler = handler,
+            github = github,
             owner = workflow.owner,
             name = workflow.name,
             perPage = 20
@@ -49,36 +51,36 @@ class WorkflowViewModel @Inject constructor(
         Timber.d("WorkflowViewModel init")
     }
 
-    fun getArtifacts(run: WorkflowRun) = with(handler) {
+    fun getArtifacts(run: WorkflowRun): LoadData<List<Artifact>> {
         viewModelScope.launch {
             artifacts.getOrPut(run.id) {
                 runCatching {
-                    getArtifacts(
+                    github.workflowRuns.getArtifacts(
                         owner = workflow.owner,
                         name = workflow.name,
                         runId = run.id
-                    )
+                    ).artifacts
                 }.asLoadData()
             }
         }
 
-        artifacts.getOrDefault(run.id, LoadData.Loading)
+        return artifacts.getOrDefault(run.id, LoadData.Loading)
     }
 
     fun downloadArtifact(context: Context, artifact: Artifact) {
         ArtifactJob.start(
             context = context,
             artifact = artifact,
-            token = workflow.token
+            token = github.auth.toString()
         )
     }
 
     data class WorkflowRunPagingSource(
-        private val handler: GitHubHandler,
+        private val github: GitHub,
         private val owner: String,
         private val name: String,
-        private val event: Event = Event.Push,
-        private val status: Status = Status.Success,
+        private val event: WorkflowRunEvent = WorkflowRunEvent.Push,
+        private val status: WorkflowRunStatus = WorkflowRunStatus.Success,
         private val perPage: Int = 30
     ) : PagingSource<Int, WorkflowRun>() {
         override fun getRefreshKey(state: PagingState<Int, WorkflowRun>): Int? {
@@ -91,14 +93,14 @@ class WorkflowViewModel @Inject constructor(
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, WorkflowRun> {
             return try {
                 val page = params.key ?: 1
-                val workflowRuns = handler.listWorkflowRuns(
+                val workflowRuns = github.workflowRuns.list(
                     owner = owner,
                     name = name,
                     event = event,
                     status = status,
                     perPage = perPage,
                     page = page
-                )
+                ).workflowRuns
 
                 LoadResult.Page(
                     data = workflowRuns,

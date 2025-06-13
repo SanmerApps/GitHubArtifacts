@@ -1,16 +1,16 @@
-package dev.sanmer.github.response
+package dev.sanmer.github.response.repository
 
 import kotlinx.datetime.Instant
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class Commit(
     val id: String,
-    @JsonNames("tree_id")
+    @SerialName("tree_id")
     val treeId: String,
     val message: String,
     val timestamp: Instant,
-    val author: Author = Author.Empty(),
-    val committer: Author = Author.Empty()
+    val author: Author = Author(),
+    val committer: Author = Author()
 )

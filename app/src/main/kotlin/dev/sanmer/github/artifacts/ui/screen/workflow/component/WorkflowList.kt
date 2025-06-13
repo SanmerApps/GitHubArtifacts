@@ -48,8 +48,8 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.items
-import dev.sanmer.github.response.Artifact
-import dev.sanmer.github.response.WorkflowRun
+import dev.sanmer.github.response.artifact.Artifact
+import dev.sanmer.github.response.workflow.run.WorkflowRun
 
 @Composable
 fun WorkflowList(

@@ -36,7 +36,7 @@ fun RepoList(
     items(repos) {
         RepoItem(
             repo = it,
-            onEdit = { navController.navigateSingleTopTo(Screen.EditRepo(it.repo.id, true)) },
+            onEdit = { navController.navigateSingleTopTo(Screen.EditRepo(it.repo.id)) },
             onDelete = { onDelete(it.repo) }
         )
     }

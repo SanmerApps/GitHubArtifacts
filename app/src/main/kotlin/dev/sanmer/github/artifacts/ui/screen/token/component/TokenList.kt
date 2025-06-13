@@ -36,7 +36,7 @@ fun TokenList(
     items(tokens) {
         TokenItem(
             token = it,
-            onEdit = { navController.navigateSingleTopTo(Screen.EditToken(it.token.token, true)) },
+            onEdit = { navController.navigateSingleTopTo(Screen.EditToken(it.token.token)) },
             onDelete = { onDelete(it.token) }
         )
     }

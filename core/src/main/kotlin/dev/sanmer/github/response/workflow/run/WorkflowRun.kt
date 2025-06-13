@@ -1,36 +1,38 @@
-package dev.sanmer.github.response
+package dev.sanmer.github.response.workflow.run
 
+import dev.sanmer.github.response.repository.Commit
+import dev.sanmer.github.response.repository.Owner
 import kotlinx.datetime.Instant
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class WorkflowRun(
     val id: Long,
     val name: String = "",
-    @JsonNames("node_id")
+    @SerialName("node_id")
     val nodeId: String,
-    @JsonNames("head_branch")
+    @SerialName("head_branch")
     val headBranch: String,
-    @JsonNames("head_sha")
+    @SerialName("head_sha")
     val headSha: String,
-    @JsonNames("run_number")
+    @SerialName("run_number")
     val runNumber: Int,
     val event: String,
     val status: String,
-    @JsonNames("html_url")
+    @SerialName("html_url")
     val htmlUrl: String,
-    @JsonNames("created_at")
+    @SerialName("created_at")
     val createdAt: Instant,
-    @JsonNames("updated_at")
+    @SerialName("updated_at")
     val updatedAt: Instant,
     val actor: Owner,
-    @JsonNames("triggering_actor")
+    @SerialName("triggering_actor")
     val triggeringActor: Owner,
-    @JsonNames("run_started_at")
+    @SerialName("run_started_at")
     val runStartedAt: Instant,
-    @JsonNames("head_commit")
+    @SerialName("head_commit")
     val headCommit: Commit,
-    @JsonNames("display_title")
+    @SerialName("display_title")
     val displayTitle: String
 )
