@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -17,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -60,19 +62,14 @@ fun PageIndicator(
     height: Dp = Dp.Unspecified
 ) = PageIndicator(
     icon = {
-        Icon(
+        PageIndicatorDefaults.Icon(
             painter = painterResource(icon),
-            contentDescription = null,
-            tint = PageIndicatorDefaults.ContentColor,
-            modifier = Modifier.size(PageIndicatorDefaults.IconSize)
+            contentDescription = null
         )
     },
     text = {
-        Text(
-            text = stringResource(text),
-            style = PageIndicatorDefaults.TextStyle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+        PageIndicatorDefaults.Text(
+            text = stringResource(text)
         )
     },
     modifier = modifier,
@@ -101,19 +98,14 @@ fun Failed(
     height: Dp = Dp.Unspecified
 ) = PageIndicator(
     icon = {
-        Icon(
+        PageIndicatorDefaults.Icon(
             painter = painterResource(R.drawable.bug),
-            contentDescription = null,
-            tint = PageIndicatorDefaults.ContentColor,
-            modifier = Modifier.size(PageIndicatorDefaults.IconSize)
+            contentDescription = null
         )
     },
     text = {
-        Text(
-            text = message,
-            style = PageIndicatorDefaults.TextStyle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+        PageIndicatorDefaults.Text(
+            text = message
         )
     },
     modifier = modifier,
@@ -136,10 +128,36 @@ object PageIndicatorDefaults {
     val ContentColor @Composable get() = MaterialTheme.colorScheme.outline.copy(0.5f)
 
     val TextStyle @Composable get() = TextStyle(
-        color = MaterialTheme.colorScheme.outline.copy(0.5f),
+        color = ContentColor,
         fontSize = 20.sp,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
         textAlign = TextAlign.Center
     )
+
+    @Composable
+    fun Icon(
+        painter: Painter,
+        contentDescription: String?
+    ) {
+        Icon(
+            painter = painter,
+            contentDescription = contentDescription,
+            tint = ContentColor,
+            modifier = Modifier.size(IconSize)
+        )
+    }
+
+    @Composable
+    fun Text(
+        text: String
+    ) {
+        Text(
+            text = text,
+            style = TextStyle,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 10.dp)
+        )
+    }
 }
