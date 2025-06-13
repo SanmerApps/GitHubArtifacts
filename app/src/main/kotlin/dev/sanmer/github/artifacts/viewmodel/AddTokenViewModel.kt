@@ -50,7 +50,7 @@ class AddTokenViewModel @Inject constructor(
         private set
 
     init {
-        Timber.d("EditTokenViewModel init")
+        Timber.d("AddTokenViewModel init")
         dbObserver()
         loadTokens()
         inputObserver()
