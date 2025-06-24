@@ -12,11 +12,12 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
-import dev.sanmer.github.artifacts.repository.GitHubRepository
+import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
 import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
@@ -28,11 +29,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WorkflowViewModel @Inject constructor(
-    private val gitHubRepository: GitHubRepository,
+    private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val workflow = savedStateHandle.toRoute<Screen.Workflow>()
-    private val github by lazy { gitHubRepository.get(workflow.id) }
+    private val github by lazy { clientRepository.getOrNew(workflow.token.toBearerAuth()) }
 
     val name get() = workflow.name
 
@@ -71,7 +72,7 @@ class WorkflowViewModel @Inject constructor(
         ArtifactJob.start(
             context = context,
             artifact = artifact,
-            token = github.auth.toString()
+            token = workflow.token
         )
     }
 

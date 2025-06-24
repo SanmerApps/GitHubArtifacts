@@ -15,8 +15,8 @@ import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getOrThrow
+import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.repository.DbRepository
-import dev.sanmer.github.artifacts.repository.GitHubRepository
 import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.response.repository.Repository
 import kotlinx.coroutines.launch
@@ -26,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddRepoViewModel @Inject constructor(
     private val dbRepository: DbRepository,
-    private val gitHubRepository: GitHubRepository,
+    private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val addRepo = savedStateHandle.toRoute<Screen.AddRepo>()
@@ -80,7 +80,7 @@ class AddRepoViewModel @Inject constructor(
         viewModelScope.launch {
             control = Control.Connecting
             data = runCatching {
-                gitHubRepository.new(
+                clientRepository.new(
                     auth = input.token.toBearerAuth()
                 ).repositories.get(
                     owner = input.owner,
@@ -120,7 +120,6 @@ class AddRepoViewModel @Inject constructor(
     fun delete() {
         viewModelScope.launch {
             runCatching {
-                gitHubRepository.drop(addRepo.id)
                 dbRepository.deleteRepoById(addRepo.id)
             }.onSuccess {
                 control = Control.Saved

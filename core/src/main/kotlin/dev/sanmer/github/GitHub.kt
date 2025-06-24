@@ -19,8 +19,8 @@ import java.io.InputStream
 import java.util.Locale
 
 class GitHub(
-    val baseUrl: String = BASE_URL,
-    val auth: Auth
+    private val baseUrl: String = BASE_URL,
+    private val auth: Auth
 ) {
     private val okhttp by lazy {
         createOkHttpClient {

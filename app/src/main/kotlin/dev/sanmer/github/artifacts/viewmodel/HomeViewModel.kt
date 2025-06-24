@@ -10,8 +10,8 @@ import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
+import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.repository.DbRepository
-import dev.sanmer.github.artifacts.repository.GitHubRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val dbRepository: DbRepository,
-    private val gitHubRepository: GitHubRepository
+    private val clientRepository: ClientRepository
 ) : ViewModel() {
     var loadData by mutableStateOf<LoadData<List<RepoEntity>>>(LoadData.Loading)
         private set
@@ -79,9 +79,8 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getRepo(repo: RepoEntity) =
         runCatching {
-            gitHubRepository.getOrNew(
-                auth = repo.token.toBearerAuth(),
-                id = repo.id
+            clientRepository.getOrNew(
+                auth = repo.token.toBearerAuth()
             ).repositories.get(
                 owner = repo.owner,
                 name = repo.name
