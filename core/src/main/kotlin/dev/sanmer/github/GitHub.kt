@@ -33,7 +33,7 @@ class GitHub(
     private val retrofit by lazy {
         Retrofit.Builder()
             .addConverterFactory(
-                JsonCompat.asConverterFactory("application/json; charset=UTF8".toMediaType())
+                JsonCompat.default.asConverterFactory("application/json; charset=UTF8".toMediaType())
             )
             .client(okhttp)
             .baseUrl(baseUrl)

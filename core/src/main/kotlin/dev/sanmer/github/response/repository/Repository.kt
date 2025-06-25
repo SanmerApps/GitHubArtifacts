@@ -1,8 +1,9 @@
 package dev.sanmer.github.response.repository
 
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class Repository(
@@ -33,10 +34,13 @@ data class Repository(
     val hasIssues: Boolean,
     val archived: Boolean,
     @SerialName("pushed_at")
+    @Contextual
     val pushedAt: Instant,
     @SerialName("created_at")
+    @Contextual
     val createdAt: Instant,
     @SerialName("updated_at")
+    @Contextual
     val updatedAt: Instant,
     val license: License = License()
 )

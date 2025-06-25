@@ -1,8 +1,8 @@
 package dev.sanmer.github.artifacts.database.entity
 
 import androidx.room.Entity
-import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
 
 @Entity(tableName = "token", primaryKeys = ["token"])
 data class TokenEntity(

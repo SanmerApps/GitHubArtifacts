@@ -17,11 +17,11 @@ import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.artifacts.ui.main.Screen
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 @HiltViewModel
 class AddTokenViewModel @Inject constructor(

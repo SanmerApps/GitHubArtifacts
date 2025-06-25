@@ -1,8 +1,9 @@
 package dev.sanmer.github.response.artifact
 
-import kotlinx.datetime.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class Artifact(
@@ -17,10 +18,13 @@ data class Artifact(
     val archiveDownloadUrl: String,
     val expired: Boolean,
     @SerialName("created_at")
+    @Contextual
     val createdAt: Instant,
     @SerialName("expires_at")
+    @Contextual
     val expiresAt: Instant,
     @SerialName("updated_at")
+    @Contextual
     val updatedAt: Instant,
     val digest: String = ""
 )

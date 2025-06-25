@@ -16,8 +16,8 @@ import dev.sanmer.github.artifacts.database.dao.RepoDao
 import dev.sanmer.github.artifacts.database.dao.TokenDao
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
-import kotlinx.datetime.Instant
 import javax.inject.Singleton
+import kotlin.time.Instant
 
 @Database(version = 2, entities = [TokenEntity::class, RepoEntity::class])
 @TypeConverters(AppDatabase.Converter::class)

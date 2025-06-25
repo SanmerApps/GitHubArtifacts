@@ -1,32 +1,22 @@
 package dev.sanmer.github
 
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.StringFormat
+import dev.sanmer.github.serializer.InstantSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.serializersModuleOf
 
-object JsonCompat : StringFormat {
+object JsonCompat {
     val default = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
+        serializersModule = serializersModuleOf(InstantSerializer)
     }
 
     val printer = Json(default) {
         prettyPrint = true
     }
 
-    override val serializersModule = default.serializersModule
-
-    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, string: String): T {
-        return default.decodeFromString(deserializer, string)
-    }
-
     inline fun <reified T> String.decodeJson(): T =
         default.decodeFromString(this)
-
-    override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
-        return default.encodeToString(serializer, value)
-    }
 
     inline fun <reified T> T.encodeJson(pretty: Boolean) = if (pretty) {
         printer.encodeToString(this)

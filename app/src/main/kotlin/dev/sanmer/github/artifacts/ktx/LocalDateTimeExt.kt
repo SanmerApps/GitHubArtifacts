@@ -2,10 +2,11 @@
 
 package dev.sanmer.github.artifacts.ktx
 
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 inline fun Long.toLocalDateTime(
     timeZone: TimeZone = TimeZone.currentSystemDefault()
@@ -19,10 +20,10 @@ inline fun Instant.toLocalDate(timeZone: TimeZone) = toLocalDateTime(timeZone).d
 
 inline fun LocalDateTime.copy(
     year: Int = this.year,
-    monthNumber: Int = this.monthNumber,
-    dayOfMonth: Int = this.dayOfMonth,
+    month: Int = this.month.number,
+    day: Int = this.day,
     hour: Int = this.hour,
     minute: Int = this.minute,
     second: Int = this.second,
     nanosecond: Int = this.nanosecond
-) = LocalDateTime(year, monthNumber, dayOfMonth, hour, minute, second, nanosecond)
+) = LocalDateTime(year, month, day, hour, minute, second, nanosecond)
