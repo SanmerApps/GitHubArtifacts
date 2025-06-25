@@ -54,8 +54,12 @@ class WorkflowViewModel @Inject constructor(
 
     fun getArtifacts(run: WorkflowRun): LoadData<List<Artifact>> {
         viewModelScope.launch {
-            artifacts.getOrPut(run.id) {
-                runCatching {
+            val data = artifacts.getOrDefault(
+                run.id,
+                LoadData.Failure(IllegalStateException("Padding"))
+            )
+            if (data is LoadData.Failure) {
+                artifacts[run.id] = runCatching {
                     github.workflowRuns.getArtifacts(
                         owner = workflow.owner,
                         name = workflow.name,

@@ -29,6 +29,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -85,7 +87,7 @@ private fun WorkflowItem(
     getArtifacts: (WorkflowRun) -> LoadData<List<Artifact>>,
     downloadArtifact: (Context, Artifact) -> Unit
 ) {
-    var progress by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
     var expend by rememberSaveable(run) { mutableStateOf(false) }
 
     WorkflowItem(
@@ -93,7 +95,7 @@ private fun WorkflowItem(
         onClick = { expend = !expend },
         trailing = {
             WorkflowTrailing(
-                progress = progress,
+                progress = isLoading,
                 expend = expend
             )
         }
@@ -104,12 +106,28 @@ private fun WorkflowItem(
         enter = fadeIn() + expandVertically(),
         exit = shrinkVertically() + fadeOut()
     ) {
-        val data = getArtifacts(run).apply { progress = !isCompleted }
-        if (data is LoadData.Success && data.value.isNotEmpty()) {
-            ArtifactList(
-                artifacts = data.value,
-                download = downloadArtifact
-            )
+        val data by remember(run.id) {
+            derivedStateOf {
+                getArtifacts(run)
+            }
+        }
+
+        DisposableEffect(data) {
+            isLoading = data.isLoading
+            onDispose { isLoading = false }
+        }
+
+        when (val data = data) {
+            is LoadData.Success<List<Artifact>> -> {
+                if (data.value.isNotEmpty()) {
+                    ArtifactList(
+                        artifacts = data.value,
+                        download = downloadArtifact
+                    )
+                }
+            }
+
+            else -> {}
         }
     }
 }
