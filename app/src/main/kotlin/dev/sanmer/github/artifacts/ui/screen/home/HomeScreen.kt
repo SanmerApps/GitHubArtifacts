@@ -77,7 +77,7 @@ fun HomeScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (viewModel.loadData.isCompleted && viewModel.repos.isEmpty()) {
+            if (viewModel.loadData.isSuccess && viewModel.repos.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.git_branch,
                     text = R.string.repo_empty,

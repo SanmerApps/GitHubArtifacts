@@ -1,19 +1,14 @@
 package dev.sanmer.github.artifacts.model
 
 sealed class LoadData<out V> {
-    abstract val isCompleted: Boolean
+    data object Pending : LoadData<Nothing>()
+    data object Loading : LoadData<Nothing>()
+    data class Success<out V>(val value: V) : LoadData<V>()
+    data class Failure(val error: Throwable) : LoadData<Nothing>()
 
-    data object Loading : LoadData<Nothing>() {
-        override val isCompleted = false
-    }
-
-    data class Success<out V>(val value: V) : LoadData<V>() {
-        override val isCompleted = true
-    }
-
-    data class Failure(val error: Throwable) : LoadData<Nothing>() {
-        override val isCompleted = true
-    }
+    val isLoading inline get() = this == Loading
+    val isSuccess inline get() = this is Success
+    val isFailure inline get() = this is Failure
 
     companion object Default {
         fun <V> Result<V>.asLoadData(): LoadData<V> {
@@ -22,11 +17,20 @@ sealed class LoadData<out V> {
                 else -> Failure(requireNotNull(exceptionOrNull()))
             }
         }
+
+        inline fun <V, R> Result<V>.asLoadData(transform: (V) -> R): LoadData<R> {
+            return when {
+                isSuccess -> Success(transform(getOrThrow()))
+                else -> Failure(requireNotNull(exceptionOrNull()))
+            }
+        }
+
         fun <V> LoadData<V>.getOrThrow(): V {
             return when (this) {
-                is Failure -> throw error
+                Pending -> throw IllegalStateException("Pending")
                 Loading -> throw IllegalStateException("Loading")
                 is Success<V> -> value
+                is Failure -> throw error
             }
         }
 

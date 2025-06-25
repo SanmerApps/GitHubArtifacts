@@ -64,7 +64,7 @@ fun TokenScreen(
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize()
         ) {
-            if (viewModel.loadData.isCompleted && viewModel.tokens.isEmpty()) {
+            if (viewModel.loadData.isSuccess && viewModel.tokens.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.key,
                     text = R.string.token_empty,

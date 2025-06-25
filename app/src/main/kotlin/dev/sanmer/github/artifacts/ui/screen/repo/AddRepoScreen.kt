@@ -125,14 +125,14 @@ private fun ConnectContent(
     modifier: Modifier = Modifier
 ) {
     when (val data = viewModel.data) {
-        is LoadData.Failure -> TextCard(
-            value = data.error.stackTraceToString(),
+        LoadData.Pending, LoadData.Loading -> {}
+        is LoadData.Success<Repository> -> TextCard(
+            value = data.value.encodeJson(pretty = true),
             modifier = modifier
         )
 
-        LoadData.Loading -> {}
-        is LoadData.Success<Repository> -> TextCard(
-            value = data.value.encodeJson(pretty = true),
+        is LoadData.Failure -> TextCard(
+            value = data.error.stackTraceToString(),
             modifier = modifier
         )
     }
