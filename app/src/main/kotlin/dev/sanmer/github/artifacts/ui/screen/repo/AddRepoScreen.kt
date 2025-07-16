@@ -47,19 +47,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.github.JsonCompat.encodeJson
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.viewmodel.AddRepoViewModel
-import dev.sanmer.github.artifacts.viewmodel.AddRepoViewModel.Control
+import dev.sanmer.github.artifacts.ui.screen.repo.AddRepoViewModel.Control
 import dev.sanmer.github.response.repository.Repository
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddRepoScreen(
-    viewModel: AddRepoViewModel = hiltViewModel(),
+    viewModel: AddRepoViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

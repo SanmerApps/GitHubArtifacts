@@ -1,4 +1,4 @@
-package dev.sanmer.github.artifacts.viewmodel
+package dev.sanmer.github.artifacts.ui.screen.workflow
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
@@ -11,9 +11,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import androidx.paging.cachedIn
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.GitHub
+import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
@@ -24,16 +23,13 @@ import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.artifact.Artifact
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class WorkflowViewModel @Inject constructor(
+class WorkflowViewModel(
     private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val workflow = savedStateHandle.toRoute<Screen.Workflow>()
-    private val github by lazy { clientRepository.getOrNew(workflow.token.toBearerAuth()) }
+    private val github by lazy { clientRepository.getOrCreate(workflow.token) }
 
     val name get() = workflow.name
 
@@ -49,7 +45,7 @@ class WorkflowViewModel @Inject constructor(
     private val artifacts = mutableStateMapOf<Long, LoadData<List<Artifact>>>()
 
     init {
-        Timber.d("WorkflowViewModel init")
+        logger.d("init")
     }
 
     fun getArtifacts(run: WorkflowRun): LoadData<List<Artifact>> {
@@ -73,7 +69,7 @@ class WorkflowViewModel @Inject constructor(
     }
 
     fun downloadArtifact(context: Context, artifact: Artifact) {
-        ArtifactJob.start(
+        ArtifactJob.Default.start(
             context = context,
             artifact = artifact,
             token = workflow.token
@@ -113,7 +109,7 @@ class WorkflowViewModel @Inject constructor(
                     nextKey = if (workflowRuns.size != perPage) null else page.plus(1),
                 )
             } catch (e: Exception) {
-                Timber.e(e)
+                logger.e(e)
                 LoadResult.Error(e)
             }
         }
@@ -122,5 +118,9 @@ class WorkflowViewModel @Inject constructor(
             config = PagingConfig(pageSize = perPage),
             pagingSourceFactory = ::copy
         )
+    }
+
+    companion object Default {
+        private val logger = Logger.Android("WorkflowViewModel")
     }
 }

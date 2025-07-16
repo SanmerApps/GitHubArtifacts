@@ -1,31 +1,30 @@
-package dev.sanmer.github.artifacts.viewmodel
+package dev.sanmer.github.artifacts.ui.screen.setting
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class SettingViewModel @Inject constructor(
+class SettingViewModel(
     private val dbRepository: DbRepository
 ) : ViewModel() {
     var hasToken by mutableStateOf(false)
         private set
 
+    private val logger = Logger.Android("SettingViewModel")
+
     init {
-        Timber.d("SettingViewModel init")
+        logger.d("init")
         dbObserver()
     }
 
     private fun dbObserver() {
         viewModelScope.launch {
-            dbRepository.tokenFlow
+            dbRepository.getTokensAsFlow()
                 .collect { tokens ->
                     hasToken = tokens.isNotEmpty()
                 }

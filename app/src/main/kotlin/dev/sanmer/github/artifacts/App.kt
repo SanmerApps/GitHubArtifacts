@@ -5,18 +5,22 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import dagger.hilt.android.HiltAndroidApp
-import timber.log.Timber
+import dev.sanmer.github.artifacts.di.Database
+import dev.sanmer.github.artifacts.di.Repositories
+import dev.sanmer.github.artifacts.di.ViewModels
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.startKoin
 
-@HiltAndroidApp
 class App : Application() {
-    init {
-        Timber.plant(Timber.DebugTree())
-    }
-
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels(applicationContext)
+        startKoin {
+            androidLogger()
+            androidContext(this@App)
+            modules(Database, Repositories, ViewModels)
+        }
     }
 
     private fun createNotificationChannels(context: Context) {

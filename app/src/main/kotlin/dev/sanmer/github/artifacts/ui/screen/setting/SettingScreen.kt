@@ -22,7 +22,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
@@ -31,11 +30,11 @@ import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.artifacts.ui.screen.setting.component.SettingIcon
 import dev.sanmer.github.artifacts.ui.screen.setting.component.SettingItem
-import dev.sanmer.github.artifacts.viewmodel.SettingViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingScreen(
-    viewModel: SettingViewModel = hiltViewModel(),
+    viewModel: SettingViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

@@ -1,4 +1,4 @@
-package dev.sanmer.github.artifacts.viewmodel
+package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -10,7 +10,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.repository.DbRepository
@@ -18,13 +18,10 @@ import dev.sanmer.github.artifacts.ui.main.Screen
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
-import timber.log.Timber
-import javax.inject.Inject
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-@HiltViewModel
-class AddTokenViewModel @Inject constructor(
+class AddTokenViewModel(
     private val dbRepository: DbRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -38,7 +35,7 @@ class AddTokenViewModel @Inject constructor(
         private set
 
     val createdAt by derivedStateOf {
-        input.createdAt.toLocalDate(TimeZone.currentSystemDefault())
+        input.createdAt.toLocalDate(TimeZone.Companion.currentSystemDefault())
     }
 
     private val tokens = mutableStateListOf<TokenEntity>()
@@ -49,8 +46,10 @@ class AddTokenViewModel @Inject constructor(
     var isDeletable by mutableStateOf(true)
         private set
 
+    private val logger = Logger.Android("AddTokenViewModel")
+
     init {
-        Timber.d("AddTokenViewModel init")
+        logger.d("init")
         dbObserver()
         loadTokens()
         inputObserver()
@@ -117,7 +116,7 @@ class AddTokenViewModel @Inject constructor(
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }
         }
     }
@@ -129,7 +128,7 @@ class AddTokenViewModel @Inject constructor(
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }
         }
     }
@@ -158,7 +157,7 @@ class AddTokenViewModel @Inject constructor(
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }
         }
     }

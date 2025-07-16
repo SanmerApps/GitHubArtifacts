@@ -1,77 +1,29 @@
 package dev.sanmer.github.artifacts.repository
 
-import dev.sanmer.github.artifacts.database.dao.RepoDao
-import dev.sanmer.github.artifacts.database.dao.TokenDao
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
+import dev.sanmer.github.artifacts.database.entity.RepoWithToken
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Singleton
+import dev.sanmer.github.artifacts.database.entity.TokenWithRepo
+import kotlinx.coroutines.flow.Flow
 
-@Singleton
-class DbRepository @Inject constructor(
-    private val tokenDao: TokenDao,
-    private val repoDao: RepoDao
-) {
-    val tokenFlow get() = tokenDao.getAllAsFlow()
+interface DbRepository {
+    fun getTokensAsFlow(): Flow<List<TokenEntity>>
+    fun getTokensWithReposAsFlow(): Flow<List<TokenWithRepo>>
+    fun getTokenAsFlow(token: String): Flow<TokenEntity>
+    suspend fun getTokenAll(): List<TokenEntity>
+    suspend fun getTokenWithRepo(token: String): TokenWithRepo
+    suspend fun insertToken(token: TokenEntity)
+    suspend fun updateToken(token: TokenEntity)
+    suspend fun deleteToken(token: TokenEntity)
+    suspend fun deleteToken(token: String)
 
-    val tokenAndRepoFlow get() = tokenDao.getAllWithRepoAsFlow()
-
-    suspend fun getTokenAll() = withContext(Dispatchers.IO) {
-        tokenDao.getAll()
-    }
-
-    fun getTokenAsFlow(token: String) = tokenDao.getAsFlow(token).filterNotNull()
-
-    suspend fun getTokenWithRepo(token: String) = withContext(Dispatchers.IO) {
-        tokenDao.getWithRepo(token)
-    }
-
-    suspend fun insertToken(token: TokenEntity) = withContext(Dispatchers.IO) {
-        tokenDao.insert(token)
-    }
-
-    suspend fun updateToken(token: TokenEntity) = withContext(Dispatchers.IO) {
-        tokenDao.update(token)
-    }
-
-    suspend fun deleteToken(token: TokenEntity) = withContext(Dispatchers.IO) {
-        tokenDao.delete(token)
-    }
-
-    suspend fun deleteToken(token: String) = withContext(Dispatchers.IO) {
-        tokenDao.delete(token)
-    }
-
-    val repoFlow get() = repoDao.getAllAsFlow()
-
-    val repoAndTokenFlow get() = repoDao.getAllWithTokenAsFlow()
-
-    suspend fun getRepoAll() = withContext(Dispatchers.IO) {
-        repoDao.getAll()
-    }
-
-    fun getRepoAsFlow(id: Long) = repoDao.getAsFlow(id).filterNotNull()
-
-    suspend fun insertRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
-        repoDao.insert(repo)
-    }
-
-    suspend fun updateRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
-        repoDao.update(repo)
-    }
-
-    suspend fun updateRepo(repos: List<RepoEntity>) = withContext(Dispatchers.IO) {
-        repoDao.update(repos)
-    }
-
-    suspend fun deleteRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
-        repoDao.delete(repo)
-    }
-
-    suspend fun deleteRepoById(repoId: Long) = withContext(Dispatchers.IO) {
-        repoDao.deleteById(repoId)
-    }
+    fun getReposAsFlow(): Flow<List<RepoEntity>>
+    fun getReposWithTokenAsFlow(): Flow<List<RepoWithToken>>
+    fun getRepoAsFlow(id: Long): Flow<RepoEntity>
+    suspend fun getRepoAll(): List<RepoEntity>
+    suspend fun insertRepo(repo: RepoEntity)
+    suspend fun updateRepo(repo: RepoEntity)
+    suspend fun updateRepo(repos: List<RepoEntity>)
+    suspend fun deleteRepo(repo: RepoEntity)
+    suspend fun deleteRepo(repoId: Long)
 }

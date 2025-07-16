@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
@@ -31,11 +30,11 @@ import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.artifacts.ui.screen.repo.component.RepoList
-import dev.sanmer.github.artifacts.viewmodel.RepoViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RepoScreen(
-    viewModel: RepoViewModel = hiltViewModel(),
+    viewModel: RepoViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

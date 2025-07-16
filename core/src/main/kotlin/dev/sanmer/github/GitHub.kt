@@ -8,6 +8,7 @@ import dev.sanmer.github.stub.WorkflowRuns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ConnectionSpec
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -44,11 +45,11 @@ class GitHub(
     val workflowRuns by lazy { retrofit.create<WorkflowRuns>() }
     val artifacts by lazy { retrofit.create<Artifacts>() }
 
-    suspend fun <T> download(
+    suspend fun <T> stream(
         url: String,
         onStream: (InputStream) -> T
     ) = withContext(Dispatchers.IO) {
-        val request = Request.Builder().url(url).build()
+        val request = Request(url.toHttpUrl())
         val response = okhttp.newCall(request).execute()
         require(response.code == 200) { "Expect code = 200" }
         val body = requireNotNull(response.body) { "Expect body" }
