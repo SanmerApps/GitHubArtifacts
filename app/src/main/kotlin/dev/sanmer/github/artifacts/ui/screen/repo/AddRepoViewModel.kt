@@ -1,4 +1,4 @@
-package dev.sanmer.github.artifacts.viewmodel
+package dev.sanmer.github.artifacts.ui.screen.repo
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -8,8 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.github.Auth.Default.toBearerAuth
+import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
@@ -20,11 +19,8 @@ import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.response.repository.Repository
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class AddRepoViewModel @Inject constructor(
+class AddRepoViewModel(
     private val dbRepository: DbRepository,
     private val clientRepository: ClientRepository,
     savedStateHandle: SavedStateHandle
@@ -43,8 +39,10 @@ class AddRepoViewModel @Inject constructor(
     var control by mutableStateOf(Control.Edit)
         private set
 
+    private val logger = Logger.Android("AddRepoViewModel")
+
     init {
-        Timber.d("AddRepoViewModel init")
+        logger.d("init")
         dbObserver()
         loadTokens()
     }
@@ -81,7 +79,7 @@ class AddRepoViewModel @Inject constructor(
             control = Control.Connecting
             data = runCatching {
                 clientRepository.new(
-                    auth = input.token.toBearerAuth()
+                    token = input.token
                 ).repositories.get(
                     owner = input.owner,
                     name = input.name
@@ -90,7 +88,7 @@ class AddRepoViewModel @Inject constructor(
                 control = Control.Connected
             }.onFailure {
                 control = Control.Closed
-                Timber.e(it)
+                logger.e(it)
             }.asLoadData()
         }
     }
@@ -112,7 +110,7 @@ class AddRepoViewModel @Inject constructor(
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }
         }
     }
@@ -120,11 +118,11 @@ class AddRepoViewModel @Inject constructor(
     fun delete() {
         viewModelScope.launch {
             runCatching {
-                dbRepository.deleteRepoById(addRepo.id)
+                dbRepository.deleteRepo(addRepo.id)
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
-                Timber.e(it)
+                logger.e(it)
             }
         }
     }

@@ -38,15 +38,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.viewmodel.AddTokenViewModel
-import dev.sanmer.github.artifacts.viewmodel.AddTokenViewModel.Control
+import dev.sanmer.github.artifacts.ui.screen.token.AddTokenViewModel.Control
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddTokenScreen(
-    viewModel: AddTokenViewModel = hiltViewModel(),
+    viewModel: AddTokenViewModel = koinViewModel(),
     navController: NavController
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

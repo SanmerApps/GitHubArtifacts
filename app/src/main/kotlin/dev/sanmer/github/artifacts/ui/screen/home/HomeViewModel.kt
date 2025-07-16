@@ -1,12 +1,11 @@
-package dev.sanmer.github.artifacts.viewmodel
+package dev.sanmer.github.artifacts.ui.screen.home
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.sanmer.github.Auth.Default.toBearerAuth
+import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
@@ -19,11 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val dbRepository: DbRepository,
     private val clientRepository: ClientRepository
 ) : ViewModel() {
@@ -34,15 +30,17 @@ class HomeViewModel @Inject constructor(
     private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Pending)
     val updateState = _updateState.asStateFlow()
 
+    private val logger = Logger.Android("HomeViewModel")
+
     init {
-        Timber.d("HomeViewModel init")
+        logger.d("init")
         dbObserver()
         updateRepoAll()
     }
 
     private fun dbObserver() {
         viewModelScope.launch {
-            dbRepository.repoFlow
+            dbRepository.getReposAsFlow()
                 .collectLatest { repos ->
                     loadData = LoadData.Success(
                         repos.sortedByDescending { it.pushedAt }
@@ -79,8 +77,8 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun getRepo(repo: RepoEntity) =
         runCatching {
-            clientRepository.getOrNew(
-                auth = repo.token.toBearerAuth()
+            clientRepository.getOrCreate(
+                token = repo.token
             ).repositories.get(
                 owner = repo.owner,
                 name = repo.name
@@ -88,7 +86,7 @@ class HomeViewModel @Inject constructor(
                 repo.copy(it)
             }
         }.onFailure {
-            Timber.e(it)
+            logger.e(it)
         }.getOrNull()
 
     sealed class UpdateState {

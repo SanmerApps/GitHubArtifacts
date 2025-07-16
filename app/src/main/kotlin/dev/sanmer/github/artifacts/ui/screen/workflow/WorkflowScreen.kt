@@ -31,7 +31,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -43,11 +42,11 @@ import dev.sanmer.github.artifacts.ui.ktx.isEmpty
 import dev.sanmer.github.artifacts.ui.ktx.isLoading
 import dev.sanmer.github.artifacts.ui.ktx.isNotEmpty
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowList
-import dev.sanmer.github.artifacts.viewmodel.WorkflowViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun WorkflowScreen(
-    viewModel: WorkflowViewModel = hiltViewModel(),
+    viewModel: WorkflowViewModel = koinViewModel(),
     navController: NavController
 ) {
     if (viewModel.name.isEmpty()) return

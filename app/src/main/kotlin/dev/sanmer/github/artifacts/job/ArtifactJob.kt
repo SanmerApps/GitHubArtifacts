@@ -13,12 +13,12 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import dagger.hilt.android.AndroidEntryPoint
 import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.JsonCompat.decodeJson
 import dev.sanmer.github.JsonCompat.encodeJson
 import dev.sanmer.github.artifacts.Const
+import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.MediaStoreCompat.createMediaStoreUri
@@ -39,15 +39,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
-@AndroidEntryPoint
 class ArtifactJob : LifecycleService() {
     private val notificationManager by lazy { NotificationManagerCompat.from(this) }
+
+    private val logger = Logger.Android("ArtifactJob")
 
     init {
         lifecycleScope.launch {
@@ -59,7 +59,7 @@ class ArtifactJob : LifecycleService() {
     }
 
     override fun onCreate() {
-        Timber.d("onCreate")
+        logger.d("onCreate")
         super.onCreate()
         setForeground()
 
@@ -81,7 +81,7 @@ class ArtifactJob : LifecycleService() {
 
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        Timber.d("onDestroy")
+        logger.d("onDestroy")
         super.onDestroy()
     }
 
@@ -105,7 +105,7 @@ class ArtifactJob : LifecycleService() {
             }.onSuccess {
                 jobStateFlow.update { JobState.Success(artifact, uri) }
             }.onFailure { error ->
-                Timber.e(error)
+                logger.e(error)
                 jobStateFlow.update { JobState.Failure(artifact, error) }
                 contentResolver.delete(uri, null)
             }
@@ -122,7 +122,7 @@ class ArtifactJob : LifecycleService() {
         uri: Uri
     ) = withContext(Dispatchers.IO) {
         val github = GitHub(auth = token.toBearerAuth())
-        val digest = github.download(artifact.archiveDownloadUrl) { input ->
+        val digest = github.stream(artifact.archiveDownloadUrl) { input ->
              contentResolver.openOutputStream(uri).let(::requireNotNull).use { output ->
                 input.copyToWithSHA256(output) { bytesCopied ->
                     val progress = bytesCopied / artifact.sizeInBytes.toFloat()
@@ -131,7 +131,7 @@ class ArtifactJob : LifecycleService() {
             }
         }
 
-        Timber.d("SHA-256 = $digest")
+        logger.d("SHA-256 = $digest")
         val target = artifact.digest.removePrefix("sha256:")
         if (target != artifact.digest) {
             require(digest == target) { "Expect SHA-256 = $target, but $digest" }
