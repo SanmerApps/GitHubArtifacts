@@ -16,7 +16,7 @@ kotlin = "2.2.21"
 kotlinxCoroutines = "1.10.2"
 kotlinxDatetime = "0.7.1"
 kotlinxSerialization = "1.9.0"
-ksp = "2.3.1"
+ksp = "2.3.2"
 squareRetrofit = "3.0.0"
 squareOkhttp = "5.3.0"
 
