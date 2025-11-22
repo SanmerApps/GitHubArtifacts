@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-val baseVersionName = "0.1.8"
+val baseVersionName = "0.1.9"
 val devVersion = exec("git tag --contains HEAD").isEmpty()
 val shaSuffix = gitCommitSha.let { ".${it.substring(0, 7)}" }
 val devSuffix = if (devVersion) ".dev" else ""
