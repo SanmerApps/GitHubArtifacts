@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +48,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.items
+import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.response.artifact.Artifact
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 
@@ -176,10 +175,10 @@ private fun ArtifactList(
 ) = Column(
     modifier = Modifier
         .padding(all = 10.dp)
-        .clip(shape = MaterialTheme.shapes.medium)
-        .border(
-            border = CardDefaults.outlinedCardBorder(),
-            shape = MaterialTheme.shapes.medium
+        .surface(
+            shape = MaterialTheme.shapes.large,
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            border = CardDefaults.outlinedCardBorder(false)
         )
 ) {
     val context = LocalContext.current
@@ -200,7 +199,9 @@ private fun ArtifactList(
         )
 
         if (index < artifacts.size - 1) {
-            HorizontalDivider()
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.surfaceContainerHighest
+            )
         }
     }
 }

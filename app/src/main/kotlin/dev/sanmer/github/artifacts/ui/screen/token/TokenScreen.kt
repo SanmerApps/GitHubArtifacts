@@ -89,7 +89,7 @@ private fun ActionButton(
         onClick = { navController.navigateSingleTopTo(Screen.AddToken()) }
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.pencil_plus),
+            painter = painterResource(id = R.drawable.pencil),
             contentDescription = null
         )
     }

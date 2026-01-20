@@ -1,6 +1,5 @@
 package dev.sanmer.github.artifacts.ui.screen.repo.component
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,12 +15,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.RepoWithToken
+import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.artifacts.ui.screen.home.component.Title
 import dev.sanmer.github.artifacts.ui.screen.home.component.Value
 import kotlinx.datetime.TimeZone
@@ -33,17 +32,14 @@ fun RepoItem(
     onClick: () -> Unit
 ) = Column(
     modifier = Modifier
-        .fillMaxWidth()
-        .border(
-            border = CardDefaults.outlinedCardBorder(),
-            shape = MaterialTheme.shapes.medium
+        .surface(
+            shape = MaterialTheme.shapes.large,
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            border = CardDefaults.outlinedCardBorder(false)
         )
-        .clip(shape = MaterialTheme.shapes.medium)
-        .clickable(
-            onClick = onClick,
-            enabled = true
-        )
+        .clickable(onClick = onClick)
         .padding(all = 15.dp)
+        .fillMaxWidth()
 ) {
     Title(
         title = repo.repo.fullName,

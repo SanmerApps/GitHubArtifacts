@@ -1,8 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.setting.component
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,14 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.ui.component.Logo
+import dev.sanmer.github.artifacts.ui.ktx.surface
 
 @Composable
 fun SettingItem(
@@ -31,18 +28,17 @@ fun SettingItem(
     enabled: Boolean = true
 ) = Row(
     modifier = Modifier
-        .fillMaxWidth()
-        .clip(shape = MaterialTheme.shapes.large)
-        .background(color = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
-        .border(
-            border = CardDefaults.outlinedCardBorder(),
-            shape = MaterialTheme.shapes.large
+        .surface(
+            shape = MaterialTheme.shapes.large,
+            backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+            border = CardDefaults.outlinedCardBorder(false)
         )
         .clickable(
             enabled = enabled,
             onClick = onClick
         )
-        .padding(all = 20.dp),
+        .padding(all = 20.dp)
+        .fillMaxWidth(),
     horizontalArrangement = Arrangement.spacedBy(20.dp),
     verticalAlignment = Alignment.CenterVertically
 ) {

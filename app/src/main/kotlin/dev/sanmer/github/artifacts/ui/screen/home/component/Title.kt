@@ -38,7 +38,7 @@ fun Title(
                     border = CardDefaults.outlinedCardBorder(),
                     shape = CircleShape
                 )
-                .padding(horizontal = 10.dp)
+                .padding(horizontal = 8.dp, vertical = 2.dp)
         )
     }
 }
