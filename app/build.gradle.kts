@@ -73,6 +73,12 @@ android {
     dependenciesInfo.includeInApk = false
 }
 
+androidComponents.onVariants { variant ->
+    variant.outputs.forEach {
+        it.outputFileName = "GitHubArtifacts-${it.versionName.get()}-${it.versionCode.get()}-${variant.buildType}.apk"
+    }
+}
+
 dependencies {
     implementation(project(":core"))
 
