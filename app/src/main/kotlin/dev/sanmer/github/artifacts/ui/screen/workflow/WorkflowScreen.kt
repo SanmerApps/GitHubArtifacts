@@ -31,7 +31,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.sanmer.github.artifacts.R
@@ -42,12 +41,11 @@ import dev.sanmer.github.artifacts.ui.ktx.isEmpty
 import dev.sanmer.github.artifacts.ui.ktx.isLoading
 import dev.sanmer.github.artifacts.ui.ktx.isNotEmpty
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowList
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun WorkflowScreen(
-    viewModel: WorkflowViewModel = koinViewModel(),
-    navController: NavController
+    viewModel: WorkflowViewModel,
+    goBack: () -> Unit
 ) {
     if (viewModel.name.isEmpty()) return
     val workflowRuns = viewModel.workflowRuns.collectAsLazyPagingItems()
@@ -64,8 +62,8 @@ fun WorkflowScreen(
             TopBar(
                 name = viewModel.name,
                 isRefreshing = isRefreshing,
+                onBack = goBack,
                 onRefresh = workflowRuns::refresh,
-                navController = navController,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -109,8 +107,8 @@ fun WorkflowScreen(
 private fun TopBar(
     name: String,
     isRefreshing: Boolean,
+    onBack: () -> Unit,
     onRefresh: () -> Unit,
-    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = {
@@ -122,7 +120,7 @@ private fun TopBar(
     },
     navigationIcon = {
         IconButton(
-            onClick = { navController.navigateUp() },
+            onClick = onBack,
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.arrow_left),

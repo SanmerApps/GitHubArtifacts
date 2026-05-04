@@ -11,16 +11,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.database.entity.TokenWithRepo
-import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.ktx.plus
-import dev.sanmer.github.artifacts.ui.main.Screen
 
 @Composable
 fun TokenList(
     tokens: List<TokenWithRepo>,
-    navController: NavController,
+    onClick: (TokenWithRepo) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
@@ -34,7 +31,7 @@ fun TokenList(
     items(tokens) {
         TokenItem(
             token = it,
-            onClick = { navController.navigateSingleTopTo(Screen.AddToken(it.token.token)) }
+            onClick = { onClick(it) }
         )
     }
 }

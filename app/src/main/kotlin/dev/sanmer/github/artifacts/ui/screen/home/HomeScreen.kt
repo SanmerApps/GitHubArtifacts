@@ -32,19 +32,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
-import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
-import dev.sanmer.github.artifacts.ui.main.Screen
+import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoList
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = koinViewModel(),
-    navController: NavController
+    viewModel: HomeViewModel,
+    goTo: (Screen) -> Unit,
 ) {
     val updateState by viewModel.updateState.collectAsStateWithLifecycle()
 
@@ -66,7 +63,9 @@ fun HomeScreen(
                 enter = fadeIn() + scaleIn(),
                 exit = scaleOut() + fadeOut()
             ) {
-                ActionButton(navController = navController)
+                ActionButton(
+                    onClick = { goTo(Screen.Setting) }
+                )
             }
         }
     ) { contentPadding ->
@@ -86,7 +85,7 @@ fun HomeScreen(
 
             RepoList(
                 repos = viewModel.repos,
-                navController = navController,
+                onClick = { goTo(Screen.Workflow(it)) },
                 state = listState,
                 contentPadding = contentPadding
             )
@@ -96,10 +95,10 @@ fun HomeScreen(
 
 @Composable
 private fun ActionButton(
-    navController: NavController
+    onClick: () -> Unit
 ) {
     FloatingActionButton(
-        onClick = { navController.navigateSingleTopTo(Screen.Setting) }
+        onClick = onClick
     ) {
         Icon(
             painter = painterResource(id = R.drawable.settings_2),

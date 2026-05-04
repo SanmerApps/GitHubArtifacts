@@ -1,4 +1,4 @@
-package dev.sanmer.github.artifacts.di
+package dev.sanmer.github.artifacts.ui.di
 
 import dev.sanmer.github.artifacts.ui.screen.home.HomeViewModel
 import dev.sanmer.github.artifacts.ui.screen.repo.AddRepoViewModel

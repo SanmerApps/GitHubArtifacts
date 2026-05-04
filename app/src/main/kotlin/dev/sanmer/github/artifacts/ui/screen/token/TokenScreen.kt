@@ -23,19 +23,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
-import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
-import dev.sanmer.github.artifacts.ui.main.Screen
+import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.token.component.TokenList
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun TokenScreen(
-    viewModel: TokenViewModel = koinViewModel(),
-    navController: NavController
+    viewModel: TokenViewModel,
+    goTo: (Screen) -> Unit,
+    goBack: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
@@ -44,7 +42,7 @@ fun TokenScreen(
     Scaffold(
         topBar = {
             TopBar(
-                navController = navController,
+                onBack = goBack,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -54,7 +52,9 @@ fun TokenScreen(
                 enter = fadeIn() + scaleIn(),
                 exit = scaleOut() + fadeOut()
             ) {
-                ActionButton(navController = navController)
+                ActionButton(
+                    onClick = { goTo(Screen.AddToken()) }
+                )
             }
         }
     ) { contentPadding ->
@@ -73,7 +73,7 @@ fun TokenScreen(
 
             TokenList(
                 tokens = viewModel.tokens,
-                navController = navController,
+                onClick = { goTo(Screen.AddToken(it.token.token)) },
                 state = listState,
                 contentPadding = contentPadding
             )
@@ -83,10 +83,10 @@ fun TokenScreen(
 
 @Composable
 private fun ActionButton(
-    navController: NavController
+    onClick: () -> Unit
 ) {
     FloatingActionButton(
-        onClick = { navController.navigateSingleTopTo(Screen.AddToken()) }
+        onClick = onClick
     ) {
         Icon(
             painter = painterResource(id = R.drawable.pencil),
@@ -97,13 +97,13 @@ private fun ActionButton(
 
 @Composable
 private fun TopBar(
-    navController: NavController,
+    onBack: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.settings_token_title)) },
     navigationIcon = {
         IconButton(
-            onClick = { navController.navigateUp() },
+            onClick = onBack,
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.arrow_left),

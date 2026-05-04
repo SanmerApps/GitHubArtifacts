@@ -22,27 +22,25 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ktx.viewUrl
-import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
-import dev.sanmer.github.artifacts.ui.main.Screen
+import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.setting.component.SettingIcon
 import dev.sanmer.github.artifacts.ui.screen.setting.component.SettingItem
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingScreen(
-    viewModel: SettingViewModel = koinViewModel(),
-    navController: NavController
+    viewModel: SettingViewModel,
+    goTo: (Screen) -> Unit,
+    goBack: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
         topBar = {
             TopBar(
-                navController = navController,
+                onBack = goBack,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -69,7 +67,7 @@ fun SettingScreen(
                 },
                 title = stringResource(id = R.string.settings_token_title),
                 text = stringResource(id = R.string.settings_token_desc),
-                onClick = { navController.navigateSingleTopTo(Screen.Token) }
+                onClick = { goTo(Screen.Token) }
             )
 
             SettingItem(
@@ -85,7 +83,7 @@ fun SettingScreen(
                 },
                 title = stringResource(id = R.string.settings_repo_title),
                 text = stringResource(id = R.string.settings_repo_desc),
-                onClick = { navController.navigateSingleTopTo(Screen.Repo) },
+                onClick = { goTo(Screen.Repo) },
                 enabled = viewModel.hasToken
             )
         }
@@ -94,13 +92,13 @@ fun SettingScreen(
 
 @Composable
 private fun TopBar(
-    navController: NavController,
+    onBack: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.settings_title)) },
     navigationIcon = {
         IconButton(
-            onClick = { navController.navigateUp() },
+            onClick = onBack
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.arrow_left),

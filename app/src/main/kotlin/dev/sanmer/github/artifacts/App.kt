@@ -7,7 +7,7 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import dev.sanmer.github.artifacts.di.Database
 import dev.sanmer.github.artifacts.di.Repositories
-import dev.sanmer.github.artifacts.di.ViewModels
+import dev.sanmer.github.artifacts.ui.di.Navigation
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -19,7 +19,7 @@ class App : Application() {
         startKoin {
             androidLogger()
             androidContext(this@App)
-            modules(Database, Repositories, ViewModels)
+            modules(Database, Repositories, Navigation)
         }
     }
 

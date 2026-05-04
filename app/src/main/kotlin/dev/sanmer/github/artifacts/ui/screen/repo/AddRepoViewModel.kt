@@ -4,10 +4,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
@@ -16,17 +14,15 @@ import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getOrThrow
 import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.repository.DbRepository
-import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.response.repository.Repository
 import kotlinx.coroutines.launch
 
 class AddRepoViewModel(
     private val dbRepository: DbRepository,
     private val clientRepository: ClientRepository,
-    savedStateHandle: SavedStateHandle
+    private val id: Long
 ) : ViewModel() {
-    private val addRepo = savedStateHandle.toRoute<Screen.AddRepo>()
-    val isEdit get() = addRepo.isEdit
+    val isEdit = id != 0L
 
     var input by mutableStateOf(Input())
         private set
@@ -49,7 +45,7 @@ class AddRepoViewModel(
 
     private fun dbObserver() {
         viewModelScope.launch {
-            dbRepository.getRepoAsFlow(addRepo.id)
+            dbRepository.getRepoAsFlow(id)
                 .collect { repo ->
                     input { Input(repo) }
                 }
@@ -103,7 +99,7 @@ class AddRepoViewModel(
 
             runCatching {
                 if (isEdit) {
-                    dbRepository.updateRepo(value.copy(id = addRepo.id))
+                    dbRepository.updateRepo(value.copy(id = id))
                 } else {
                     dbRepository.insertRepo(value)
                 }
@@ -118,7 +114,7 @@ class AddRepoViewModel(
     fun delete() {
         viewModelScope.launch {
             runCatching {
-                dbRepository.deleteRepo(addRepo.id)
+                dbRepository.deleteRepo(id)
             }.onSuccess {
                 control = Control.Saved
             }.onFailure {
