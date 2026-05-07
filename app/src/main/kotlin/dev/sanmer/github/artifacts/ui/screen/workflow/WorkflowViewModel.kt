@@ -27,16 +27,16 @@ class WorkflowViewModel(
     private val owner: String,
     val name: String,
 ) : ViewModel() {
-    private val github by lazy { clientRepository.getOrCreate(token) }
+    private val github = clientRepository.getOrCreate(token)
 
-    val workflowRuns by lazy {
-        WorkflowRunPagingSource(
-            github = github,
-            owner = owner,
-            name = name,
-            perPage = 20
-        ).asPager().flow.cachedIn(viewModelScope)
-    }
+    private val pager = WorkflowRunPagingSource(
+        github = github,
+        owner = owner,
+        name = name,
+        perPage = 20
+    ).asPager()
+
+    val workflowRuns = pager.flow.cachedIn(viewModelScope)
 
     private val artifacts = mutableStateMapOf<Long, LoadData<List<Artifact>>>()
 
