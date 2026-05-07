@@ -6,15 +6,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.repository.DbRepository
-import dev.sanmer.github.artifacts.ui.main.Screen
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -23,10 +20,9 @@ import kotlin.time.Instant
 
 class AddTokenViewModel(
     private val dbRepository: DbRepository,
-    savedStateHandle: SavedStateHandle
+    private val token: String
 ) : ViewModel() {
-    private val addToken = savedStateHandle.toRoute<Screen.AddToken>()
-    val isEdit get() = addToken.isEdit
+    val isEdit = token.isNotEmpty()
 
     var input by mutableStateOf(Input())
         private set
@@ -43,7 +39,7 @@ class AddTokenViewModel(
     var control by mutableStateOf(Control.Edit)
         private set
 
-    var isDeletable by mutableStateOf(true)
+    var inUse by mutableStateOf(true)
         private set
 
     private val logger = Logger.Android("AddTokenViewModel")
@@ -57,7 +53,7 @@ class AddTokenViewModel(
 
     private fun dbObserver() {
         viewModelScope.launch {
-            dbRepository.getTokenAsFlow(addToken.token)
+            dbRepository.getTokenAsFlow(token)
                 .collect { token ->
                     input { Input(token) }
                 }
@@ -67,11 +63,9 @@ class AddTokenViewModel(
     private fun loadTokens() {
         viewModelScope.launch {
             if (isEdit) {
-                isDeletable = dbRepository.getTokenWithRepo(addToken.token).repo.isEmpty()
+                inUse = dbRepository.getTokenWithRepo(token).repo.isNotEmpty()
             }
-
-            val values = dbRepository.getTokenAll()
-            tokens.addAll(values)
+            tokens.addAll(dbRepository.getTokenAll())
         }
     }
 

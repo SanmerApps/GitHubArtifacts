@@ -38,22 +38,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.screen.token.AddTokenViewModel.Control
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddTokenScreen(
-    viewModel: AddTokenViewModel = koinViewModel(),
-    navController: NavController
+    viewModel: AddTokenViewModel,
+    goBack: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     DisposableEffect(viewModel.control) {
-        if (viewModel.control.isSaved) {
-            navController.navigateUp()
-        }
+        if (viewModel.control.isSaved) goBack()
         onDispose {}
     }
 
@@ -62,9 +58,9 @@ fun AddTokenScreen(
         topBar = {
             TopBar(
                 isEdit = viewModel.isEdit,
-                isDeletable = viewModel.isDeletable,
+                onClose = goBack,
+                inUse = viewModel.inUse,
                 onDelete = viewModel::delete,
-                navController = navController,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -258,9 +254,9 @@ private fun Icon(
 @Composable
 private fun TopBar(
     isEdit: Boolean,
-    isDeletable: Boolean,
+    onClose: () -> Unit,
+    inUse: Boolean,
     onDelete: () -> Unit,
-    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     val isImeVisible = WindowInsets.isImeVisible
@@ -279,7 +275,7 @@ private fun TopBar(
             IconButton(
                 onClick = {
                     if (isImeVisible) keyboardController?.hide()
-                    navController.navigateUp()
+                    onClose()
                 },
             ) {
                 Icon(
@@ -292,7 +288,7 @@ private fun TopBar(
             if (isEdit) {
                 IconButton(
                     onClick = onDelete,
-                    enabled = isDeletable
+                    enabled = !inUse
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.trash_x),

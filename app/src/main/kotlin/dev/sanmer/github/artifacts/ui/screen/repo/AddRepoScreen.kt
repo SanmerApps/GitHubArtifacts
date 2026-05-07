@@ -48,7 +48,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import dev.sanmer.github.JsonCompat.encodeJson
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
@@ -60,14 +59,12 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AddRepoScreen(
     viewModel: AddRepoViewModel = koinViewModel(),
-    navController: NavController
+    goBack: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     DisposableEffect(viewModel.control) {
-        if (viewModel.control.isSaved) {
-            navController.navigateUp()
-        }
+        if (viewModel.control.isSaved) goBack()
         onDispose {}
     }
 
@@ -81,10 +78,10 @@ fun AddRepoScreen(
         topBar = {
             TopBar(
                 isEdit = viewModel.isEdit,
+                onClose = goBack,
                 control = viewModel.control,
                 setControl = viewModel::update,
                 onDelete = viewModel::delete,
-                navController = navController,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -352,10 +349,10 @@ private fun TokenItem(
 @Composable
 private fun TopBar(
     isEdit: Boolean,
+    onClose: () -> Unit,
     control: Control,
     setControl: (Control) -> Unit,
     onDelete: () -> Unit,
-    navController: NavController,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     val isImeVisible = WindowInsets.isImeVisible
@@ -377,7 +374,7 @@ private fun TopBar(
                         setControl(Control.Edit)
                     } else {
                         if (isImeVisible) keyboardController?.hide()
-                        navController.navigateUp()
+                        onClose()
                     }
                 },
             ) {

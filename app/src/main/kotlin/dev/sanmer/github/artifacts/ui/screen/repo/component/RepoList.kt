@@ -11,16 +11,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import dev.sanmer.github.artifacts.database.entity.RepoWithToken
-import dev.sanmer.github.artifacts.ui.ktx.navigateSingleTopTo
 import dev.sanmer.github.artifacts.ui.ktx.plus
-import dev.sanmer.github.artifacts.ui.main.Screen
 
 @Composable
 fun RepoList(
     repos: List<RepoWithToken>,
-    navController: NavController,
+    onClick: (RepoWithToken) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
@@ -34,7 +31,7 @@ fun RepoList(
     items(repos) {
         RepoItem(
             repo = it,
-            onClick = { navController.navigateSingleTopTo(Screen.AddRepo(it.repo.id)) },
+            onClick = { onClick(it) },
         )
     }
 }

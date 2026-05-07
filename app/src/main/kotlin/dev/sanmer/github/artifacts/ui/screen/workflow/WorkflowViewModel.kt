@@ -2,10 +2,8 @@ package dev.sanmer.github.artifacts.ui.screen.workflow
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -17,7 +15,6 @@ import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.repository.ClientRepository
-import dev.sanmer.github.artifacts.ui.main.Screen
 import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
 import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.artifact.Artifact
@@ -26,18 +23,17 @@ import kotlinx.coroutines.launch
 
 class WorkflowViewModel(
     private val clientRepository: ClientRepository,
-    savedStateHandle: SavedStateHandle
+    private val token: String,
+    private val owner: String,
+    val name: String,
 ) : ViewModel() {
-    private val workflow = savedStateHandle.toRoute<Screen.Workflow>()
-    private val github by lazy { clientRepository.getOrCreate(workflow.token) }
-
-    val name get() = workflow.name
+    private val github by lazy { clientRepository.getOrCreate(token) }
 
     val workflowRuns by lazy {
         WorkflowRunPagingSource(
             github = github,
-            owner = workflow.owner,
-            name = workflow.name,
+            owner = owner,
+            name = name,
             perPage = 20
         ).asPager().flow.cachedIn(viewModelScope)
     }
@@ -57,8 +53,8 @@ class WorkflowViewModel(
             if (data is LoadData.Failure) {
                 artifacts[run.id] = runCatching {
                     github.workflowRuns.getArtifacts(
-                        owner = workflow.owner,
-                        name = workflow.name,
+                        owner = owner,
+                        name = name,
                         runId = run.id
                     ).artifacts
                 }.asLoadData()
@@ -69,10 +65,10 @@ class WorkflowViewModel(
     }
 
     fun downloadArtifact(context: Context, artifact: Artifact) {
-        ArtifactJob.Default.start(
+        ArtifactJob.start(
             context = context,
             artifact = artifact,
-            token = workflow.token
+            token = token
         )
     }
 
