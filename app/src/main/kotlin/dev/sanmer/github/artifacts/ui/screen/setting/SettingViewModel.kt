@@ -19,10 +19,10 @@ class SettingViewModel(
 
     init {
         logger.d("init")
-        dbObserver()
+        loadDb()
     }
 
-    private fun dbObserver() {
+    private fun loadDb() {
         viewModelScope.launch {
             dbRepository.getTokensAsFlow()
                 .collect { tokens ->

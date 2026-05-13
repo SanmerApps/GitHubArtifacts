@@ -34,6 +34,9 @@
     <string name="edit_owner">所有者</string>
     <string name="edit_name">名称</string>
     <string name="edit_token">令牌</string>
+    <string name="edit_expiration">有效期</string>
+    <string name="edit_day">天</string>
+    <string name="edit_days">天</string>
 
     <!-- Job -->
     <string name="artifact_job">工件任务</string>

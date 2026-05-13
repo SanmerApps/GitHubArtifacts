@@ -23,11 +23,11 @@ import kotlinx.coroutines.launch
 
 class WorkflowViewModel(
     private val clientRepository: ClientRepository,
-    private val token: String,
+    private val tokenId: Long,
     private val owner: String,
     val name: String,
 ) : ViewModel() {
-    private val github = clientRepository.getOrCreate(token)
+    private val github = clientRepository.get(tokenId)
 
     private val pager = WorkflowRunPagingSource(
         github = github,
@@ -68,7 +68,7 @@ class WorkflowViewModel(
         ArtifactJob.start(
             context = context,
             artifact = artifact,
-            token = token
+            tokenId = tokenId
         )
     }
 

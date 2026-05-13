@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.artifacts.Logger
-import dev.sanmer.github.artifacts.database.entity.RepoWithToken
+import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
 import dev.sanmer.github.artifacts.repository.DbRepository
@@ -15,22 +15,23 @@ import kotlinx.coroutines.launch
 class RepoViewModel(
     private val dbRepository: DbRepository
 ) : ViewModel() {
-    var loadData by mutableStateOf<LoadData<List<RepoWithToken>>>(LoadData.Loading)
+    var loadData by mutableStateOf<LoadData<List<RepoEntity.AndToken>>>(LoadData.Loading)
         private set
-    val repos inline get() = loadData.getValue(emptyList()) { it }
+
+    val list inline get() = loadData.getValue(emptyList()) { it }
 
     private val logger = Logger.Android("RepoViewModel")
 
     init {
         logger.d("init")
-        dbObserver()
+        loadDb()
     }
 
-    private fun dbObserver() {
+    private fun loadDb() {
         viewModelScope.launch {
-            dbRepository.getReposWithTokenAsFlow()
-                .collect { repos ->
-                    loadData = LoadData.Success(repos)
+            dbRepository.getReposAndTokenAsFlow()
+                .collect {
+                    loadData = LoadData.Success(it)
                 }
         }
     }

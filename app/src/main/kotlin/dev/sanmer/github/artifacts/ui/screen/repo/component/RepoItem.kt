@@ -19,16 +19,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
-import dev.sanmer.github.artifacts.database.entity.RepoWithToken
+import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.ui.component.Title
+import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.artifacts.ui.ktx.surface
-import dev.sanmer.github.artifacts.ui.screen.home.component.Title
-import dev.sanmer.github.artifacts.ui.screen.home.component.Value
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun RepoItem(
-    repo: RepoWithToken,
+    repo: RepoEntity,
+    token: TokenEntity,
     onClick: () -> Unit
 ) = Column(
     modifier = Modifier
@@ -42,51 +43,53 @@ fun RepoItem(
         .fillMaxWidth()
 ) {
     Title(
-        title = repo.repo.fullName,
-        subtitle = repo.repo.state()
+        title = repo.fullName,
+        subtitle = repo.repoType()
     )
 
     CompositionLocalProvider(
         LocalContentColor provides MaterialTheme.colorScheme.outline
     ) {
-        BottomRow(repo = repo)
+        BottomRow(
+            repo = repo,
+            token = token
+        )
     }
 }
 
 @Composable
-private fun RepoEntity.state(): String {
-    return if (private) {
-        when {
-            archived -> stringResource(id = R.string.repo_private_archive)
-            isTemplate -> stringResource(id = R.string.repo_private_template)
-            else -> stringResource(id = R.string.repo_private)
-        }
-    } else {
-        when {
-            archived -> stringResource(id = R.string.repo_public_archive)
-            isTemplate -> stringResource(id = R.string.repo_public_template)
-            else -> stringResource(id = R.string.repo_public)
-        }
+fun RepoEntity.repoType() = if (private) {
+    when {
+        archived -> stringResource(id = R.string.repo_private_archive)
+        isTemplate -> stringResource(id = R.string.repo_private_template)
+        else -> stringResource(id = R.string.repo_private)
+    }
+} else {
+    when {
+        archived -> stringResource(id = R.string.repo_public_archive)
+        isTemplate -> stringResource(id = R.string.repo_public_template)
+        else -> stringResource(id = R.string.repo_public)
     }
 }
 
 @Composable
 private fun BottomRow(
-    repo: RepoWithToken
+    repo: RepoEntity,
+    token: TokenEntity,
 ) = FlowRow(
     modifier = Modifier.padding(top = 5.dp),
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    val updatedAt by remember {
+    val updatedAt by remember(repo.id) {
         derivedStateOf {
-            repo.repo.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+            repo.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
         }
     }
 
     Value(
         icon = R.drawable.key,
-        value = repo.token.name
+        value = token.name
     )
 
     Value(value = updatedAt)

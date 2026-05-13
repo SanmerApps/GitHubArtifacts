@@ -11,13 +11,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.sanmer.github.artifacts.database.entity.RepoWithToken
+import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ui.ktx.plus
 
 @Composable
 fun RepoList(
-    repos: List<RepoWithToken>,
-    onClick: (RepoWithToken) -> Unit,
+    list: List<RepoEntity.AndToken>,
+    onClick: (RepoEntity) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
@@ -28,10 +28,11 @@ fun RepoList(
     contentPadding = contentPadding + PaddingValues(all = 15.dp),
     verticalArrangement = Arrangement.spacedBy(15.dp)
 ) {
-    items(repos) {
+    items(list) { (repo, token) ->
         RepoItem(
-            repo = it,
-            onClick = { onClick(it) },
+            repo = repo,
+            token = token,
+            onClick = { onClick(repo) },
         )
     }
 }

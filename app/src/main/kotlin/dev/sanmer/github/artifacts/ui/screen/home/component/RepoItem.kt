@@ -19,13 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.Languages
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ktx.format
+import dev.sanmer.github.artifacts.ui.component.Title
+import dev.sanmer.github.artifacts.ui.component.Value
+import dev.sanmer.github.artifacts.ui.screen.repo.component.repoType
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -40,7 +42,7 @@ fun RepoItem(
         .padding(horizontal = 15.dp, vertical = 10.dp)
         .fillMaxWidth()
 ) {
-    val pushedAt by remember {
+    val pushedAt by remember(repo.id) {
         derivedStateOf {
             repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
         }
@@ -48,7 +50,7 @@ fun RepoItem(
 
     Title(
         title = repo.fullName,
-        subtitle = repo.state()
+        subtitle = repo.repoType()
     )
 
     if (repo.description.isNotBlank()) {
@@ -68,23 +70,6 @@ fun RepoItem(
         )
 
         Value(text = pushedAt)
-    }
-}
-
-@Composable
-private fun RepoEntity.state(): String {
-    return if (private) {
-        when {
-            archived -> stringResource(id = R.string.repo_private_archive)
-            isTemplate -> stringResource(id = R.string.repo_private_template)
-            else -> stringResource(id = R.string.repo_private)
-        }
-    } else {
-        when {
-            archived -> stringResource(id = R.string.repo_public_archive)
-            isTemplate -> stringResource(id = R.string.repo_public_template)
-            else -> stringResource(id = R.string.repo_public)
-        }
     }
 }
 

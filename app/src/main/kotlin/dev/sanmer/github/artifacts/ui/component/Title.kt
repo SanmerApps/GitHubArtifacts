@@ -1,4 +1,4 @@
-package dev.sanmer.github.artifacts.ui.screen.home.component
+package dev.sanmer.github.artifacts.ui.component
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Title(
     title: String,
-    subtitle: String?
+    subtitle: String? = null
 ) = FlowRow(
     horizontalArrangement = Arrangement.spacedBy(5.dp),
     verticalArrangement = Arrangement.spacedBy(2.dp)

@@ -34,6 +34,9 @@
     <string name="edit_owner">Owner</string>
     <string name="edit_name">Name</string>
     <string name="edit_token">Token</string>
+    <string name="edit_expiration">Expiration</string>
+    <string name="edit_day">day</string>
+    <string name="edit_days">days</string>
 
     <!-- Job -->
     <string name="artifact_job">Artifact Job</string>

@@ -53,7 +53,7 @@ fun TokenScreen(
                 exit = scaleOut() + fadeOut()
             ) {
                 ActionButton(
-                    onClick = { goTo(Screen.AddToken()) }
+                    onClick = { goTo(Screen.EditToken()) }
                 )
             }
         }
@@ -63,7 +63,7 @@ fun TokenScreen(
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize()
         ) {
-            if (viewModel.loadData.isSuccess && viewModel.tokens.isEmpty()) {
+            if (viewModel.loadData.isSuccess && viewModel.list.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.key,
                     text = R.string.token_empty,
@@ -72,8 +72,8 @@ fun TokenScreen(
             }
 
             TokenList(
-                tokens = viewModel.tokens,
-                onClick = { goTo(Screen.AddToken(it.token.token)) },
+                list = viewModel.list,
+                onClick = { goTo(Screen.EditToken(it.id)) },
                 state = listState,
                 contentPadding = contentPadding
             )

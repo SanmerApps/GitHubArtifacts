@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
+import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
 import dev.sanmer.github.artifacts.repository.ClientRepository
@@ -34,11 +35,11 @@ class HomeViewModel(
 
     init {
         logger.d("init")
-        dbObserver()
-        updateRepoAll()
+        loadDb()
+        updateRepos()
     }
 
-    private fun dbObserver() {
+    private fun loadDb() {
         viewModelScope.launch {
             dbRepository.getReposAsFlow()
                 .collectLatest { repos ->
@@ -49,15 +50,15 @@ class HomeViewModel(
         }
     }
 
-    fun updateRepoAll() {
+    fun updateRepos() {
         viewModelScope.launch {
-            val olds = dbRepository.getRepoAll()
-            if (olds.isEmpty()) return@launch
+            val list = dbRepository.getReposAndToken()
+            if (list.isEmpty()) return@launch
 
-            _updateState.update { UpdateState.Ready(olds.size) }
-            val news = olds.map { repo ->
+            _updateState.update { UpdateState.Ready(list.size) }
+            val repos = list.map { (repo, token) ->
                 async {
-                    getRepo(repo).also { result ->
+                    getRepo(repo, token).also { result ->
                         _updateState.update { state ->
                             if (result != null) {
                                 UpdateState.Updating(state.size, state.succeed + 1, state.failed)
@@ -67,23 +68,23 @@ class HomeViewModel(
                         }
                     }
                 }
-            }.awaitAll()
-                .filterNotNull()
+            }.awaitAll().filterNotNull()
 
             _updateState.update { UpdateState.Finished(it.size, it.succeed, it.failed) }
-            dbRepository.updateRepo(news)
+            dbRepository.updateRepo(repos)
         }
     }
 
-    private suspend fun getRepo(repo: RepoEntity) =
+    private suspend fun getRepo(repo: RepoEntity, token: TokenEntity) =
         runCatching {
             clientRepository.getOrCreate(
-                token = repo.token
+                id = token.id,
+                token = token.token
             ).repositories.get(
                 owner = repo.owner,
                 name = repo.name
             ).let {
-                repo.copy(it)
+                repo.copy(repo = it)
             }
         }.onFailure {
             logger.e(it)

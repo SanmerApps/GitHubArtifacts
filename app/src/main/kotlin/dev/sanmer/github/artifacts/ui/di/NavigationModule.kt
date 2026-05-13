@@ -3,10 +3,10 @@ package dev.sanmer.github.artifacts.ui.di
 import androidx.navigation3.runtime.NavBackStack
 import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.HomeScreen
-import dev.sanmer.github.artifacts.ui.screen.repo.AddRepoScreen
+import dev.sanmer.github.artifacts.ui.screen.repo.EditRepoScreen
 import dev.sanmer.github.artifacts.ui.screen.repo.RepoScreen
 import dev.sanmer.github.artifacts.ui.screen.setting.SettingScreen
-import dev.sanmer.github.artifacts.ui.screen.token.AddTokenScreen
+import dev.sanmer.github.artifacts.ui.screen.token.EditTokenScreen
 import dev.sanmer.github.artifacts.ui.screen.token.TokenScreen
 import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowScreen
 import org.koin.androidx.compose.koinViewModel
@@ -34,7 +34,7 @@ val Navigation = module {
         navigation<Screen.Workflow> {
             val backStack = get<NavBackStack<Screen>>()
             WorkflowScreen(
-                viewModel = koinViewModel { parametersOf(it.token, it.owner, it.name) },
+                viewModel = koinViewModel { parametersOf(it.tokenId, it.owner, it.name) },
                 goBack = backStack::removeLastOrNull
             )
         }
@@ -57,10 +57,11 @@ val Navigation = module {
             )
         }
 
-        navigation<Screen.AddToken> {
+        navigation<Screen.EditToken> {
             val backStack = get<NavBackStack<Screen>>()
-            AddTokenScreen(
-                viewModel = koinViewModel { parametersOf(it.token) },
+            EditTokenScreen(
+                viewModel = koinViewModel { parametersOf(it.id) },
+                goTo = backStack::add,
                 goBack = backStack::removeLastOrNull
             )
         }
@@ -74,9 +75,9 @@ val Navigation = module {
             )
         }
 
-        navigation<Screen.AddRepo> {
+        navigation<Screen.EditRepo> {
             val backStack = get<NavBackStack<Screen>>()
-            AddRepoScreen(
+            EditRepoScreen(
                 viewModel = koinViewModel { parametersOf(it.id) },
                 goBack = backStack::removeLastOrNull
             )

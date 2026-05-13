@@ -53,7 +53,7 @@ fun RepoScreen(
                 exit = scaleOut() + fadeOut()
             ) {
                 ActionButton(
-                    onClick = { goTo(Screen.AddRepo()) }
+                    onClick = { goTo(Screen.EditRepo()) }
                 )
             }
         }
@@ -63,7 +63,7 @@ fun RepoScreen(
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize()
         ) {
-            if (viewModel.loadData.isSuccess && viewModel.repos.isEmpty()) {
+            if (viewModel.loadData.isSuccess && viewModel.list.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.git_branch,
                     text = R.string.repo_empty,
@@ -72,8 +72,8 @@ fun RepoScreen(
             }
 
             RepoList(
-                repos = viewModel.repos,
-                onClick = { goTo(Screen.AddRepo(it.repo.id)) },
+                list = viewModel.list,
+                onClick = { goTo(Screen.EditRepo(it.id)) },
                 state = listState,
                 contentPadding = contentPadding
             )

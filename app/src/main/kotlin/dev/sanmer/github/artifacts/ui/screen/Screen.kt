@@ -10,14 +10,14 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data class Workflow(
-        val token: String,
+        val tokenId: Long,
         val owner: String,
         val name: String
     ) : Screen {
-        constructor(entity: RepoEntity) : this(
-            token = entity.token,
-            owner = entity.owner,
-            name = entity.name
+        constructor(repo: RepoEntity) : this(
+            tokenId = repo.tokenId,
+            owner = repo.owner,
+            name = repo.name
         )
     }
 
@@ -28,15 +28,15 @@ sealed interface Screen : NavKey {
     data object Token : Screen
 
     @Serializable
-    data class AddToken(
-        val token: String = ""
+    data class EditToken(
+        val id: Long = Long.MAX_VALUE
     ) : Screen
 
     @Serializable
     data object Repo : Screen
 
     @Serializable
-    data class AddRepo(
+    data class EditRepo(
         val id: Long = 0L
     ) : Screen
 }

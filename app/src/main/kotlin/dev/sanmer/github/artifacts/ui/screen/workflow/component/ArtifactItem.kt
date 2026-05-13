@@ -21,8 +21,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ui.screen.home.component.Title
-import dev.sanmer.github.artifacts.ui.screen.home.component.Value
+import dev.sanmer.github.artifacts.ui.component.Title
+import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.response.artifact.Artifact
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -79,7 +79,7 @@ private fun BottomRow(
             Formatter.formatFileSize(context, artifact.sizeInBytes)
         }
     }
-    val updatedAt by remember {
+    val updatedAt by remember(artifact.id) {
         derivedStateOf {
             artifact.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
         }

@@ -53,7 +53,7 @@ fun HomeScreen(
         topBar = {
             TopBar(
                 updateState = updateState,
-                onRefresh = viewModel::updateRepoAll,
+                onRefresh = viewModel::updateRepos,
                 scrollBehavior = scrollBehavior
             )
         },

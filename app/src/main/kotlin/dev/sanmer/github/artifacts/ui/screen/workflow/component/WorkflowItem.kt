@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ui.screen.home.component.Title
-import dev.sanmer.github.artifacts.ui.screen.home.component.Value
+import dev.sanmer.github.artifacts.ui.component.Title
+import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -39,7 +39,7 @@ fun WorkflowItem(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(10.dp)
 ) {
-    val updatedAt by remember {
+    val updatedAt by remember(run.id) {
         derivedStateOf {
             run.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
         }

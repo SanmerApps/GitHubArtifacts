@@ -1,9 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen.token.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardDefaults
@@ -18,17 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
-import dev.sanmer.github.artifacts.database.entity.TokenWithRepo
 import dev.sanmer.github.artifacts.ktx.toLocalDate
+import dev.sanmer.github.artifacts.ui.component.Title
+import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.artifacts.ui.ktx.surface
-import dev.sanmer.github.artifacts.ui.screen.home.component.Title
-import dev.sanmer.github.artifacts.ui.screen.home.component.Value
 import kotlinx.datetime.TimeZone
 
 @Composable
 fun TokenItem(
-    token: TokenWithRepo,
+    token: TokenEntity,
+    repos: List<RepoEntity>,
     onClick: () -> Unit
 ) = Column(
     modifier = Modifier
@@ -41,31 +40,20 @@ fun TokenItem(
         .padding(all = 15.dp)
         .fillMaxWidth()
 ) {
-    Title(
-        title = token.token.name,
-        subtitle = token.repo.size.toString()
-    )
-
-    CompositionLocalProvider(
-        LocalContentColor provides MaterialTheme.colorScheme.outline
-    ) {
-        BottomRow(token = token.token)
-    }
-}
-
-@Composable
-private fun BottomRow(
-    token: TokenEntity
-) = FlowRow(
-    modifier = Modifier.padding(top = 5.dp),
-    horizontalArrangement = Arrangement.spacedBy(10.dp),
-    verticalArrangement = Arrangement.spacedBy(5.dp)
-) {
-    val expiredAt by remember {
+    val expiredAt by remember(token.id) {
         derivedStateOf {
             token.expiredAt.toLocalDate(TimeZone.currentSystemDefault())
         }
     }
 
-    Value(value = stringResource(id = R.string.token_expire, expiredAt))
+    Title(
+        title = token.name,
+        subtitle = with(repos) { if (isEmpty()) null else size.toString() }
+    )
+
+    CompositionLocalProvider(
+        LocalContentColor provides MaterialTheme.colorScheme.outline
+    ) {
+        Value(text = stringResource(id = R.string.token_expire, expiredAt))
+    }
 }

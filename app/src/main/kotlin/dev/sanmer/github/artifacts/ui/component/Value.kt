@@ -1,4 +1,4 @@
-package dev.sanmer.github.artifacts.ui.screen.home.component
+package dev.sanmer.github.artifacts.ui.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Row
