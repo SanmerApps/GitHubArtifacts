@@ -100,8 +100,8 @@ class EditTokenViewModel(
         private var initialCreatedAt: Instant? = null
 
         var createdAtValue by createdAt
-        val tokenValue inline get() = token.text.toString()
-        val nameValue inline get() = name.text.toString()
+        val tokenValue inline get() = token.text.trim().toString()
+        val nameValue inline get() = name.text.trim().toString()
         val lifetimeValue inline get() = with(lifetime.text.toString()) { if (isNotEmpty()) toLong() else 0 }
 
         val isTokenChanged by derivedStateOf { initialToken != token.text }

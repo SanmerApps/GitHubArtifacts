@@ -105,8 +105,8 @@ class EditRepoViewModel(
         )
 
         var tokenIdValue by tokenId
-        val ownerValue inline get() = owner.text.toString()
-        val nameValue inline get() = name.text.toString()
+        val ownerValue inline get() = owner.text.trim().toString()
+        val nameValue inline get() = name.text.trim().toString()
 
         fun update(entity: RepoEntity) {
             tokenIdValue = entity.tokenId
