@@ -14,16 +14,26 @@ class DbRepositoryImpl(
 ) : DbRepository {
     override fun getTokensAsFlow() = tokenDao.getAllAsFlow()
 
-    override fun getTokensWithReposAsFlow() = tokenDao.getAllWithRepoAsFlow()
-
-    override fun getTokenAsFlow(token: String) = tokenDao.getAsFlow(token).filterNotNull()
-
-    override suspend fun getTokenAll() = withContext(Dispatchers.IO) {
+    override suspend fun getTokens() = withContext(Dispatchers.IO) {
         tokenDao.getAll()
     }
 
-    override suspend fun getTokenWithRepo(token: String) = withContext(Dispatchers.IO) {
-        tokenDao.getWithRepo(token)
+    override fun getTokensAndReposAsFlow() = tokenDao.getAllAndReposAsFlow()
+
+    override suspend fun getTokensAndRepos() = withContext(Dispatchers.IO) {
+        tokenDao.getAllAndRepos()
+    }
+
+    override fun getTokenAsFlow(id: Long) = tokenDao.getAsFlow(id).filterNotNull()
+
+    override suspend fun getToken(id: Long) = withContext(Dispatchers.IO) {
+        tokenDao.get(id)
+    }
+
+    override fun getTokenAndReposAsFlow(id: Long) = tokenDao.getAndReposAsFlow(id).filterNotNull()
+
+    override suspend fun getTokenAndRepos(id: Long) = withContext(Dispatchers.IO) {
+        tokenDao.getAndRepos(id)
     }
 
     override suspend fun insertToken(token: TokenEntity) = withContext(Dispatchers.IO) {
@@ -38,18 +48,32 @@ class DbRepositoryImpl(
         tokenDao.delete(token)
     }
 
-    override suspend fun deleteToken(token: String) = withContext(Dispatchers.IO) {
-        tokenDao.delete(token)
+    override suspend fun deleteToken(id: Long) = withContext(Dispatchers.IO) {
+        tokenDao.delete(id)
     }
 
     override fun getReposAsFlow() = repoDao.getAllAsFlow()
 
-    override fun getReposWithTokenAsFlow() = repoDao.getAllWithTokenAsFlow()
+    override suspend fun getRepos() = withContext(Dispatchers.IO) {
+        repoDao.getAll()
+    }
+
+    override fun getReposAndTokenAsFlow() = repoDao.getAllAndTokenAsFlow()
+
+    override suspend fun getReposAndToken() = withContext(Dispatchers.IO) {
+        repoDao.getAllAndToken()
+    }
 
     override fun getRepoAsFlow(id: Long) = repoDao.getAsFlow(id).filterNotNull()
 
-    override suspend fun getRepoAll() = withContext(Dispatchers.IO) {
-        repoDao.getAll()
+    override suspend fun getRepo(id: Long) = withContext(Dispatchers.IO) {
+        repoDao.get(id)
+    }
+
+    override fun getRepoAndTokenAsFlow(id: Long) = repoDao.getAndTokenAsFlow(id).filterNotNull()
+
+    override suspend fun getRepoAndToken(id: Long) = withContext(Dispatchers.IO) {
+        repoDao.getAndToken(id)
     }
 
     override suspend fun insertRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
@@ -68,7 +92,7 @@ class DbRepositoryImpl(
         repoDao.delete(repo)
     }
 
-    override suspend fun deleteRepo(repoId: Long) = withContext(Dispatchers.IO) {
-        repoDao.deleteById(repoId)
+    override suspend fun deleteRepo(id: Long) = withContext(Dispatchers.IO) {
+        repoDao.delete(id)
     }
 }

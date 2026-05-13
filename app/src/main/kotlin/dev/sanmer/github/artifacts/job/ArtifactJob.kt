@@ -13,7 +13,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import dev.sanmer.github.Auth.Default.toBearerAuth
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.JsonCompat.decodeJson
 import dev.sanmer.github.JsonCompat.encodeJson
@@ -24,6 +23,7 @@ import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.MediaStoreCompat.createMediaStoreUri
 import dev.sanmer.github.artifacts.compat.PermissionCompat
 import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
+import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.response.artifact.Artifact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -39,12 +39,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
-class ArtifactJob : LifecycleService() {
+class ArtifactJob : LifecycleService(), KoinComponent {
+    private val clientRepository by inject<ClientRepository>()
     private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
     private val logger = Logger.Android("ArtifactJob")
@@ -93,7 +96,7 @@ class ArtifactJob : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
             val artifact = intent?.artifact ?: return@launch
-            val token = intent.token
+            val github = clientRepository.get(intent.tokenId)
 
             val uri = createMediaStoreUri(
                 file = File(Environment.DIRECTORY_DOWNLOADS, "${artifact.name}.zip"),
@@ -101,7 +104,7 @@ class ArtifactJob : LifecycleService() {
             )
 
             runCatching {
-                download(token, artifact, uri)
+                download(github, artifact, uri)
             }.onSuccess {
                 jobStateFlow.update { JobState.Success(artifact, uri) }
             }.onFailure { error ->
@@ -117,13 +120,12 @@ class ArtifactJob : LifecycleService() {
     }
 
     private suspend fun download(
-        token: String,
+        github: GitHub,
         artifact: Artifact,
         uri: Uri
     ) = withContext(Dispatchers.IO) {
-        val github = GitHub(auth = token.toBearerAuth())
         val digest = github.stream(artifact.archiveDownloadUrl) { input ->
-             contentResolver.openOutputStream(uri).let(::requireNotNull).use { output ->
+            contentResolver.openOutputStream(uri).let(::requireNotNull).use { output ->
                 input.copyToWithSHA256(output) { bytesCopied ->
                     val progress = bytesCopied / artifact.sizeInBytes.toFloat()
                     jobStateFlow.update { JobState.Running(artifact, progress) }
@@ -223,7 +225,7 @@ class ArtifactJob : LifecycleService() {
     companion object Default {
         private const val GROUP_KEY = "dev.sanmer.github.artifacts.ARTIFACT_JOB_GROUP_KEY"
         private const val EXTRA_ARTIFACT = "dev.sanmer.github.artifacts.extra.ARTIFACT"
-        private const val EXTRA_TOKEN = "dev.sanmer.github.artifacts.extra.TOKEN"
+        private const val EXTRA_TOKEN_ID = "dev.sanmer.github.artifacts.extra.TOKEN_ID"
 
         private fun Intent.putArtifact(value: Artifact) {
             putExtra(EXTRA_ARTIFACT, value.encodeJson(pretty = false))
@@ -232,12 +234,12 @@ class ArtifactJob : LifecycleService() {
         private val Intent.artifact: Artifact
             inline get() = checkNotNull(getStringExtra(EXTRA_ARTIFACT)).decodeJson()
 
-        private fun Intent.putToken(value: String) {
-            putExtra(EXTRA_TOKEN, value)
+        private fun Intent.putTokenId(value: Long) {
+            putExtra(EXTRA_TOKEN_ID, value)
         }
 
-        private val Intent.token: String
-            inline get() = checkNotNull(getStringExtra(EXTRA_TOKEN))
+        private val Intent.tokenId: Long
+            inline get() = checkNotNull(getLongExtra(EXTRA_TOKEN_ID, 0))
 
         private val pendingJobs = mutableListOf<Long>()
 
@@ -250,7 +252,7 @@ class ArtifactJob : LifecycleService() {
         fun start(
             context: Context,
             artifact: Artifact,
-            token: String
+            tokenId: Long
         ) {
             fun start() {
                 if (pendingJobs.contains(artifact.id)) return
@@ -259,7 +261,7 @@ class ArtifactJob : LifecycleService() {
                 context.startService(
                     Intent(context, ArtifactJob::class.java).also {
                         it.putArtifact(artifact)
-                        it.putToken(token)
+                        it.putTokenId(tokenId)
                     }
                 )
             }
