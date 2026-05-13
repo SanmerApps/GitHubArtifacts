@@ -61,12 +61,7 @@ fun EditTokenScreen(
     goTo: (Screen) -> Unit,
     goBack: () -> Unit
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
-    DisposableEffect(true) {
-        onDispose { keyboardController?.hide() }
-    }
 
     Scaffold(
         modifier = Modifier.imePadding(),

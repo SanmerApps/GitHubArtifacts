@@ -33,7 +33,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -64,12 +63,7 @@ fun EditRepoScreen(
     viewModel: EditRepoViewModel = koinViewModel(),
     goBack: () -> Unit
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
-    DisposableEffect(true) {
-        onDispose { keyboardController?.hide() }
-    }
 
     when (val data = viewModel.loadData) {
         LoadData.Pending -> {}
