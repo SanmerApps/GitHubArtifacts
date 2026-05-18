@@ -47,7 +47,7 @@ data class RepoEntity(
         archived = repo.archived,
         pushedAt = repo.pushedAt,
         updatedAt = repo.updatedAt,
-        license = repo.license.name
+        license = repo.license.spdxId
     )
 
     fun copy(repo: Repository) = RepoEntity(
