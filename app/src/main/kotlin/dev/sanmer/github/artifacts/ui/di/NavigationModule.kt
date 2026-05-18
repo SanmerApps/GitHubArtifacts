@@ -3,9 +3,6 @@ package dev.sanmer.github.artifacts.ui.di
 import androidx.navigation3.runtime.NavBackStack
 import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.HomeScreen
-import dev.sanmer.github.artifacts.ui.screen.repo.EditRepoScreen
-import dev.sanmer.github.artifacts.ui.screen.repo.RepoScreen
-import dev.sanmer.github.artifacts.ui.screen.setting.SettingScreen
 import dev.sanmer.github.artifacts.ui.screen.token.EditTokenScreen
 import dev.sanmer.github.artifacts.ui.screen.token.TokenScreen
 import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowScreen
@@ -39,15 +36,6 @@ val Navigation = module {
             )
         }
 
-        navigation<Screen.Setting> {
-            val backStack = get<NavBackStack<Screen>>()
-            SettingScreen(
-                viewModel = koinViewModel(),
-                goTo = backStack::add,
-                goBack = backStack::removeLastOrNull
-            )
-        }
-
         navigation<Screen.Token> {
             val backStack = get<NavBackStack<Screen>>()
             TokenScreen(
@@ -60,24 +48,6 @@ val Navigation = module {
         navigation<Screen.EditToken> {
             val backStack = get<NavBackStack<Screen>>()
             EditTokenScreen(
-                viewModel = koinViewModel { parametersOf(it.id) },
-                goTo = backStack::add,
-                goBack = backStack::removeLastOrNull
-            )
-        }
-
-        navigation<Screen.Repo> {
-            val backStack = get<NavBackStack<Screen>>()
-            RepoScreen(
-                viewModel = koinViewModel(),
-                goTo = backStack::add,
-                goBack = backStack::removeLastOrNull
-            )
-        }
-
-        navigation<Screen.EditRepo> {
-            val backStack = get<NavBackStack<Screen>>()
-            EditRepoScreen(
                 viewModel = koinViewModel { parametersOf(it.id) },
                 goBack = backStack::removeLastOrNull
             )

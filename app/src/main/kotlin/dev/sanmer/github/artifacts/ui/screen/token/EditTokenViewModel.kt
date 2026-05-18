@@ -1,6 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.runtime.MutableState
@@ -14,6 +15,9 @@ import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.ktx.toLocalDate
+import dev.sanmer.github.artifacts.model.LoadData
+import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
+import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -23,13 +27,20 @@ import kotlin.time.Instant
 
 class EditTokenViewModel(
     private val dbRepository: DbRepository,
+    private val clientRepository: ClientRepository,
     private val id: Long
 ) : ViewModel() {
     val isEdit = id != Long.MAX_VALUE
 
-    val input = Input()
+    val tokenInput = TokenInput()
+    val isChanged inline get() = !isEdit || tokenInput.isAnyChanged
 
+    val repoInput = RepoInput()
     var repos by mutableStateOf(emptyList<RepoEntity>())
+        private set
+    val isDeletable inline get() = isEdit && repos.isEmpty()
+
+    var loadData by mutableStateOf<LoadData<Unit>>(LoadData.Pending)
         private set
 
     private val logger = Logger.Android("EditTokenViewModel")
@@ -44,7 +55,7 @@ class EditTokenViewModel(
             if (isEdit) {
                 dbRepository.getTokenAndReposAsFlow(id)
                     .collect { (token, list) ->
-                        input.update(token)
+                        tokenInput.update(token)
                         repos = list
                     }
             }
@@ -55,8 +66,8 @@ class EditTokenViewModel(
         viewModelScope.launch {
             runCatching {
                 when {
-                    isEdit -> dbRepository.updateToken(input.entity(id))
-                    else -> dbRepository.insertToken(input.entity())
+                    isEdit -> dbRepository.updateToken(tokenInput.entity(id))
+                    else -> dbRepository.insertToken(tokenInput.entity())
                 }
             }.onSuccess {
                 block()
@@ -78,7 +89,34 @@ class EditTokenViewModel(
         }
     }
 
-    data class Input(
+    fun addRepo(block: () -> Unit = {}) {
+        viewModelScope.launch {
+            loadData = LoadData.Loading
+            loadData = runCatching {
+                val github = clientRepository.getOrCreate(id, tokenInput.tokenValue)
+                val repo = github.repositories.get(repoInput.ownerValue, repoInput.nameValue)
+                val entity = RepoEntity(id, repo)
+                dbRepository.insertRepo(entity)
+                repoInput.clear()
+            }.onSuccess {
+                block()
+            }.onFailure {
+                logger.e(it)
+            }.asLoadData()
+        }
+    }
+
+    fun deleteRepo(entity: RepoEntity) {
+        viewModelScope.launch {
+            dbRepository.deleteRepo(entity)
+        }
+    }
+
+    fun revertLoadData() {
+        loadData = LoadData.Pending
+    }
+
+    data class TokenInput(
         val token: TextFieldState,
         val name: TextFieldState,
         val createdAt: MutableState<Instant>,
@@ -96,15 +134,18 @@ class EditTokenViewModel(
             lifetime = TextFieldState(lifetime.toString())
         )
 
-        private var initialToken: String? = null
-        private var initialCreatedAt: Instant? = null
-
-        var createdAtValue by createdAt
+        private var entity by mutableStateOf<TokenEntity?>(null)
+        private var createdAtValue by createdAt
+        private val _isCreatedAtChanged inline get() = createdAtValue != entity?.createdAt
         val tokenValue inline get() = token.text.trim().toString()
-        val nameValue inline get() = name.text.trim().toString()
-        val lifetimeValue inline get() = with(lifetime.text.toString()) { if (isNotEmpty()) toLong() else 0 }
+        private val _isTokenChanged inline get() = token.text.trim() != entity?.token
+        private val nameValue inline get() = name.text.trim().toString()
+        private val _isNameChanged inline get() = name.text.trim() != entity?.name
+        private val lifetimeValue inline get() = with(lifetime.text.toString()) { if (isNotEmpty()) toLong() else 0 }
+        private val _isLifetimeChanged inline get() = lifetime.text != entity?.lifetime.toString()
 
-        val isTokenChanged by derivedStateOf { initialToken != token.text }
+        val isTokenChanged by derivedStateOf { entity != null && _isTokenChanged }
+        val isAnyChanged by derivedStateOf { entity != null && (_isTokenChanged || _isNameChanged || _isCreatedAtChanged || _isLifetimeChanged) }
         val expiredAt by derivedStateOf { (createdAtValue + lifetimeValue.days).toLocalDate(TimeZone.currentSystemDefault()) }
 
         fun entity(id: Long = 0) = TokenEntity(
@@ -115,29 +156,54 @@ class EditTokenViewModel(
             lifetime = lifetimeValue
         )
 
-        fun revertCreatedAt() {
-            initialCreatedAt?.let { createdAtValue = it }
+        fun updateCreatedAt() {
+            createdAtValue = Clock.System.now()
         }
 
-        fun update(entity: TokenEntity) {
-            initialToken = entity.token
-            initialCreatedAt = entity.createdAt
-            createdAtValue = entity.createdAt
+        fun revertCreatedAt() {
+            entity?.let { createdAtValue = it.createdAt }
+        }
+
+        fun update(value: TokenEntity) {
+            entity = value
+            createdAtValue = value.createdAt
             token.edit {
                 delete(0, length)
+                append(value.token)
                 placeCursorAtEnd()
-                append(entity.token)
             }
             name.edit {
                 delete(0, length)
+                append(value.name)
                 placeCursorAtEnd()
-                append(entity.name)
             }
             lifetime.edit {
                 delete(0, length)
+                append(value.lifetime.toString())
                 placeCursorAtEnd()
-                append(entity.lifetime.toString())
             }
+        }
+    }
+
+    data class RepoInput(
+        val owner: TextFieldState,
+        val name: TextFieldState
+    ) {
+        constructor(
+            owner: String = "",
+            name: String = ""
+        ) : this(
+            owner = TextFieldState(owner),
+            name = TextFieldState(name)
+        )
+
+        val ownerValue inline get() = owner.text.trim().toString()
+        val nameValue inline get() = name.text.trim().toString()
+        val isNotEmpty inline get() = owner.text.isNotEmpty() && name.text.isNotEmpty()
+
+        fun clear() {
+            owner.clearText()
+            name.clearText()
         }
     }
 }

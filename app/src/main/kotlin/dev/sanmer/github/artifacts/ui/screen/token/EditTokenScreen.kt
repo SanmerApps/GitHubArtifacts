@@ -1,37 +1,40 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.InputTransformation
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.maxLength
-import androidx.compose.foundation.text.input.then
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,29 +42,36 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
-import dev.sanmer.github.artifacts.ui.component.Title
-import dev.sanmer.github.artifacts.ui.component.Value
+import dev.sanmer.github.artifacts.model.LoadData
+import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
-import dev.sanmer.github.artifacts.ui.ktx.surface
-import dev.sanmer.github.artifacts.ui.screen.Screen
-import dev.sanmer.github.artifacts.ui.screen.repo.component.repoType
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Clock
+import dev.sanmer.github.artifacts.ui.screen.token.component.EditRepoItem
+import dev.sanmer.github.artifacts.ui.screen.token.component.EditTokenItem
+import dev.sanmer.github.artifacts.ui.screen.token.component.RepoItem
 
 @Composable
 fun EditTokenScreen(
     viewModel: EditTokenViewModel,
-    goTo: (Screen) -> Unit,
     goBack: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val listState = rememberLazyListState()
+    val isScrollingUp by listState.isScrollingUp()
+
+    val (add, setAdd) = remember { mutableStateOf(false) }
+    if (add) AddRepoDialog(
+        input = viewModel.repoInput,
+        data = viewModel.loadData,
+        onClose = {
+            setAdd(false)
+            viewModel.revertLoadData()
+        },
+        onSave = {
+            viewModel.addRepo { setAdd(false) }
+        }
+    )
 
     Scaffold(
         modifier = Modifier.imePadding(),
@@ -69,18 +79,27 @@ fun EditTokenScreen(
             TopBar(
                 isEdit = viewModel.isEdit,
                 onClose = goBack,
-                isDeletable = viewModel.repos.isEmpty(),
+                isDeletable = viewModel.isDeletable,
                 onDelete = { viewModel.delete(goBack) },
                 scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
-            ActionButton(
-                onClick = { viewModel.save { if (!viewModel.isEdit) goBack() } },
-            )
+            AnimatedVisibility(
+                visible = isScrollingUp,
+                enter = fadeIn() + scaleIn(),
+                exit = scaleOut() + fadeOut()
+            ) {
+                ActionButton(
+                    isChanged = viewModel.isChanged,
+                    onSave = { viewModel.save { if (!viewModel.isEdit) goBack() } },
+                    onAdd = { setAdd(true) }
+                )
+            }
         }
     ) { contentPadding ->
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize()
@@ -89,15 +108,15 @@ fun EditTokenScreen(
             verticalArrangement = Arrangement.spacedBy(15.dp)
         ) {
             item {
-                TokenItem(
-                    input = viewModel.input
+                EditTokenItem(
+                    input = viewModel.tokenInput
                 )
             }
 
             items(viewModel.repos) {
                 RepoItem(
                     repo = it,
-                    onClick = { goTo(Screen.EditRepo(it.id)) }
+                    onDelete = viewModel::deleteRepo
                 )
             }
         }
@@ -105,97 +124,52 @@ fun EditTokenScreen(
 }
 
 @Composable
-private fun TokenItem(
-    input: EditTokenViewModel.Input
-) = Column(
-    modifier = Modifier.fillMaxWidth(),
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(10.dp)
-) {
-    DisposableEffect(input.isTokenChanged) {
-        if (input.isTokenChanged) {
-            input.createdAtValue = Clock.System.now()
-        } else {
-            input.revertCreatedAt()
-        }
-        onDispose {}
-    }
-
-    OutlinedTextField(
-        state = input.name,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Next
-        ),
-        shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_name)) },
-        lineLimits = TextFieldLineLimits.SingleLine,
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    OutlinedTextField(
-        state = input.token,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Done
-        ),
-        shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_token)) },
-        modifier = Modifier.fillMaxWidth()
-    )
-
-    val day = stringResource(R.string.edit_day)
-    val days = stringResource(R.string.edit_days)
-    OutlinedTextField(
-        state = input.lifetime,
-        inputTransformation = InputTransformation.maxLength(3).then {
-            if (!asCharSequence().isDigitsOnly()) {
-                revertAllChanges()
+private fun AddRepoDialog(
+    input: EditTokenViewModel.RepoInput,
+    data: LoadData<Unit>,
+    onClose: () -> Unit,
+    onSave: () -> Unit
+) = AlertDialog(
+    onDismissRequest = onClose,
+    shape = MaterialTheme.shapes.large,
+    title = { Text(text = stringResource(id = R.string.add_repo_title)) },
+    text = {
+        when (val data = data) {
+            LoadData.Loading -> Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(all = 20.dp)
+                        .size(48.dp),
+                    strokeWidth = 5.dp
+                )
             }
-        },
-        outputTransformation = {
-            append(" ${if (length <= 1) day else days}")
-            append(" (${input.expiredAt})")
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Next
-        ),
-        shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_expiration)) },
-        lineLimits = TextFieldLineLimits.SingleLine,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
 
-@Composable
-private fun RepoItem(
-    repo: RepoEntity,
-    onClick: () -> Unit
-) = Column(
-    modifier = Modifier
-        .surface(
-            shape = MaterialTheme.shapes.large,
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            border = CardDefaults.outlinedCardBorder(false)
-        )
-        .clickable(onClick = onClick)
-        .padding(all = 15.dp)
-        .fillMaxWidth()
-) {
-    val updatedAt by remember(repo.id) {
-        derivedStateOf {
-            repo.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+            is LoadData.Failure -> SelectionContainer {
+                Text(
+                    text = data.error.stackTraceToString(),
+                    maxLines = 20
+                )
+            }
+
+            else -> EditRepoItem(
+                input = input
+            )
+        }
+    },
+    confirmButton = {
+        TextButton(
+            onClick = onSave,
+            enabled = input.isNotEmpty
+        ) {
+            Text(text = stringResource(id = R.string.edit_save))
         }
     }
-
-    Title(
-        title = repo.fullName,
-        subtitle = repo.repoType()
-    )
-
-    Value(text = updatedAt)
-}
+)
 
 @Composable
 private fun TopBar(
@@ -225,7 +199,7 @@ private fun TopBar(
                 },
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.x),
+                    painter = painterResource(R.drawable.arrow_left),
                     contentDescription = null
                 )
             }
@@ -249,7 +223,9 @@ private fun TopBar(
 
 @Composable
 private fun ActionButton(
-    onClick: () -> Unit,
+    isChanged: Boolean,
+    onSave: () -> Unit,
+    onAdd: () -> Unit
 ) {
     val isImeVisible = WindowInsets.isImeVisible
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -257,12 +233,18 @@ private fun ActionButton(
     FloatingActionButton(
         onClick = {
             if (isImeVisible) keyboardController?.hide()
-            onClick()
+            when {
+                isChanged -> onSave()
+                else -> onAdd()
+            }
         }
     ) {
         Icon(
             painter = painterResource(
-                id = R.drawable.device_floppy
+                id = when {
+                    isChanged -> R.drawable.device_floppy
+                    else -> R.drawable.plus
+                }
             ),
             contentDescription = null
         )

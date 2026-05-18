@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -44,7 +42,8 @@ fun ArtifactItem(
     horizontalArrangement = Arrangement.spacedBy(10.dp)
 ) {
     Column(
-        modifier = Modifier.weight(1f)
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         Title(
             title = artifact.name,
@@ -55,21 +54,16 @@ fun ArtifactItem(
             }
         )
 
-        CompositionLocalProvider(
-            LocalContentColor provides MaterialTheme.colorScheme.outline
-        ) {
-            BottomRow(artifact = artifact)
-        }
+        Values(artifact = artifact)
     }
 
     if (!artifact.expired) trailing?.invoke()
 }
 
 @Composable
-private fun BottomRow(
+private fun Values(
     artifact: Artifact
 ) = FlowRow(
-    modifier = Modifier.padding(top = 5.dp),
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
@@ -87,10 +81,12 @@ private fun BottomRow(
 
     Value(
         icon = R.drawable.box,
-        value = size
+        value = size,
+        color = MaterialTheme.colorScheme.outline
     )
 
     Value(
-        value = updatedAt
+        value = updatedAt,
+        color = MaterialTheme.colorScheme.outline
     )
 }

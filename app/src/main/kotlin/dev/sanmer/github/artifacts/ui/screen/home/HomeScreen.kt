@@ -1,6 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -8,10 +9,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -33,10 +40,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.screen.Screen
-import dev.sanmer.github.artifacts.ui.screen.home.component.RepoList
+import dev.sanmer.github.artifacts.ui.screen.home.component.RepoItem
 
 @Composable
 fun HomeScreen(
@@ -64,7 +72,7 @@ fun HomeScreen(
                 exit = scaleOut() + fadeOut()
             ) {
                 ActionButton(
-                    onClick = { goTo(Screen.Setting) }
+                    onToken = { goTo(Screen.Token) }
                 )
             }
         }
@@ -94,15 +102,24 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ActionButton(
-    onClick: () -> Unit
+private fun RepoList(
+    repos: List<RepoEntity>,
+    onClick: (RepoEntity) -> Unit,
+    state: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) = LazyColumn(
+    modifier = Modifier
+        .fillMaxWidth()
+        .animateContentSize(),
+    state = state,
+    contentPadding = contentPadding,
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    FloatingActionButton(
-        onClick = onClick
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.settings_2),
-            contentDescription = null
+    items(repos) {
+        RepoItem(
+            repo = it,
+            onClick = { onClick(it) }
         )
     }
 }
@@ -144,3 +161,15 @@ private fun TopBar(
     },
     scrollBehavior = scrollBehavior
 )
+
+@Composable
+private fun ActionButton(
+    onToken: () -> Unit
+) = FloatingActionButton(
+    onClick = onToken
+) {
+    Icon(
+        painter = painterResource(id = R.drawable.key),
+        contentDescription = null
+    )
+}

@@ -11,26 +11,31 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun Title(
     title: String,
-    subtitle: String? = null
+    modifier: Modifier = Modifier,
+    titleStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    subtitle: String? = null,
+    subtitleStyle: TextStyle = MaterialTheme.typography.titleSmall,
 ) = FlowRow(
+    modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(5.dp),
     verticalArrangement = Arrangement.spacedBy(2.dp)
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium,
+        style = titleStyle,
         modifier = Modifier.align(Alignment.CenterVertically)
     )
 
     if (subtitle != null) {
         Text(
             text = subtitle,
-            style = MaterialTheme.typography.titleSmall,
+            style = subtitleStyle,
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier
                 .align(Alignment.CenterVertically)

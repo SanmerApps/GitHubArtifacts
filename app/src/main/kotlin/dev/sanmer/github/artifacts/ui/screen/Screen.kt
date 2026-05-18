@@ -22,21 +22,10 @@ sealed interface Screen : NavKey {
     }
 
     @Serializable
-    data object Setting : Screen
-
-    @Serializable
     data object Token : Screen
 
     @Serializable
     data class EditToken(
         val id: Long = Long.MAX_VALUE
-    ) : Screen
-
-    @Serializable
-    data object Repo : Screen
-
-    @Serializable
-    data class EditRepo(
-        val id: Long = 0L
     ) : Screen
 }

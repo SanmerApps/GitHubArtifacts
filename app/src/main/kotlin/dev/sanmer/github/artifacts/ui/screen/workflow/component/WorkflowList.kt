@@ -87,7 +87,7 @@ private fun WorkflowItem(
     downloadArtifact: (Context, Artifact) -> Unit
 ) {
     var isLoading by remember { mutableStateOf(false) }
-    var expend by rememberSaveable(run) { mutableStateOf(false) }
+    var expend by rememberSaveable(run.id) { mutableStateOf(false) }
 
     WorkflowItem(
         run = run,
@@ -105,12 +105,7 @@ private fun WorkflowItem(
         enter = fadeIn() + expandVertically(),
         exit = shrinkVertically() + fadeOut()
     ) {
-        val data by remember(run.id) {
-            derivedStateOf {
-                getArtifacts(run)
-            }
-        }
-
+        val data by remember(run.id) { derivedStateOf { getArtifacts(run) } }
         DisposableEffect(data) {
             isLoading = data.isLoading
             onDispose { isLoading = false }
