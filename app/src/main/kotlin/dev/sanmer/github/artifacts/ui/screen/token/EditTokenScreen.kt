@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,6 +32,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,13 +64,9 @@ fun EditTokenScreen(
     if (add) AddRepoDialog(
         input = viewModel.repoInput,
         data = viewModel.loadData,
-        onClose = {
-            setAdd(false)
-            viewModel.revertLoadData()
-        },
-        onSave = {
-            viewModel.addRepo { setAdd(false) }
-        }
+        onClose = { setAdd(false) },
+        onSave = { viewModel.addRepo { setAdd(false) } },
+        onRevert = viewModel::revertLoadData
     )
 
     Scaffold(
@@ -128,9 +124,10 @@ private fun AddRepoDialog(
     input: EditTokenViewModel.RepoInput,
     data: LoadData<Unit>,
     onClose: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    onRevert: () -> Unit
 ) = AlertDialog(
-    onDismissRequest = onClose,
+    onDismissRequest = { if (!data.isLoading) onClose() },
     shape = MaterialTheme.shapes.large,
     title = { Text(text = stringResource(id = R.string.add_repo_title)) },
     text = {
@@ -142,9 +139,7 @@ private fun AddRepoDialog(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(all = 20.dp)
-                        .size(48.dp),
+                    modifier = Modifier.size(48.dp),
                     strokeWidth = 5.dp
                 )
             }
@@ -162,11 +157,21 @@ private fun AddRepoDialog(
         }
     },
     confirmButton = {
+        DisposableEffect(true) {
+            onDispose(onRevert)
+        }
         TextButton(
-            onClick = onSave,
-            enabled = input.isNotEmpty
+            onClick = if (data.isFailure) onRevert else onSave,
+            enabled = input.isNotEmpty && !data.isLoading
         ) {
-            Text(text = stringResource(id = R.string.edit_save))
+            Text(
+                text = stringResource(
+                    id = when {
+                        data.isFailure -> R.string.edit_back
+                        else -> R.string.edit_save
+                    }
+                )
+            )
         }
     }
 )

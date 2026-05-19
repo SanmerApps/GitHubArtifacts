@@ -30,6 +30,7 @@
     <string name="edit_days">天</string>
     <string name="edit_delete">删除</string>
     <string name="edit_save">保存</string>
+    <string name="edit_back">返回</string>
 
     <!-- Job -->
     <string name="artifact_job">工件任务</string>

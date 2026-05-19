@@ -30,6 +30,7 @@
     <string name="edit_days">days</string>
     <string name="edit_delete">Delete</string>
     <string name="edit_save">Save</string>
+    <string name="edit_back">Back</string>
 
     <!-- Job -->
     <string name="artifact_job">Artifact Job</string>
