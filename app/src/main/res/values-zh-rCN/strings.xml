@@ -10,6 +10,7 @@
     <string name="repo_public_archive">公开归档</string>
 
     <!-- Workflow -->
+    <string name="workflow_title">工作流</string>
     <string name="workflow_empty">没有工作流</string>
     <string name="artifact_expired">已过期</string>
 

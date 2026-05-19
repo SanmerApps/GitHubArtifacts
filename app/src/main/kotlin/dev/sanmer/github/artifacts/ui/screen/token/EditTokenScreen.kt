@@ -47,6 +47,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
+import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.token.component.EditRepoItem
 import dev.sanmer.github.artifacts.ui.screen.token.component.EditTokenItem
 import dev.sanmer.github.artifacts.ui.screen.token.component.RepoItem
@@ -54,6 +55,7 @@ import dev.sanmer.github.artifacts.ui.screen.token.component.RepoItem
 @Composable
 fun EditTokenScreen(
     viewModel: EditTokenViewModel,
+    goTo: (Screen) -> Unit,
     goBack: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -112,7 +114,8 @@ fun EditTokenScreen(
             items(viewModel.repos) {
                 RepoItem(
                     repo = it,
-                    onDelete = viewModel::deleteRepo
+                    onDelete = { viewModel.deleteRepo(it) },
+                    onWorkflow = { goTo(Screen.Workflow(it)) }
                 )
             }
         }

@@ -1,10 +1,14 @@
 package dev.sanmer.github.artifacts.ui.screen.token.component
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CardDefaults
@@ -37,7 +41,8 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 fun RepoItem(
     repo: RepoEntity,
-    onDelete: (RepoEntity) -> Unit
+    onDelete: () -> Unit,
+    onWorkflow: () -> Unit,
 ) = Row(
     modifier = Modifier
         .padding(horizontal = 15.dp, vertical = (2.5).dp)
@@ -66,10 +71,11 @@ fun RepoItem(
         )
     }
 
-    var expanded by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.wrapContentSize(Alignment.TopStart)
     ) {
+        var expanded by remember { mutableStateOf(false) }
+
         IconButton(
             onClick = { expanded = true }
         ) {
@@ -86,23 +92,45 @@ fun RepoItem(
             border = CardDefaults.outlinedCardBorder(false),
             shadowElevation = 0.dp
         ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(id = R.string.edit_delete)) },
+            MenuItem(
+                text = R.string.workflow_title,
+                icon = R.drawable.subtask,
                 onClick = {
-                    onDelete(repo)
                     expanded = false
-                },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.trash_x),
-                        contentDescription = null
-                    )
-                },
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .clip(MaterialTheme.shapes.small),
-                contentPadding = PaddingValues(all = 10.dp)
+                    onWorkflow()
+                }
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            MenuItem(
+                text = R.string.edit_delete,
+                icon = R.drawable.trash_x,
+                onClick = {
+                    expanded = false
+                    onDelete()
+                }
             )
         }
     }
 }
+
+@Composable
+private fun MenuItem(
+    @StringRes text: Int,
+    @DrawableRes icon: Int,
+    onClick: () -> Unit
+) = DropdownMenuItem(
+    text = { Text(text = stringResource(id = text)) },
+    onClick = onClick,
+    leadingIcon = {
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = null
+        )
+    },
+    modifier = Modifier
+        .padding(horizontal = 10.dp)
+        .clip(MaterialTheme.shapes.small),
+    contentPadding = PaddingValues(all = 10.dp)
+)

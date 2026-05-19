@@ -49,6 +49,7 @@ val Navigation = module {
             val backStack = get<NavBackStack<Screen>>()
             EditTokenScreen(
                 viewModel = koinViewModel { parametersOf(it.id) },
+                goTo = backStack::add,
                 goBack = backStack::removeLastOrNull
             )
         }

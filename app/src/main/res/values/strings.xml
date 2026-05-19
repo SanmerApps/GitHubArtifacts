@@ -10,6 +10,7 @@
     <string name="repo_public_archive">Public archive</string>
 
     <!-- Workflow -->
+    <string name="workflow_title">Workflows</string>
     <string name="workflow_empty">No workflows</string>
     <string name="artifact_expired">Expired</string>
 
