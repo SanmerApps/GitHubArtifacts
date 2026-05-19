@@ -66,7 +66,10 @@ class EditTokenViewModel(
         viewModelScope.launch {
             runCatching {
                 when {
-                    isEdit -> dbRepository.updateToken(tokenInput.entity(id))
+                    isEdit -> {
+                        dbRepository.updateToken(tokenInput.entity(id))
+                        clientRepository.put(id, tokenInput.tokenValue)
+                    }
                     else -> dbRepository.insertToken(tokenInput.entity())
                 }
             }.onSuccess {

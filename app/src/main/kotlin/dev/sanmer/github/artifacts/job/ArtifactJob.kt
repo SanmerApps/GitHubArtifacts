@@ -96,7 +96,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
             val artifact = intent?.artifact ?: return@launch
-            val github = clientRepository.get(intent.tokenId)
+            val github = clientRepository.getOrDefault(intent.tokenId)
 
             val uri = createMediaStoreUri(
                 file = File(Environment.DIRECTORY_DOWNLOADS, "${artifact.name}.zip"),

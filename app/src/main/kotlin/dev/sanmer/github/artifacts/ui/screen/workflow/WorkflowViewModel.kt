@@ -27,7 +27,7 @@ class WorkflowViewModel(
     private val owner: String,
     val name: String,
 ) : ViewModel() {
-    private val github = clientRepository.get(tokenId)
+    private val github = clientRepository.getOrDefault(tokenId)
 
     private val pager = WorkflowRunPagingSource(
         github = github,
