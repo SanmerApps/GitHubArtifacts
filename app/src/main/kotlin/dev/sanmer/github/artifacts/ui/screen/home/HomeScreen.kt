@@ -1,9 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.home
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -11,9 +8,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,15 +19,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.ktx.viewUrl
 import dev.sanmer.github.artifacts.ui.component.PageIndicator
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.screen.Screen
@@ -43,8 +37,6 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     goTo: (Screen) -> Unit,
 ) {
-    val updateState by viewModel.updateState.collectAsStateWithLifecycle()
-
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val isScrollingUp by listState.isScrollingUp()
@@ -52,8 +44,6 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopBar(
-                updateState = updateState,
-                onRefresh = viewModel::updateRepoAll,
                 scrollBehavior = scrollBehavior
             )
         },
@@ -64,7 +54,7 @@ fun HomeScreen(
                 exit = scaleOut() + fadeOut()
             ) {
                 ActionButton(
-                    onClick = { goTo(Screen.Setting) }
+                    onToken = { goTo(Screen.Token) }
                 )
             }
         }
@@ -73,9 +63,8 @@ fun HomeScreen(
             modifier = Modifier
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .fillMaxSize(),
-            contentAlignment = Alignment.TopCenter
         ) {
-            if (viewModel.loadData.isSuccess && viewModel.repos.isEmpty()) {
+            if (viewModel.loadData.isSuccess && viewModel.list.isEmpty()) {
                 PageIndicator(
                     icon = R.drawable.git_branch,
                     text = R.string.repo_empty,
@@ -84,7 +73,9 @@ fun HomeScreen(
             }
 
             RepoList(
-                repos = viewModel.repos,
+                list = viewModel.list,
+                update = viewModel::update,
+                onUpdate = viewModel::update,
                 onClick = { goTo(Screen.Workflow(it)) },
                 state = listState,
                 contentPadding = contentPadding
@@ -94,53 +85,32 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ActionButton(
-    onClick: () -> Unit
-) {
-    FloatingActionButton(
-        onClick = onClick
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.settings_2),
-            contentDescription = null
-        )
-    }
-}
-
-@Composable
 private fun TopBar(
-    updateState: HomeViewModel.UpdateState,
-    onRefresh: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
     title = { Text(text = stringResource(id = R.string.launch_name)) },
     actions = {
+        val context = LocalContext.current
         IconButton(
-            onClick = onRefresh,
+            onClick = { context.viewUrl(Const.GITHUB_URL) }
         ) {
-            val animatedScale by animateFloatAsState(
-                targetValue = if (updateState.isRunning) 0.65f else 1f,
-                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-            )
-
-            AnimatedVisibility(
-                visible = updateState.isRunning,
-                enter = fadeIn() + scaleIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                CircularProgressIndicator(
-                    progress = { updateState.progress },
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
             Icon(
-                painter = painterResource(id = R.drawable.refresh),
-                contentDescription = null,
-                modifier = Modifier.scale(animatedScale)
+                painter = painterResource(id = R.drawable.brand_github),
+                contentDescription = null
             )
         }
     },
     scrollBehavior = scrollBehavior
 )
+
+@Composable
+private fun ActionButton(
+    onToken: () -> Unit
+) = FloatingActionButton(
+    onClick = onToken
+) {
+    Icon(
+        painter = painterResource(id = R.drawable.key),
+        contentDescription = null
+    )
+}

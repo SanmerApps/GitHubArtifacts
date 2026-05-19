@@ -3,24 +3,14 @@ package dev.sanmer.github.artifacts.repository
 import dev.sanmer.github.Auth
 import dev.sanmer.github.GitHub
 
-class ClientRepositoryImpl : ClientRepository {
-    private sealed class Key {
-        data class Token(val value: String) : Key()
+class ClientRepositoryImpl : ClientRepository, MutableMap<Long, GitHub> by hashMapOf() {
+    override fun put(id: Long, token: String) {
+        put(id, GitHub(auth = Auth.Bearer(token)))
     }
 
-    private val clients = hashMapOf<Key, GitHub>()
-
-    override fun new(
-        token: String
-    ) = GitHub(
-        auth = Auth.Bearer(token)
-    )
-
-    override fun getOrCreate(
-        token: String
-    ) = clients.getOrPut(Key.Token(token)) {
-        GitHub(
-            auth = Auth.Bearer(token)
-        )
+    override fun getOrCreate(id: Long, token: String) = getOrPut(id) {
+        GitHub(auth = Auth.Bearer(token))
     }
+
+    override fun getOrDefault(id: Long) = getOrElse(id) { GitHub(auth = Auth.None) }
 }

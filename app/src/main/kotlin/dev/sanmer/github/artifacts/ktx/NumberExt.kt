@@ -23,5 +23,3 @@ inline fun Long.format(): String {
 }
 
 inline fun Int.format() = toLong().format()
-
-inline fun String.isLong() = toLongOrNull() != null

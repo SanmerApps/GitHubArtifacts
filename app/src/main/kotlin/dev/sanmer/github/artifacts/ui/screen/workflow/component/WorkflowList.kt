@@ -87,30 +87,25 @@ private fun WorkflowItem(
     downloadArtifact: (Context, Artifact) -> Unit
 ) {
     var isLoading by remember { mutableStateOf(false) }
-    var expend by rememberSaveable(run) { mutableStateOf(false) }
+    var expanded by rememberSaveable(run.id) { mutableStateOf(false) }
 
     WorkflowItem(
         run = run,
-        onClick = { expend = !expend },
+        onClick = { expanded = !expanded },
         trailing = {
             WorkflowTrailing(
                 progress = isLoading,
-                expend = expend
+                expanded = expanded
             )
         }
     )
 
     AnimatedVisibility(
-        visible = expend,
+        visible = expanded,
         enter = fadeIn() + expandVertically(),
         exit = shrinkVertically() + fadeOut()
     ) {
-        val data by remember(run.id) {
-            derivedStateOf {
-                getArtifacts(run)
-            }
-        }
-
+        val data by remember(run.id) { derivedStateOf { getArtifacts(run) } }
         DisposableEffect(data) {
             isLoading = data.isLoading
             onDispose { isLoading = false }
@@ -134,12 +129,12 @@ private fun WorkflowItem(
 @Composable
 private fun WorkflowTrailing(
     progress: Boolean,
-    expend: Boolean
+    expanded: Boolean
 ) = Box(
     contentAlignment = Alignment.Center
 ) {
     val animateDegrees by animateFloatAsState(
-        targetValue = if (expend && !progress) 90f else 0f,
+        targetValue = if (expanded && !progress) 90f else 0f,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
     )
 
@@ -162,8 +157,7 @@ private fun WorkflowTrailing(
         Icon(
             painter = painterResource(id = R.drawable.chevron_right),
             contentDescription = null,
-            modifier = Modifier
-                .rotate(animateDegrees)
+            modifier = Modifier.rotate(animateDegrees)
         )
     }
 }

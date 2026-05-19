@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -19,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ui.screen.home.component.Title
-import dev.sanmer.github.artifacts.ui.screen.home.component.Value
+import dev.sanmer.github.artifacts.ui.component.Title
+import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -39,55 +37,53 @@ fun WorkflowItem(
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(10.dp)
 ) {
-    val updatedAt by remember {
+    val updatedAt by remember(run.id) {
         derivedStateOf {
             run.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
         }
     }
 
     Column(
-        modifier = Modifier.weight(1f)
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         Title(
             title = run.displayTitle,
             subtitle = run.headSha.substring(0, 7)
         )
 
-        CompositionLocalProvider(
-            LocalContentColor provides MaterialTheme.colorScheme.outline
-        ) {
-            BottomRow(
-                run = run,
-                modifier = Modifier.padding(vertical = 5.dp)
-            )
+        Values(run = run)
 
-            Value(text = updatedAt)
-        }
+        Value(
+            value = updatedAt,
+            color = MaterialTheme.colorScheme.outline
+        )
     }
 
     trailing?.invoke()
 }
 
 @Composable
-private fun BottomRow(
-    run: WorkflowRun,
-    modifier: Modifier = Modifier
+private fun Values(
+    run: WorkflowRun
 ) = FlowRow(
-    modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
     Value(
-        value = run.name
+        value = run.name,
+        color = MaterialTheme.colorScheme.outline
     )
 
     Value(
         icon = R.drawable.hash,
-        value = run.runNumber
+        value = run.runNumber,
+        color = MaterialTheme.colorScheme.outline
     )
 
     Value(
         icon = R.drawable.user,
-        value = run.actor.login
+        value = run.actor.login,
+        color = MaterialTheme.colorScheme.outline
     )
 }

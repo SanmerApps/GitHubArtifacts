@@ -86,7 +86,7 @@ fun WorkflowScreen(
 
                 else -> if (workflowRuns.isEmpty()) {
                     PageIndicator(
-                        icon = R.drawable.cloud_computing,
+                        icon = R.drawable.subtask,
                         text = R.string.workflow_empty,
                         modifier = Modifier.padding(contentPadding)
                     )
