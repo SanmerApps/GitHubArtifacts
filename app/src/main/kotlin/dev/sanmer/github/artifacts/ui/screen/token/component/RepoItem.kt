@@ -17,6 +17,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -26,7 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
+import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.artifacts.ui.screen.home.component.repoType
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -93,23 +95,25 @@ fun RepoItem(
             shadowElevation = 0.dp
         ) {
             MenuItem(
-                text = R.string.workflow_title,
-                icon = R.drawable.subtask,
                 onClick = {
                     expanded = false
                     onWorkflow()
-                }
+                },
+                text = R.string.workflow_title,
+                icon = R.drawable.subtask
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             MenuItem(
-                text = R.string.edit_delete,
-                icon = R.drawable.trash_x,
                 onClick = {
                     expanded = false
                     onDelete()
-                }
+                },
+                text = R.string.edit_delete,
+                icon = R.drawable.trash_x,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                containerColor = MaterialTheme.colorScheme.errorContainer
             )
         }
     }
@@ -117,9 +121,11 @@ fun RepoItem(
 
 @Composable
 private fun MenuItem(
+    onClick: () -> Unit,
     @StringRes text: Int,
     @DrawableRes icon: Int,
-    onClick: () -> Unit
+    contentColor: Color = Color.Unspecified,
+    containerColor: Color = Color.Unspecified
 ) = DropdownMenuItem(
     text = { Text(text = stringResource(id = text)) },
     onClick = onClick,
@@ -130,7 +136,15 @@ private fun MenuItem(
         )
     },
     modifier = Modifier
-        .padding(horizontal = 10.dp)
-        .clip(MaterialTheme.shapes.small),
-    contentPadding = PaddingValues(all = 10.dp)
+        .padding(horizontal = 8.dp)
+        .surface(
+            shape = MaterialTheme.shapes.small,
+            backgroundColor = containerColor
+        ),
+    contentPadding = PaddingValues(all = 10.dp),
+    colors = MenuDefaults.itemColors(
+        textColor = contentColor,
+        leadingIconColor = contentColor,
+        trailingIconColor = contentColor
+    )
 )
