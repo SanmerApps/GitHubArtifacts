@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,18 +17,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.ui.component.Logo
+import dev.sanmer.github.artifacts.ui.component.AnimatedPoint
+import dev.sanmer.github.artifacts.ui.component.Point
 
 @Composable
 fun RepoList(
@@ -80,22 +77,22 @@ private fun RepoItem(
 
     AnimatedContent(
         targetState = update,
-        transitionSpec = { (fadeIn() + scaleIn()) togetherWith (scaleOut() + fadeOut()) }
+        transitionSpec = { fadeIn() togetherWith fadeOut() }
     ) {
         when (it) {
-            LoadData.Loading -> CircularProgressIndicator(
-                strokeWidth = 2.dp,
+            LoadData.Loading -> AnimatedPoint(
+                modifier = Modifier.size(24.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer
+            )
+
+            is LoadData.Failure -> Point(
+                modifier = Modifier.size(24.dp),
+                color = MaterialTheme.colorScheme.errorContainer
+            )
+
+            else -> Spacer(
                 modifier = Modifier.size(24.dp)
             )
-
-            is LoadData.Failure -> Logo(
-                icon = R.drawable.x,
-                modifier = Modifier.size(24.dp),
-                contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                containerColor = MaterialTheme.colorScheme.errorContainer
-            )
-
-            else -> Spacer(modifier = Modifier.size(24.dp))
         }
     }
 }
