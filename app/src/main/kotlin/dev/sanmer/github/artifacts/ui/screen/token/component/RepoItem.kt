@@ -63,8 +63,7 @@ fun RepoItem(
         Title(
             title = repo.fullName,
             subtitle = repo.repoType(),
-            titleStyle = MaterialTheme.typography.bodyLarge,
-            subtitleStyle = MaterialTheme.typography.labelMedium
+            titleStyle = MaterialTheme.typography.bodyLarge
         )
 
         Value(

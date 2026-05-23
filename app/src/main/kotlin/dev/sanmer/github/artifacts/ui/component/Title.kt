@@ -20,7 +20,7 @@ fun Title(
     modifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.typography.titleMedium,
     subtitle: String? = null,
-    subtitleStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    subtitleStyle: TextStyle = MaterialTheme.typography.labelMedium,
 ) = FlowRow(
     modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(5.dp),
