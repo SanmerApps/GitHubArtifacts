@@ -81,7 +81,7 @@ class HomeViewModel(
                 token = token.token
             ).repositories.get(
                 owner = repo.owner,
-                name = repo.name
+                repo = repo.name
             )
         }.onSuccess {
             dbRepository.updateRepo(repo.copy(repo = it))
