@@ -24,8 +24,6 @@ fun Point(
 ) = Canvas(modifier = modifier) {
     val radius = size.minDimension / 2f
     val innerRadius = radius * 0.6f
-    val ringRadius = (radius * ringScale + innerRadius) / 2
-    val strokeWidth = radius * ringScale - innerRadius
 
     drawCircle(
         color = color,
@@ -34,6 +32,9 @@ fun Point(
     )
 
     if (ringColor.isSpecified) {
+        val ringRadius = (radius * ringScale + innerRadius) / 2
+        val strokeWidth = radius * ringScale - innerRadius
+
         drawCircle(
             color = ringColor.copy(alpha = ringAlpha),
             radius = ringRadius,
