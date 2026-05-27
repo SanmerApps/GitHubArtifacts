@@ -230,20 +230,23 @@ private fun WorkflowBottomSheet(
     ) {
         when (it) {
             LoadState.Loading if (workflows.isEmpty()) -> Loading(
-                modifier = Modifier.height(120.dp)
+                modifier = Modifier
+                    .height(240.dp)
+                    .fillMaxWidth()
             )
 
             is LoadState.Error -> Finished(
                 label = it.error.message ?: it.error.javaClass.name,
                 modifier = Modifier
                     .padding(horizontal = 15.dp)
-                    .height(120.dp),
+                    .height(240.dp)
+                    .fillMaxWidth()
             )
 
             else -> if (workflows.isEmpty()) {
                 Finished(
                     label = R.string.workflow_empty,
-                    modifier = Modifier.height(120.dp)
+                    modifier = Modifier.height(240.dp)
                 )
             } else {
                 WorkflowList(
