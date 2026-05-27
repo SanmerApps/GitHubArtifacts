@@ -33,7 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
-import dev.sanmer.github.artifacts.ui.component.PageIndicator
+import dev.sanmer.github.artifacts.ui.component.Finished
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.screen.Screen
@@ -74,10 +74,11 @@ fun TokenScreen(
                 .fillMaxSize()
         ) {
             if (viewModel.loadData.isSuccess && viewModel.list.isEmpty()) {
-                PageIndicator(
-                    icon = R.drawable.key,
-                    text = R.string.token_empty,
-                    modifier = Modifier.padding(contentPadding)
+                Finished(
+                    label = R.string.token_empty,
+                    modifier = Modifier
+                        .padding(contentPadding)
+                        .fillMaxSize()
                 )
             }
 

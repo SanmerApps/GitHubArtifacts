@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ktx.viewUrl
-import dev.sanmer.github.artifacts.ui.component.PageIndicator
+import dev.sanmer.github.artifacts.ui.component.Finished
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoList
@@ -65,10 +65,11 @@ fun HomeScreen(
                 .fillMaxSize(),
         ) {
             if (viewModel.loadData.isSuccess && viewModel.list.isEmpty()) {
-                PageIndicator(
-                    icon = R.drawable.git_branch,
-                    text = R.string.repo_empty,
-                    modifier = Modifier.padding(contentPadding)
+                Finished(
+                    label = R.string.repo_empty,
+                    modifier = Modifier
+                        .padding(contentPadding)
+                        .fillMaxSize()
                 )
             }
 
