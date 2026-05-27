@@ -57,7 +57,7 @@ fun Value(
 ) = Value(
     icon = {
         Icon(
-            painter = painterResource(id = icon),
+            painter = painterResource(icon),
             contentDescription = null,
             modifier = Modifier.size(18.dp),
             tint = color

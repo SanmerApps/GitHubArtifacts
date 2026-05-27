@@ -123,13 +123,13 @@ private fun TopBar(
     onBack: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
-    title = { Text(text = stringResource(id = R.string.token_title)) },
+    title = { Text(text = stringResource(R.string.token_title)) },
     navigationIcon = {
         IconButton(
             onClick = onBack,
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.arrow_left),
+                painter = painterResource(R.drawable.arrow_left),
                 contentDescription = null
             )
         }
@@ -144,7 +144,7 @@ private fun ActionButton(
     onClick = onAdd
 ) {
     Icon(
-        painter = painterResource(id = R.drawable.plus),
+        painter = painterResource(R.drawable.plus),
         contentDescription = null
     )
 }

@@ -81,7 +81,7 @@ fun RepoItem(
             onClick = { expanded = true }
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.dots),
+                painter = painterResource(R.drawable.dots),
                 contentDescription = null
             )
         }
@@ -126,11 +126,11 @@ private fun MenuItem(
     contentColor: Color = Color.Unspecified,
     containerColor: Color = Color.Unspecified
 ) = DropdownMenuItem(
-    text = { Text(text = stringResource(id = text)) },
+    text = { Text(text = stringResource(text)) },
     onClick = onClick,
     leadingIcon = {
         Icon(
-            painter = painterResource(id = icon),
+            painter = painterResource(icon),
             contentDescription = null
         )
     },

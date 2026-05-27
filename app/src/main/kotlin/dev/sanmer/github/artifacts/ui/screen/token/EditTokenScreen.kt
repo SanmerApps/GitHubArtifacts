@@ -135,7 +135,7 @@ private fun AddRepoDialog(
 ) = AlertDialog(
     onDismissRequest = { if (!data.isLoading) onClose() },
     shape = MaterialTheme.shapes.large,
-    title = { Text(text = stringResource(id = R.string.add_repo_title)) },
+    title = { Text(text = stringResource(R.string.add_repo_title)) },
     text = {
         when (val data = data) {
             LoadData.Loading -> Box(

@@ -58,7 +58,7 @@ fun EditTokenItem(
             imeAction = ImeAction.Next
         ),
         shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_name)) },
+        label = { Text(text = stringResource(R.string.edit_name)) },
         lineLimits = TextFieldLineLimits.SingleLine,
         modifier = Modifier.fillMaxWidth()
     )
@@ -70,7 +70,7 @@ fun EditTokenItem(
             imeAction = ImeAction.Done
         ),
         shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_token)) },
+        label = { Text(text = stringResource(R.string.edit_token)) },
         modifier = Modifier.fillMaxWidth()
     )
 
@@ -92,7 +92,7 @@ fun EditTokenItem(
             imeAction = ImeAction.Next
         ),
         shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_expiration)) },
+        label = { Text(text = stringResource(R.string.edit_expiration)) },
         lineLimits = TextFieldLineLimits.SingleLine,
         modifier = Modifier.fillMaxWidth()
     )

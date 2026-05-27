@@ -89,14 +89,14 @@ fun HomeScreen(
 private fun TopBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
-    title = { Text(text = stringResource(id = R.string.launch_name)) },
+    title = { Text(text = stringResource(R.string.launch_name)) },
     actions = {
         val context = LocalContext.current
         IconButton(
             onClick = { context.viewUrl(Const.GITHUB_URL) }
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.brand_github),
+                painter = painterResource(R.drawable.brand_github),
                 contentDescription = null
             )
         }
@@ -111,7 +111,7 @@ private fun ActionButton(
     onClick = onToken
 ) {
     Icon(
-        painter = painterResource(id = R.drawable.key),
+        painter = painterResource(R.drawable.key),
         contentDescription = null
     )
 }

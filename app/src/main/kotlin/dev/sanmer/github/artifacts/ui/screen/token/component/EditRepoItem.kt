@@ -36,7 +36,7 @@ fun EditRepoItem(
             imeAction = ImeAction.Next
         ),
         shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_owner)) },
+        label = { Text(text = stringResource(R.string.edit_owner)) },
         readOnly = readOnly,
         textStyle = textStyle,
         modifier = Modifier.fillMaxWidth()
@@ -49,7 +49,7 @@ fun EditRepoItem(
             imeAction = ImeAction.Done
         ),
         shape = MaterialTheme.shapes.medium,
-        label = { Text(text = stringResource(id = R.string.edit_name)) },
+        label = { Text(text = stringResource(R.string.edit_name)) },
         readOnly = readOnly,
         textStyle = textStyle,
         modifier = Modifier.fillMaxWidth()

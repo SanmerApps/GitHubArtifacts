@@ -59,7 +59,7 @@ fun TokenItem(
             Title(title = token.name)
 
             Value(
-                value = stringResource(id = R.string.token_expire, expiredAt),
+                value = stringResource(R.string.token_expire, expiredAt),
                 color = MaterialTheme.colorScheme.outline
             )
         }

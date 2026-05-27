@@ -66,15 +66,15 @@ fun RepoItem(
 @Composable
 fun RepoEntity.repoType() = if (private) {
     when {
-        archived -> stringResource(id = R.string.repo_private_archive)
-        isTemplate -> stringResource(id = R.string.repo_private_template)
-        else -> stringResource(id = R.string.repo_private)
+        archived -> stringResource(R.string.repo_private_archive)
+        isTemplate -> stringResource(R.string.repo_private_template)
+        else -> stringResource(R.string.repo_private)
     }
 } else {
     when {
-        archived -> stringResource(id = R.string.repo_public_archive)
-        isTemplate -> stringResource(id = R.string.repo_public_template)
-        else -> stringResource(id = R.string.repo_public)
+        archived -> stringResource(R.string.repo_public_archive)
+        isTemplate -> stringResource(R.string.repo_public_template)
+        else -> stringResource(R.string.repo_public)
     }
 }
 
