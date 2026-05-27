@@ -1,36 +1,36 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +45,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.model.LoadData
+import dev.sanmer.github.artifacts.ui.component.DragHandle
+import dev.sanmer.github.artifacts.ui.component.Finished
+import dev.sanmer.github.artifacts.ui.component.Loading
+import dev.sanmer.github.artifacts.ui.ktx.bottom
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.screen.Screen
@@ -63,7 +67,7 @@ fun EditTokenScreen(
     val isScrollingUp by listState.isScrollingUp()
 
     val (add, setAdd) = remember { mutableStateOf(false) }
-    if (add) AddRepoDialog(
+    if (add) AddRepoBottomSheet(
         input = viewModel.repoInput,
         data = viewModel.loadData,
         onClose = { setAdd(false) },
@@ -126,61 +130,86 @@ fun EditTokenScreen(
 }
 
 @Composable
-private fun AddRepoDialog(
+private fun AddRepoBottomSheet(
     input: EditTokenViewModel.RepoInput,
     data: LoadData<Unit>,
     onClose: () -> Unit,
     onSave: () -> Unit,
     onRevert: () -> Unit
-) = AlertDialog(
-    onDismissRequest = { if (!data.isLoading) onClose() },
-    shape = MaterialTheme.shapes.large,
-    title = { Text(text = stringResource(R.string.add_repo_title)) },
-    text = {
-        when (val data = data) {
-            LoadData.Loading -> Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(48.dp),
-                    strokeWidth = 5.dp
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    DisposableEffect(true) {
+        onDispose(onRevert)
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = {
+            keyboardController?.hide()
+            if (!data.isLoading) onClose()
+        },
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        shape = MaterialTheme.shapes.large.bottom(0.dp),
+        dragHandle = null
+    ) {
+        DragHandle()
+
+        Text(
+            text = stringResource(R.string.add_repo_title),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+
+        Crossfade(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(all = 15.dp),
+            targetState = data
+        ) {
+            when (it) {
+                LoadData.Loading -> Loading(
+                    modifier = Modifier
+                        .height(138.dp)
+                        .fillMaxWidth()
+                )
+
+                is LoadData.Failure -> Finished(
+                    label = it.error.message ?: it.error.javaClass.name,
+                    modifier = Modifier
+                        .padding(horizontal = 15.dp)
+                        .height(138.dp)
+                        .fillMaxWidth(),
+                )
+
+                else -> EditRepoItem(
+                    input = input
                 )
             }
-
-            is LoadData.Failure -> SelectionContainer {
-                Text(
-                    text = data.error.stackTraceToString(),
-                    maxLines = 20
-                )
-            }
-
-            else -> EditRepoItem(
-                input = input
-            )
         }
-    },
-    confirmButton = {
-        DisposableEffect(true) {
-            onDispose(onRevert)
-        }
-        TextButton(
-            onClick = if (data.isFailure) onRevert else onSave,
-            enabled = input.isNotEmpty && !data.isLoading
+
+        Button(
+            onClick = {
+                keyboardController?.hide()
+                if (data.isFailure) onRevert() else onSave()
+            },
+            enabled = input.isNotEmpty && !data.isLoading,
+            modifier = Modifier
+                .padding(horizontal = 15.dp)
+                .fillMaxWidth()
         ) {
             Text(
                 text = stringResource(
-                    id = when {
+                    when {
                         data.isFailure -> R.string.edit_back
                         else -> R.string.edit_save
                     }
                 )
             )
         }
+
+        Spacer(modifier = Modifier.height(15.dp))
     }
-)
+}
 
 @Composable
 private fun TopBar(
@@ -252,7 +281,7 @@ private fun ActionButton(
     ) {
         Icon(
             painter = painterResource(
-                id = when {
+                when {
                     isChanged -> R.drawable.device_floppy
                     else -> R.drawable.plus
                 }
