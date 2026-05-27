@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -42,11 +41,12 @@ fun RepoList(
         .fillMaxWidth()
         .animateContentSize(),
     state = state,
-    contentPadding = contentPadding,
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(5.dp)
+    contentPadding = contentPadding
 ) {
-    items(list) { (repo, token) ->
+    items(
+        items = list,
+        key = { it.repo.id }
+    ) { (repo, token) ->
         RepoItem(
             repo = repo,
             update = update(repo),
@@ -66,9 +66,8 @@ private fun RepoItem(
     modifier = Modifier
         .clip(shape = MaterialTheme.shapes.medium)
         .clickable(onClick = if (update.isSuccess) onClick else onUpdate)
-        .padding(horizontal = 15.dp, vertical = 10.dp)
-        .fillMaxWidth(),
-    verticalAlignment = Alignment.Top
+        .padding(all = 15.dp)
+        .fillMaxWidth()
 ) {
     RepoItem(
         repo = repo,
@@ -77,7 +76,8 @@ private fun RepoItem(
 
     AnimatedContent(
         targetState = update,
-        transitionSpec = { fadeIn() togetherWith fadeOut() }
+        transitionSpec = { fadeIn() togetherWith fadeOut() },
+        contentAlignment = Alignment.Center
     ) {
         when (it) {
             LoadData.Loading -> AnimatedPoint(

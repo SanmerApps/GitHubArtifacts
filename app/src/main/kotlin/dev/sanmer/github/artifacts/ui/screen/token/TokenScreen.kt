@@ -106,7 +106,10 @@ private fun TokenList(
     contentPadding = contentPadding + PaddingValues(all = 15.dp),
     verticalArrangement = Arrangement.spacedBy(15.dp)
 ) {
-    items(list) { (token, repos) ->
+    items(
+        items = list,
+        key = { it.token.id }
+    ) { (token, repos) ->
         TokenItem(
             token = token,
             repos = repos,

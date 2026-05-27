@@ -111,7 +111,10 @@ fun EditTokenScreen(
                 )
             }
 
-            items(viewModel.repos) {
+            items(
+                items = viewModel.repos,
+                key = { it.id }
+            ) {
                 RepoItem(
                     repo = it,
                     onDelete = { viewModel.deleteRepo(it) },
