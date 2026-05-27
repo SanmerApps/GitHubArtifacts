@@ -1,19 +1,14 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow.component
 
 import android.text.format.Formatter
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -28,36 +23,21 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 fun ArtifactItem(
     artifact: Artifact,
-    onClick: () -> Unit,
-    trailing: @Composable (() -> Unit)? = null
-) = Row(
-    modifier = Modifier
-        .clickable(
-            enabled = !artifact.expired,
-            onClick = onClick
-        )
-        .padding(all = 15.dp)
-        .fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(10.dp)
+    modifier: Modifier = Modifier
+) = Column(
+    modifier = modifier,
+    verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    Column(
-        modifier = Modifier.weight(1f),
-        verticalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        Title(
-            title = artifact.name,
-            subtitle = if (artifact.expired) {
-                stringResource(id = R.string.artifact_expired)
-            } else {
-                null
-            }
-        )
+    Title(
+        title = artifact.name,
+        subtitle = if (artifact.expired) {
+            stringResource(R.string.artifact_expired)
+        } else {
+            null
+        }
+    )
 
-        Values(artifact = artifact)
-    }
-
-    if (!artifact.expired) trailing?.invoke()
+    Values(artifact = artifact)
 }
 
 @Composable
@@ -65,7 +45,7 @@ private fun Values(
     artifact: Artifact
 ) = FlowRow(
     horizontalArrangement = Arrangement.spacedBy(10.dp),
-    verticalArrangement = Arrangement.spacedBy(5.dp)
+    verticalArrangement = Arrangement.spacedBy(10.dp)
 ) {
     val context = LocalContext.current
     val size by remember {

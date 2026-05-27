@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -25,6 +26,8 @@ fun Value(
     modifier = modifier,
     color = color,
     style = MaterialTheme.typography.bodyMedium,
+    maxLines = 1,
+    overflow = TextOverflow.Ellipsis
 )
 
 @Composable

@@ -9,9 +9,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 
-val LoadState.isError
-    inline get() = this is LoadState.Error
-
 val LoadState.isLoading
     inline get() = this is LoadState.Loading
 

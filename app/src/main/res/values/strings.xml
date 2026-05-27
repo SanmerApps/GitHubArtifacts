@@ -11,7 +11,13 @@
 
     <!-- Workflow -->
     <string name="workflow_title">Workflows</string>
+    <string name="workflow_name">Workflow</string>
+    <string name="workflow_deleted">Deleted</string>
+    <string name="workflow_disabled">Disabled</string>
     <string name="workflow_empty">No workflows</string>
+    <string name="workflow_run_event">Event</string>
+    <string name="workflow_run_status">Status</string>
+    <string name="workflow_run_empty">No results</string>
     <string name="artifact_expired">Expired</string>
 
     <!-- Token -->

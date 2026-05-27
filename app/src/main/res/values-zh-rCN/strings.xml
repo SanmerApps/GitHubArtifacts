@@ -11,7 +11,13 @@
 
     <!-- Workflow -->
     <string name="workflow_title">工作流</string>
+    <string name="workflow_name">工作流</string>
+    <string name="workflow_deleted">已删除</string>
+    <string name="workflow_disabled">已禁用</string>
     <string name="workflow_empty">没有工作流</string>
+    <string name="workflow_run_event">事件</string>
+    <string name="workflow_run_status">状态</string>
+    <string name="workflow_run_empty">没有结果</string>
     <string name="artifact_expired">已过期</string>
 
     <!-- Token -->

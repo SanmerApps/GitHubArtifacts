@@ -1,21 +1,10 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow.component
 
-import android.content.Context
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,40 +12,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.job.ArtifactJob
-import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.items
+import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.ktx.surface
-import dev.sanmer.github.response.artifact.Artifact
-import dev.sanmer.github.response.workflow.run.WorkflowRun
+import dev.sanmer.github.response.workflow.Workflow
 
 @Composable
 fun WorkflowList(
-    workflowRuns: LazyPagingItems<WorkflowRun>,
-    getArtifacts: (WorkflowRun) -> LoadData<List<Artifact>>,
-    downloadArtifact: (Context, Artifact) -> Unit,
+    workflows: LazyPagingItems<Workflow>,
+    workflow: Workflow?,
+    onWorkflowChange: (Workflow?) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
@@ -64,176 +38,50 @@ fun WorkflowList(
         .fillMaxWidth()
         .animateContentSize(),
     state = state,
-    contentPadding = contentPadding,
-    horizontalAlignment = Alignment.CenterHorizontally,
-    verticalArrangement = Arrangement.spacedBy(5.dp)
+    contentPadding = contentPadding + PaddingValues(all = 15.dp),
+    verticalArrangement = Arrangement.spacedBy(15.dp)
 ) {
     items(
-        items = workflowRuns,
+        items = workflows,
         key = { it.id }
-    ) { run ->
+    ) {
         WorkflowItem(
-            run = run,
-            getArtifacts = getArtifacts,
-            downloadArtifact = downloadArtifact
+            workflow = it,
+            selected = it == workflow,
+            onClick = { onWorkflowChange(if (it == workflow) null else it) }
         )
     }
 }
 
 @Composable
 private fun WorkflowItem(
-    run: WorkflowRun,
-    getArtifacts: (WorkflowRun) -> LoadData<List<Artifact>>,
-    downloadArtifact: (Context, Artifact) -> Unit
-) {
-    var isLoading by remember { mutableStateOf(false) }
-    var expanded by rememberSaveable(run.id) { mutableStateOf(false) }
-
-    WorkflowItem(
-        run = run,
-        onClick = { expanded = !expanded },
-        trailing = {
-            WorkflowTrailing(
-                progress = isLoading,
-                expanded = expanded
-            )
-        }
-    )
-
-    AnimatedVisibility(
-        visible = expanded,
-        enter = fadeIn() + expandVertically(),
-        exit = shrinkVertically() + fadeOut()
-    ) {
-        val data by remember(run.id) { derivedStateOf { getArtifacts(run) } }
-        DisposableEffect(data) {
-            isLoading = data.isLoading
-            onDispose { isLoading = false }
-        }
-
-        when (val data = data) {
-            is LoadData.Success<List<Artifact>> -> {
-                if (data.value.isNotEmpty()) {
-                    ArtifactList(
-                        artifacts = data.value,
-                        download = downloadArtifact
-                    )
-                }
-            }
-
-            else -> {}
-        }
-    }
-}
-
-@Composable
-private fun WorkflowTrailing(
-    progress: Boolean,
-    expanded: Boolean
-) = Box(
-    contentAlignment = Alignment.Center
-) {
-    val animateDegrees by animateFloatAsState(
-        targetValue = if (expanded && !progress) 90f else 0f,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
-    )
-
-    AnimatedVisibility(
-        visible = progress,
-        enter = fadeIn() + scaleIn(),
-        exit = scaleOut() + fadeOut()
-    ) {
-        CircularProgressIndicator(
-            strokeWidth = 2.dp,
-            modifier = Modifier.size(24.dp)
-        )
-    }
-
-    AnimatedVisibility(
-        visible = !progress,
-        enter = fadeIn() + scaleIn(),
-        exit = scaleOut() + fadeOut()
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.chevron_right),
-            contentDescription = null,
-            modifier = Modifier.rotate(animateDegrees)
-        )
-    }
-}
-
-@Composable
-private fun ArtifactList(
-    artifacts: List<Artifact>,
-    download: (Context, Artifact) -> Unit
-) = Column(
+    workflow: Workflow,
+    selected: Boolean,
+    onClick: () -> Unit
+) = Row(
     modifier = Modifier
-        .padding(all = 10.dp)
         .surface(
             shape = MaterialTheme.shapes.large,
-            backgroundColor = MaterialTheme.colorScheme.surface,
+            backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
             border = CardDefaults.outlinedCardBorder(false)
         )
+        .clickable(onClick = onClick)
+        .padding(all = 15.dp)
+        .fillMaxWidth(),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(15.dp)
 ) {
-    val context = LocalContext.current
-
-    artifacts.forEachIndexed { index, artifact ->
-        val jobState by ArtifactJob.getJobState(artifact.id).collectAsStateWithLifecycle(
-            initialValue = ArtifactJob.JobState.Empty
-        )
-
-        ArtifactItem(
-            artifact = artifact,
-            onClick = { download(context, artifact) },
-            trailing = {
-                ArtifactTrailing(
-                    jobState = jobState
-                )
-            }
-        )
-
-        if (index < artifacts.size - 1) {
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.surfaceContainerHighest
-            )
-        }
-    }
-}
-
-@Composable
-private fun ArtifactTrailing(
-    jobState: ArtifactJob.JobState
-) = Box(
-    contentAlignment = Alignment.Center
-) {
-    val animatedScale by animateFloatAsState(
-        targetValue = if (jobState.isStarting) 0.65f else 1f,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+    WorkflowItem(
+        workflow = workflow,
+        modifier = Modifier.weight(1f)
     )
 
-    when (jobState) {
-        is ArtifactJob.JobState.Pending -> CircularProgressIndicator(
-            strokeWidth = 2.dp,
-            modifier = Modifier.size(24.dp)
+    if (selected) {
+        Icon(
+            painter = painterResource(id = R.drawable.circle_check_filled),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(30.dp)
         )
-
-        is ArtifactJob.JobState.Running -> CircularProgressIndicator(
-            strokeWidth = 2.dp,
-            progress = { jobState.progress },
-            modifier = Modifier.size(24.dp)
-        )
-
-        else -> Unit
     }
-
-    Icon(
-        painter = painterResource(
-            id = if (jobState.isStarting) R.drawable.file_type_zip else R.drawable.download
-        ),
-        contentDescription = null,
-        modifier = Modifier.scale(animatedScale)
-    )
 }
-
-private val ArtifactJob.JobState.isStarting
-    inline get() = this is ArtifactJob.JobState.Pending || this is ArtifactJob.JobState.Running
