@@ -1,6 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow.component
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -22,17 +23,8 @@ fun QueryItem(
     selected = selected,
     onClick = onClick,
     label = { Text(text = label) },
+    shape = CircleShape,
     leadingIcon = when {
-        selected -> {
-            {
-                Icon(
-                    painter = painterResource(R.drawable.check),
-                    contentDescription = null,
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        }
-
         isLoading -> {
             {
                 CircularProgressIndicator(
@@ -46,9 +38,9 @@ fun QueryItem(
     },
     trailingIcon = {
         Icon(
-            painter = painterResource(R.drawable.caret_down),
+            painter = painterResource(R.drawable.chevron_down),
             contentDescription = null,
-            modifier = Modifier.size(FilterChipDefaults.IconSize * 0.65f)
+            modifier = Modifier.size(FilterChipDefaults.IconSize)
         )
     }
 )

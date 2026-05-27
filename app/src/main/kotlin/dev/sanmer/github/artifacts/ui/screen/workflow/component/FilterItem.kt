@@ -28,7 +28,7 @@ fun FilterItem(
         else -> {
             {
                 Dot(
-                    modifier = Modifier.size(10.dp),
+                    modifier = Modifier.size(8.dp),
                     color = LocalContentColor.current
                 )
             }
