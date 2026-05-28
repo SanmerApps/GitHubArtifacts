@@ -4,7 +4,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.placeCursorAtEnd
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,15 +13,16 @@ import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.ktx.toInstant
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
 class EditTokenViewModel(
@@ -70,6 +70,7 @@ class EditTokenViewModel(
                         dbRepository.updateToken(tokenInput.entity(id))
                         clientRepository.put(id, tokenInput.tokenValue)
                     }
+
                     else -> dbRepository.insertToken(tokenInput.entity())
                 }
             }.onSuccess {
@@ -122,67 +123,56 @@ class EditTokenViewModel(
     data class TokenInput(
         val token: TextFieldState,
         val name: TextFieldState,
-        val createdAt: MutableState<Instant>,
-        val lifetime: TextFieldState
+        val expiredAt: TextFieldState
     ) {
         constructor(
             token: String = "",
             name: String = "",
-            createdAt: Instant = Clock.System.now(),
-            lifetime: Long = 90L
+            expiredAt: Instant = Clock.System.now(),
         ) : this(
             token = TextFieldState(token),
             name = TextFieldState(name),
-            createdAt = mutableStateOf(createdAt),
-            lifetime = TextFieldState(lifetime.toString())
+            expiredAt = TextFieldState(expiredAt.toLocalDate().format(LocalDate.Formats.ISO_BASIC))
         )
 
-        private var entity by mutableStateOf<TokenEntity?>(null)
-        private var createdAtValue by createdAt
-        private val _isCreatedAtChanged inline get() = createdAtValue != entity?.createdAt
         val tokenValue inline get() = token.text.trim().toString()
-        private val _isTokenChanged inline get() = token.text.trim() != entity?.token
-        private val nameValue inline get() = name.text.trim().toString()
-        private val _isNameChanged inline get() = name.text.trim() != entity?.name
-        private val lifetimeValue inline get() = with(lifetime.text.toString()) { if (isNotEmpty()) toLong() else 0 }
-        private val _isLifetimeChanged inline get() = lifetime.text != entity?.lifetime.toString()
+        private var _token by mutableStateOf<String?>(null)
+        private val _isTokenChanged inline get() = _token != null && token.text.trim() != _token
 
-        val isTokenChanged by derivedStateOf { entity != null && _isTokenChanged }
-        val isAnyChanged by derivedStateOf { entity != null && (_isTokenChanged || _isNameChanged || _isCreatedAtChanged || _isLifetimeChanged) }
-        val expiredAt by derivedStateOf { (createdAtValue + lifetimeValue.days).toLocalDate(TimeZone.currentSystemDefault()) }
+        val nameValue inline get() = name.text.trim().toString()
+        private var _name by mutableStateOf<String?>(null)
+        private val _isNameChanged inline get() = _name != null && name.text.trim() != _name
+
+        val expiredAtValue inline get() = LocalDate.Formats.ISO_BASIC.parse(expiredAt.text)
+        private var _expiredAt by mutableStateOf<String?>(null)
+        private val _isExpiredAtChanged inline get() = _expiredAt != null && expiredAt.text != _expiredAt
+
+        val isAnyChanged by derivedStateOf { _isTokenChanged || _isNameChanged || _isExpiredAtChanged }
 
         fun entity(id: Long = 0) = TokenEntity(
             id = id,
             token = tokenValue,
             name = nameValue,
-            createdAt = createdAtValue,
-            lifetime = lifetimeValue
+            expiredAt = expiredAtValue.toInstant()
         )
 
-        fun updateCreatedAt() {
-            createdAtValue = Clock.System.now()
-        }
-
-        fun revertCreatedAt() {
-            entity?.let { createdAtValue = it.createdAt }
-        }
-
         fun update(value: TokenEntity) {
-            entity = value
-            createdAtValue = value.createdAt
+            _token = value.token
             token.edit {
                 delete(0, length)
                 append(value.token)
                 placeCursorAtEnd()
             }
+            _name = value.name
             name.edit {
                 delete(0, length)
                 append(value.name)
                 placeCursorAtEnd()
             }
-            lifetime.edit {
+            _expiredAt = value.expiredAt.toLocalDate().format(LocalDate.Formats.ISO_BASIC)
+            expiredAt.edit {
                 delete(0, length)
-                append(value.lifetime.toString())
+                append(_expiredAt)
                 placeCursorAtEnd()
             }
         }

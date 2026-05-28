@@ -4,7 +4,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
 @Entity(tableName = "token")
@@ -13,11 +12,8 @@ data class TokenEntity(
     val id: Long = 0,
     val token: String,
     val name: String,
-    val createdAt: Instant,
-    val lifetime: Long
+    val expiredAt: Instant
 ) {
-    val expiredAt by lazy { createdAt + lifetime.days }
-
     data class AndRepos(
         @Embedded
         val token: TokenEntity,

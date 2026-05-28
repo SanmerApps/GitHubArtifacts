@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.CardDefaults
@@ -14,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,15 +42,6 @@ fun EditTokenItem(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.spacedBy(10.dp)
 ) {
-    DisposableEffect(input.isTokenChanged) {
-        if (input.isTokenChanged) {
-            input.updateCreatedAt()
-        } else {
-            input.revertCreatedAt()
-        }
-        onDispose {}
-    }
-
     OutlinedTextField(
         state = input.name,
         keyboardOptions = KeyboardOptions(
@@ -66,7 +57,7 @@ fun EditTokenItem(
     OutlinedTextField(
         state = input.token,
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
+            keyboardType = KeyboardType.Password,
             imeAction = ImeAction.Done
         ),
         shape = MaterialTheme.shapes.medium,
@@ -74,18 +65,16 @@ fun EditTokenItem(
         modifier = Modifier.fillMaxWidth()
     )
 
-    val day = stringResource(R.string.edit_day)
-    val days = stringResource(R.string.edit_days)
     OutlinedTextField(
-        state = input.lifetime,
-        inputTransformation = InputTransformation.maxLength(3).then {
+        state = input.expiredAt,
+        inputTransformation = InputTransformation.maxLength(8).then {
             if (!asCharSequence().isDigitsOnly()) {
                 revertAllChanges()
             }
         },
         outputTransformation = {
-            append(" ${if (length <= 1) day else days}")
-            append(" (${input.expiredAt})")
+            if (length > 4) insert(4, "-")
+            if (length > 7) insert(7, "-")
         },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
