@@ -33,7 +33,7 @@ fun RepoItem(
 ) = Column(
     modifier = modifier
 ) {
-    val pushedAt by remember(repo.id) {
+    val pushedAt by remember(repo.id, repo.pushedAt) {
         derivedStateOf {
             repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
         }
