@@ -56,7 +56,7 @@ class EditTokenViewModel(
                 dbRepository.getTokenAndReposAsFlow(id)
                     .collect { (token, list) ->
                         tokenInput.update(token)
-                        repos = list
+                        repos = list.sortedByDescending { it.pushedAt }
                     }
             }
         }

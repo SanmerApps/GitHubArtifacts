@@ -26,7 +26,6 @@ data class RepoEntity(
     val hasIssues: Boolean,
     val archived: Boolean,
     val pushedAt: Instant,
-    val updatedAt: Instant,
     val license: String
 ) {
     constructor(tokenId: Long, repo: Repository) : this(
@@ -46,7 +45,6 @@ data class RepoEntity(
         hasIssues = repo.hasIssues,
         archived = repo.archived,
         pushedAt = repo.pushedAt,
-        updatedAt = repo.updatedAt,
         license = repo.license.spdxId
     )
 

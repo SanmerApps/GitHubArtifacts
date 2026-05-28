@@ -30,8 +30,15 @@ class TokenViewModel(
     private fun loadDb() {
         viewModelScope.launch {
             dbRepository.getTokensAndReposAsFlow()
-                .collect {
-                    loadData = LoadData.Success(it)
+                .collect { list ->
+                    loadData = LoadData.Success(
+                        list.map { (token, repos) ->
+                            TokenEntity.AndRepos(
+                                token = token,
+                                repos = repos.sortedByDescending { it.pushedAt }
+                            )
+                        }
+                    )
                 }
         }
     }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "51f6e115465daf0cd2e0fa15d29205b6",
+    "identityHash": "4457cb00e7de52ca5fc9faf20aae9b0d",
     "entities": [
       {
         "tableName": "token",
@@ -42,7 +42,7 @@
       },
       {
         "tableName": "repo",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `tokenId` INTEGER NOT NULL, `name` TEXT NOT NULL, `fullName` TEXT NOT NULL, `owner` TEXT NOT NULL, `private` INTEGER NOT NULL, `description` TEXT NOT NULL, `language` TEXT NOT NULL, `forksCount` INTEGER NOT NULL, `stargazersCount` INTEGER NOT NULL, `watchersCount` INTEGER NOT NULL, `openIssuesCount` INTEGER NOT NULL, `isTemplate` INTEGER NOT NULL, `hasIssues` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `pushedAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `license` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `tokenId` INTEGER NOT NULL, `name` TEXT NOT NULL, `fullName` TEXT NOT NULL, `owner` TEXT NOT NULL, `private` INTEGER NOT NULL, `description` TEXT NOT NULL, `language` TEXT NOT NULL, `forksCount` INTEGER NOT NULL, `stargazersCount` INTEGER NOT NULL, `watchersCount` INTEGER NOT NULL, `openIssuesCount` INTEGER NOT NULL, `isTemplate` INTEGER NOT NULL, `hasIssues` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `pushedAt` INTEGER NOT NULL, `license` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -141,12 +141,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "updatedAt",
-            "columnName": "updatedAt",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "license",
             "columnName": "license",
             "affinity": "TEXT",
@@ -163,7 +157,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '51f6e115465daf0cd2e0fa15d29205b6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4457cb00e7de52ca5fc9faf20aae9b0d')"
     ]
   }
 }

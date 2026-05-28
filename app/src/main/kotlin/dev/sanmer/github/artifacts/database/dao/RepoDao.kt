@@ -11,18 +11,18 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RepoDao {
-    @Query("SELECT * FROM repo ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM repo ORDER BY pushedAt DESC")
     fun getAllAsFlow(): Flow<List<RepoEntity>>
 
-    @Query("SELECT * FROM repo ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM repo ORDER BY pushedAt DESC")
     suspend fun getAll(): List<RepoEntity>
 
     @Transaction
-    @Query("SELECT * FROM repo ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM repo ORDER BY pushedAt DESC")
     fun getAllAndTokenAsFlow(): Flow<List<RepoEntity.AndToken>>
 
     @Transaction
-    @Query("SELECT * FROM repo ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM repo ORDER BY pushedAt DESC")
     suspend fun getAllAndToken(): List<RepoEntity.AndToken>
 
     @Query("SELECT * FROM repo WHERE id = :id")

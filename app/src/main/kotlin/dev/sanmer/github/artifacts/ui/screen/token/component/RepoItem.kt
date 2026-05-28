@@ -51,9 +51,9 @@ fun RepoItem(
         .fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically
 ) {
-    val updatedAt by remember(repo.id) {
+    val pushedAt by remember(repo.id) {
         derivedStateOf {
-            repo.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
         }
     }
 
@@ -67,7 +67,7 @@ fun RepoItem(
         )
 
         Value(
-            value = updatedAt,
+            value = pushedAt,
             color = MaterialTheme.colorScheme.outline
         )
     }

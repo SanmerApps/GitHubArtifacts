@@ -65,10 +65,10 @@ abstract class AppDatabase : RoomDatabase() {
             it.execSQL("DROP TABLE token")
             it.execSQL("ALTER TABLE token_new RENAME TO token")
 
-            it.execSQL("CREATE TABLE repo_new (id INTEGER NOT NULL, tokenId INTEGER NOT NULL, name TEXT NOT NULL, fullName TEXT NOT NULL, owner TEXT NOT NULL, private INTEGER NOT NULL, description TEXT NOT NULL, language TEXT NOT NULL, forksCount INTEGER NOT NULL, stargazersCount INTEGER NOT NULL, watchersCount INTEGER NOT NULL, openIssuesCount INTEGER NOT NULL, isTemplate INTEGER NOT NULL, hasIssues INTEGER NOT NULL, archived INTEGER NOT NULL, pushedAt INTEGER NOT NULL, updatedAt INTEGER NOT NULL, license TEXT NOT NULL, PRIMARY KEY(id))")
+            it.execSQL("CREATE TABLE repo_new (id INTEGER NOT NULL, tokenId INTEGER NOT NULL, name TEXT NOT NULL, fullName TEXT NOT NULL, owner TEXT NOT NULL, private INTEGER NOT NULL, description TEXT NOT NULL, language TEXT NOT NULL, forksCount INTEGER NOT NULL, stargazersCount INTEGER NOT NULL, watchersCount INTEGER NOT NULL, openIssuesCount INTEGER NOT NULL, isTemplate INTEGER NOT NULL, hasIssues INTEGER NOT NULL, archived INTEGER NOT NULL, pushedAt INTEGER NOT NULL, license TEXT NOT NULL, PRIMARY KEY(id))")
             it.execSQL(
-                "INSERT INTO repo_new (id, tokenId, name, fullName, owner, private, description, language, forksCount, stargazersCount, watchersCount, openIssuesCount, isTemplate, hasIssues, archived, pushedAt, updatedAt, license) " +
-                        "SELECT r.id, t.id, r.name, r.fullName, r.owner, r.private, r.description, r.language, r.forksCount, r.stargazersCount, r.watchersCount, r.openIssuesCount, r.isTemplate, r.hasIssues, r.archived, 0, 0, r.license " +
+                "INSERT INTO repo_new (id, tokenId, name, fullName, owner, private, description, language, forksCount, stargazersCount, watchersCount, openIssuesCount, isTemplate, hasIssues, archived, pushedAt, license) " +
+                        "SELECT r.id, t.id, r.name, r.fullName, r.owner, r.private, r.description, r.language, r.forksCount, r.stargazersCount, r.watchersCount, r.openIssuesCount, r.isTemplate, r.hasIssues, r.archived, 0, r.license " +
                         "FROM repo r INNER JOIN token t ON r.token = t.token"
             )
             it.execSQL("DROP TABLE repo")
