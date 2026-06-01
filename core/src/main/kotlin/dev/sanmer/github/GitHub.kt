@@ -5,6 +5,7 @@ import dev.sanmer.github.Auth.Default.addAuth
 import dev.sanmer.github.stub.Artifacts
 import dev.sanmer.github.stub.Repositories
 import dev.sanmer.github.stub.WorkflowRuns
+import dev.sanmer.github.stub.Workflows
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.ConnectionSpec
@@ -42,6 +43,7 @@ class GitHub(
     }
 
     val repositories by lazy { retrofit.create<Repositories>() }
+    val workflows by lazy { retrofit.create<Workflows>() }
     val workflowRuns by lazy { retrofit.create<WorkflowRuns>() }
     val artifacts by lazy { retrofit.create<Artifacts>() }
 
@@ -57,7 +59,7 @@ class GitHub(
     }
 
     companion object Default {
-        const val API_VERSION = "2022-11-28"
+        const val API_VERSION = "2026-03-10"
         const val BASE_URL = "https://api.github.com/"
 
         fun createOkHttpClient(

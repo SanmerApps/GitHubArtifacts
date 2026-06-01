@@ -14,15 +14,15 @@ interface Repositories {
     @GET("users/{owner}/repos")
     suspend fun list(
         @Path("owner") owner: String,
-        @Query("sort") sort: RepositorySort,
         @IntRange(1, 100) @Query("per_page") perPage: Int,
-        @Query("page") page: Int
+        @Query("page") page: Int,
+        @Query("sort") sort: RepositorySort? = null
     ): RepositoryList
 
     @Headers("Accept: application/vnd.github+json")
-    @GET("repos/{owner}/{name}")
+    @GET("repos/{owner}/{repo}")
     suspend fun get(
         @Path("owner") owner: String,
-        @Path("name") name: String
+        @Path("repo") repo: String
     ): Repository
 }
