@@ -8,6 +8,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -73,7 +74,8 @@ private fun ArtifactItem(
         )
         .padding(all = 15.dp)
         .fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(10.dp)
 ) {
     val jobState by ArtifactJob.getJobState(artifact.id).collectAsStateWithLifecycle(JobState.Empty)
 
@@ -85,7 +87,8 @@ private fun ArtifactItem(
     AnimatedContent(
         targetState = jobState,
         transitionSpec = { (fadeIn() + scaleIn()) togetherWith (scaleOut() + fadeOut()) },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
+        contentKey = { it.contentKey() }
     ) {
         when (it) {
             is JobState.Pending -> CircularProgressIndicator(
@@ -105,4 +108,10 @@ private fun ArtifactItem(
             )
         }
     }
+}
+
+private fun JobState.contentKey() = when (this) {
+    is JobState.Pending -> 1
+    is JobState.Running -> 2
+    else -> 3
 }
