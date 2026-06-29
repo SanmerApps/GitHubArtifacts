@@ -6,13 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.sanmer.github.GitHub
+import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
-import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val dbRepository: DbRepository,
-    private val clientRepository: ClientRepository
+    private val github: GitHub
 ) : ViewModel() {
     var loadData by mutableStateOf<LoadData<List<RepoEntity.AndToken>>>(LoadData.Loading)
         private set
@@ -76,10 +77,8 @@ class HomeViewModel(
 
     private suspend fun getRepo(repo: RepoEntity, token: TokenEntity) =
         runCatching {
-            clientRepository.getOrCreate(
-                id = token.id,
-                token = token.token
-            ).repositories.get(
+            github.getRepository(
+                auth = token.token.toBearerAuth(),
                 owner = repo.owner,
                 repo = repo.name
             )

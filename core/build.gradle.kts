@@ -13,7 +13,5 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.square.retrofit)
-    implementation(libs.square.retrofit.serialization)
     implementation(libs.square.okhttp)
-    implementation(libs.square.okhttp.logging)
 }
