@@ -14,7 +14,6 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.create
-import java.util.Locale
 
 val GitHub = module {
     single {
@@ -37,7 +36,6 @@ val GitHub = module {
             )
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
-                request.header("Accept-Language", Locale.getDefault().toLanguageTag())
                 request.header("X-GitHub-Api-Version", GitHub.API_VERSION)
                 request.header("User-Agent", "GithubArtifacts/${BuildConfig.VERSION_CODE}")
                 chain.proceed(request.build())
