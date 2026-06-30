@@ -100,5 +100,10 @@ dependencies {
     implementation(libs.koin.compose.navigation3)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.serialization.protobuf)
+    implementation(libs.square.retrofit)
+    implementation(libs.square.retrofit.serialization)
+    implementation(libs.square.okhttp)
+    implementation(libs.square.okhttp.logging)
 }

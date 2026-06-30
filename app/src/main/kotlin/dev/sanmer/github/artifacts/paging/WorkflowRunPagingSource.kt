@@ -5,12 +5,14 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import dev.sanmer.github.GitHub
+import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
 import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 
 data class WorkflowRunPagingSource(
     private val github: GitHub,
+    private val token: String,
     private val owner: String,
     private val name: String,
     private val perPage: Int = 20,
@@ -21,7 +23,8 @@ data class WorkflowRunPagingSource(
     override suspend fun load(params: LoadParams<Int>) = try {
         val page = params.key ?: 1
         val workflowRuns = if (workflowId != null) {
-            github.workflowRuns.list(
+            github.listWorkflowRun(
+                auth = token.toBearerAuth(),
                 owner = owner,
                 repo = name,
                 workflowId = workflowId,
@@ -31,7 +34,8 @@ data class WorkflowRunPagingSource(
                 status = status
             )
         } else {
-            github.workflowRuns.list(
+            github.listWorkflowRun(
+                auth = token.toBearerAuth(),
                 owner = owner,
                 repo = name,
                 perPage = perPage,

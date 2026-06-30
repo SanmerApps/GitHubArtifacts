@@ -48,7 +48,7 @@ private fun Values(
     verticalArrangement = Arrangement.spacedBy(10.dp)
 ) {
     val context = LocalContext.current
-    val size by remember {
+    val size by remember(artifact.id) {
         derivedStateOf {
             Formatter.formatFileSize(context, artifact.sizeInBytes)
         }

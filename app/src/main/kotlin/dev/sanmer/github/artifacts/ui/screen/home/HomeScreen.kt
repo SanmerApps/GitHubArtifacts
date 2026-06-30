@@ -77,7 +77,7 @@ fun HomeScreen(
                 list = viewModel.list,
                 update = viewModel::update,
                 onUpdate = viewModel::update,
-                onClick = { goTo(Screen.Workflow(it)) },
+                onClick = { token, repo -> goTo(Screen.Workflow(token.token, repo)) },
                 state = listState,
                 contentPadding = contentPadding
             )

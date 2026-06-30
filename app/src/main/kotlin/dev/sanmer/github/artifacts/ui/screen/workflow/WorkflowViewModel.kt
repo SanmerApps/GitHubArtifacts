@@ -5,13 +5,14 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import dev.sanmer.github.GitHub
+import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.paging.WorkflowPagingSource
 import dev.sanmer.github.artifacts.paging.WorkflowRunPagingSource
-import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
 import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.artifact.Artifact
@@ -26,15 +27,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WorkflowViewModel(
-    private val clientRepository: ClientRepository,
-    private val tokenId: Long,
+    private val github: GitHub,
+    private val token: String,
     private val owner: String,
     val name: String,
 ) : ViewModel() {
-    private val github = clientRepository.getOrDefault(tokenId)
-
     private val workflowsPager = WorkflowPagingSource(
         github = github,
+        token = token,
         owner = owner,
         name = name
     ).asPager()
@@ -46,6 +46,7 @@ class WorkflowViewModel(
         .flatMapLatest { (workflow, event, status) ->
             WorkflowRunPagingSource(
                 github = github,
+                token = token,
                 owner = owner,
                 name = name,
                 workflowId = workflow?.id,
@@ -74,7 +75,8 @@ class WorkflowViewModel(
                 LoadData.Pending, is LoadData.Failure -> {
                     artifacts[run.id] = LoadData.Loading
                     artifacts[run.id] = runCatching {
-                        github.artifacts.list(
+                        github.listArtifact(
+                            auth = token.toBearerAuth(),
                             owner = owner,
                             repo = name,
                             runId = run.id
@@ -93,7 +95,7 @@ class WorkflowViewModel(
     ) = ArtifactJob.start(
         context = context,
         artifact = artifact,
-        tokenId = tokenId
+        token = token
     )
 
     data class RunsQuery(

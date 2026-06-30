@@ -33,7 +33,7 @@ fun RepoList(
     list: List<RepoEntity.AndToken>,
     update: (RepoEntity) -> LoadData<Unit>,
     onUpdate: (RepoEntity, TokenEntity) -> Unit,
-    onClick: (RepoEntity) -> Unit,
+    onClick: (TokenEntity, RepoEntity) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
@@ -51,7 +51,7 @@ fun RepoList(
             repo = repo,
             update = update(repo),
             onUpdate = { onUpdate(repo, token) },
-            onClick = { onClick(repo) }
+            onClick = { onClick(token, repo) }
         )
     }
 }

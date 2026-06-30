@@ -31,7 +31,7 @@ val Navigation = module {
         navigation<Screen.Workflow> {
             val backStack = get<NavBackStack<Screen>>()
             WorkflowScreen(
-                viewModel = koinViewModel { parametersOf(it.tokenId, it.owner, it.name) },
+                viewModel = koinViewModel { parametersOf(it.token, it.owner, it.name) },
                 goBack = backStack::removeLastOrNull
             )
         }

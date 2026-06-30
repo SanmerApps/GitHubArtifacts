@@ -39,7 +39,5 @@
 
     <!-- Job -->
     <string name="artifact_job">工件任务</string>
-    <string name="download_success">下载成功</string>
-    <string name="download_fail">下载失败</string>
 
 </resources>

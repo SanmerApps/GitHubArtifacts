@@ -122,7 +122,7 @@ fun EditTokenScreen(
                 RepoItem(
                     repo = it,
                     onDelete = { viewModel.deleteRepo(it) },
-                    onWorkflow = { goTo(Screen.Workflow(it)) }
+                    onWorkflow = { goTo(Screen.Workflow(viewModel.tokenInput.tokenValue, it)) }
                 )
             }
         }

@@ -10,6 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.sanmer.github.GitHub
+import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.database.entity.TokenEntity
@@ -17,7 +19,6 @@ import dev.sanmer.github.artifacts.ktx.toInstant
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
-import dev.sanmer.github.artifacts.repository.ClientRepository
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -27,7 +28,7 @@ import kotlin.time.Instant
 
 class EditTokenViewModel(
     private val dbRepository: DbRepository,
-    private val clientRepository: ClientRepository,
+    private val github: GitHub,
     private val id: Long
 ) : ViewModel() {
     val isEdit = id != Long.MAX_VALUE
@@ -66,11 +67,7 @@ class EditTokenViewModel(
         viewModelScope.launch {
             runCatching {
                 when {
-                    isEdit -> {
-                        dbRepository.updateToken(tokenInput.entity(id))
-                        clientRepository.put(id, tokenInput.tokenValue)
-                    }
-
+                    isEdit -> dbRepository.updateToken(tokenInput.entity(id))
                     else -> dbRepository.insertToken(tokenInput.entity())
                 }
             }.onSuccess {
@@ -97,8 +94,11 @@ class EditTokenViewModel(
         viewModelScope.launch {
             loadData = LoadData.Loading
             loadData = runCatching {
-                val github = clientRepository.getOrCreate(id, tokenInput.tokenValue)
-                val repo = github.repositories.get(repoInput.ownerValue, repoInput.nameValue)
+                val repo = github.getRepository(
+                    auth = tokenInput.tokenValue.toBearerAuth(),
+                    owner = repoInput.ownerValue,
+                    repo = repoInput.nameValue
+                )
                 val entity = RepoEntity(id, repo)
                 dbRepository.insertRepo(entity)
                 repoInput.clear()
