@@ -10,6 +10,7 @@ import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.format.Formatter
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -22,6 +23,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.PermissionCompat
 import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
+import dev.sanmer.github.artifacts.ktx.shortId
 import dev.sanmer.github.response.artifact.Artifact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -71,15 +73,15 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         lifecycleScope.launch {
             jobStateFlow.onEach {
                 when (it) {
-                    is JobState.Pending -> notifyProgress(it.artifact, 0f)
-                    is JobState.Success -> notifySuccess(it.artifact, it.uri, it.type)
-                    is JobState.Failure -> notifyFailure(it.artifact)
+                    is JobState.Pending -> notifyProgress(it.shortId, it.artifact, 0f)
+                    is JobState.Success -> notifySuccess(it.shortId, it.artifact, it.uri, it.type)
+                    is JobState.Failure -> notifyFailure(it.shortId, it.artifact, it.error)
                     else -> {}
                 }
             }.filterIsInstance<JobState.Running>()
                 .sample(500.milliseconds)
                 .collect {
-                    notifyProgress(it.artifact, it.progress)
+                    notifyProgress(it.shortId, it.artifact, it.progress)
                 }
         }
     }
@@ -177,7 +179,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
     }
 
     private fun setForeground() {
-        val notification = newNotificationBuilder()
+        val notification = notificationBuilder()
             .setContentTitle(getText(R.string.artifact_job))
             .setSilent(true)
             .setOngoing(true)
@@ -193,9 +195,9 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         )
     }
 
-    private fun notifyProgress(artifact: Artifact, progress: Float) {
+    private fun notifyProgress(id: Int, artifact: Artifact, progress: Float) {
         if (progress == 1f) return
-        val notification = newNotificationBuilder()
+        val notification = notificationBuilder()
             .setContentTitle(artifact.name)
             .setProgress(100, (100 * progress).toInt(), false)
             .setSilent(true)
@@ -203,10 +205,10 @@ class ArtifactJob : LifecycleService(), KoinComponent {
             .setGroup(GROUP_KEY)
             .build()
 
-        notify(artifact.id.toInt(), notification)
+        notify(id, notification)
     }
 
-    private fun notifySuccess(artifact: Artifact, uri: Uri, type: String) {
+    private fun notifySuccess(id: Int, artifact: Artifact, uri: Uri, type: String) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, type)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -214,30 +216,30 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         val pending = PendingIntent.getActivity(this, 0, intent, flag)
 
-        val notification = newNotificationBuilder()
+        val notification = notificationBuilder()
             .setContentTitle(artifact.name)
-            .setContentText(getText(R.string.download_success))
+            .setContentText(Formatter.formatFileSize(this, artifact.sizeInBytes))
             .setContentIntent(pending)
             .setSilent(true)
             .setOngoing(false)
             .setAutoCancel(true)
             .build()
 
-        notify(artifact.id.toInt(), notification)
+        notify(id, notification)
     }
 
-    private fun notifyFailure(artifact: Artifact) {
-        val notification = newNotificationBuilder()
+    private fun notifyFailure(id: Int, artifact: Artifact, error: Throwable) {
+        val notification = notificationBuilder()
             .setContentTitle(artifact.name)
-            .setContentText(getText(R.string.download_fail))
+            .setContentText(error.message ?: error.javaClass.name)
             .setSilent(false)
             .setOngoing(false)
             .build()
 
-        notify(artifact.id.toInt(), notification)
+        notify(id, notification)
     }
 
-    private fun newNotificationBuilder() =
+    private fun notificationBuilder() =
         NotificationCompat.Builder(this, Const.CHANNEL_ID_ARTIFACT_JOB)
             .setSmallIcon(R.drawable.box)
 
@@ -249,13 +251,29 @@ class ArtifactJob : LifecycleService(), KoinComponent {
     }
 
     sealed class JobState(val id: Long) {
-        data object Empty : JobState(0)
-        class Pending(val artifact: Artifact) : JobState(artifact.id)
-        class Running(val artifact: Artifact, val progress: Float) : JobState(artifact.id)
-        class Success(val artifact: Artifact, val uri: Uri, val type: String) :
-            JobState(artifact.id)
+        val shortId by lazy { id.shortId() }
 
-        class Failure(val artifact: Artifact, val error: Throwable) : JobState(artifact.id)
+        data object Empty : JobState(0)
+
+        class Pending(
+            val artifact: Artifact
+        ) : JobState(artifact.id)
+
+        class Running(
+            val artifact: Artifact,
+            val progress: Float
+        ) : JobState(artifact.id)
+
+        class Success(
+            val artifact: Artifact,
+            val uri: Uri,
+            val type: String
+        ) : JobState(artifact.id)
+
+        class Failure(
+            val artifact: Artifact,
+            val error: Throwable
+        ) : JobState(artifact.id)
     }
 
     companion object Default {
