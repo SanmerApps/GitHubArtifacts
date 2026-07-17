@@ -13,8 +13,8 @@ import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.artifacts.Logger
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
-import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.database.model.Repo
+import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.ktx.toInstant
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.model.LoadData
@@ -29,15 +29,15 @@ import kotlin.time.Instant
 class EditTokenViewModel(
     private val dbRepository: DbRepository,
     private val github: GitHub,
-    private val id: Long
+    private val tokenId: Long
 ) : ViewModel() {
-    val isEdit = id != Long.MAX_VALUE
+    val isEdit = tokenId > 0
 
     val tokenInput = TokenInput()
     val isChanged inline get() = !isEdit || tokenInput.isAnyChanged
 
     val repoInput = RepoInput()
-    var repos by mutableStateOf(emptyList<RepoEntity>())
+    var repos by mutableStateOf(emptyList<Repo>())
         private set
     val isDeletable inline get() = isEdit && repos.isEmpty()
 
@@ -54,7 +54,7 @@ class EditTokenViewModel(
     private fun loadDb() {
         viewModelScope.launch {
             if (isEdit) {
-                dbRepository.getTokenAndReposAsFlow(id)
+                dbRepository.getTokenAndReposAsFlow(tokenId)
                     .collect { (token, list) ->
                         tokenInput.update(token)
                         repos = list.sortedByDescending { it.pushedAt }
@@ -66,10 +66,13 @@ class EditTokenViewModel(
     fun save(block: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching {
-                when {
-                    isEdit -> dbRepository.updateToken(tokenInput.entity(id))
-                    else -> dbRepository.insertToken(tokenInput.entity())
-                }
+                val token = Token(
+                    id = tokenId.coerceAtLeast(0),
+                    token = tokenInput.tokenValue,
+                    name = tokenInput.nameValue,
+                    expiredAt = tokenInput.expiredAtValue.toInstant()
+                )
+                dbRepository.upsertToken(token)
             }.onSuccess {
                 block()
             }.onFailure {
@@ -81,7 +84,7 @@ class EditTokenViewModel(
     fun delete(block: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching {
-                dbRepository.deleteToken(id)
+                dbRepository.deleteToken(tokenId)
             }.onSuccess {
                 block()
             }.onFailure {
@@ -99,8 +102,7 @@ class EditTokenViewModel(
                     owner = repoInput.ownerValue,
                     repo = repoInput.nameValue
                 )
-                val entity = RepoEntity(id, repo)
-                dbRepository.insertRepo(entity)
+                dbRepository.upsertRepo(Repo(tokenId, repo))
                 repoInput.clear()
             }.onSuccess {
                 block()
@@ -110,9 +112,9 @@ class EditTokenViewModel(
         }
     }
 
-    fun deleteRepo(entity: RepoEntity) {
+    fun deleteRepo(repo: Repo) {
         viewModelScope.launch {
-            dbRepository.deleteRepo(entity)
+            dbRepository.deleteRepo(repo.id)
         }
     }
 
@@ -149,14 +151,7 @@ class EditTokenViewModel(
 
         val isAnyChanged by derivedStateOf { _isTokenChanged || _isNameChanged || _isExpiredAtChanged }
 
-        fun entity(id: Long = 0) = TokenEntity(
-            id = id,
-            token = tokenValue,
-            name = nameValue,
-            expiredAt = expiredAtValue.toInstant()
-        )
-
-        fun update(value: TokenEntity) {
+        fun update(value: Token) {
             _token = value.token
             token.edit {
                 delete(0, length)

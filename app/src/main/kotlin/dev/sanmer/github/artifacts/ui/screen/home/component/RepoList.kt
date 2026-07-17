@@ -22,18 +22,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
-import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.database.model.Repo
+import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.component.AnimatedPoint
 import dev.sanmer.github.artifacts.ui.component.Point
 
 @Composable
 fun RepoList(
-    list: List<RepoEntity.AndToken>,
-    update: (RepoEntity) -> LoadData<Unit>,
-    onUpdate: (RepoEntity, TokenEntity) -> Unit,
-    onClick: (TokenEntity, RepoEntity) -> Unit,
+    list: List<Repo.AndToken>,
+    update: (Repo) -> LoadData<Unit>,
+    onUpdate: (Repo, Token) -> Unit,
+    onClick: (Token, Repo) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
@@ -58,7 +58,7 @@ fun RepoList(
 
 @Composable
 private fun RepoItem(
-    repo: RepoEntity,
+    repo: Repo,
     update: LoadData<Unit>,
     onUpdate: () -> Unit,
     onClick: () -> Unit

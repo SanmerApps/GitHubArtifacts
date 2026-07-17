@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import dev.sanmer.github.Languages
 import dev.sanmer.github.artifacts.Const.DATETIME_DISPLAY
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
+import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.ktx.format
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
@@ -30,7 +30,7 @@ import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun RepoItem(
-    repo: RepoEntity,
+    repo: Repo,
     modifier: Modifier = Modifier
 ) = Column(
     modifier = modifier
@@ -67,7 +67,7 @@ fun RepoItem(
 }
 
 @Composable
-fun RepoEntity.repoType() = if (private) {
+fun Repo.repoType() = if (private) {
     when {
         archived -> stringResource(R.string.repo_private_archive)
         isTemplate -> stringResource(R.string.repo_private_template)
@@ -83,7 +83,7 @@ fun RepoEntity.repoType() = if (private) {
 
 @Composable
 private fun Values(
-    repo: RepoEntity,
+    repo: Repo,
     modifier: Modifier = Modifier
 ) = FlowRow(
     modifier = modifier,

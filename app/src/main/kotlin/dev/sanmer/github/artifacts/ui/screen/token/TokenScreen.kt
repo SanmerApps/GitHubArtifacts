@@ -32,7 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.ui.component.Finished
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
@@ -94,8 +94,8 @@ fun TokenScreen(
 
 @Composable
 private fun TokenList(
-    list: List<TokenEntity.AndRepos>,
-    onClick: (TokenEntity) -> Unit,
+    list: List<Token.AndRepos>,
+    onClick: (Token) -> Unit,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(

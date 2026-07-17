@@ -2,8 +2,8 @@ package dev.sanmer.github.artifacts.repository
 
 import dev.sanmer.github.artifacts.database.dao.RepoDao
 import dev.sanmer.github.artifacts.database.dao.TokenDao
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
-import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.database.model.Repo
+import dev.sanmer.github.artifacts.database.model.Token
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
@@ -36,16 +36,8 @@ class DbRepositoryImpl(
         tokenDao.getAndRepos(id)
     }
 
-    override suspend fun insertToken(token: TokenEntity) = withContext(Dispatchers.IO) {
-        tokenDao.insert(token)
-    }
-
-    override suspend fun updateToken(token: TokenEntity) = withContext(Dispatchers.IO) {
-        tokenDao.update(token)
-    }
-
-    override suspend fun deleteToken(token: TokenEntity) = withContext(Dispatchers.IO) {
-        tokenDao.delete(token)
+    override suspend fun upsertToken(vararg token: Token) = withContext(Dispatchers.IO) {
+        tokenDao.upsert(*token)
     }
 
     override suspend fun deleteToken(id: Long) = withContext(Dispatchers.IO) {
@@ -76,20 +68,8 @@ class DbRepositoryImpl(
         repoDao.getAndToken(id)
     }
 
-    override suspend fun insertRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
-        repoDao.insert(repo)
-    }
-
-    override suspend fun updateRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
-        repoDao.update(repo)
-    }
-
-    override suspend fun updateRepo(repos: List<RepoEntity>) = withContext(Dispatchers.IO) {
-        repoDao.update(repos)
-    }
-
-    override suspend fun deleteRepo(repo: RepoEntity) = withContext(Dispatchers.IO) {
-        repoDao.delete(repo)
+    override suspend fun upsertRepo(vararg repo: Repo) = withContext(Dispatchers.IO) {
+        repoDao.upsert(*repo)
     }
 
     override suspend fun deleteRepo(id: Long) = withContext(Dispatchers.IO) {

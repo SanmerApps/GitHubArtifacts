@@ -29,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.Const.DATETIME_DISPLAY
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
+import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.artifacts.ui.ktx.surface
@@ -40,7 +40,7 @@ import kotlinx.datetime.toLocalDateTime
 
 @Composable
 fun RepoItem(
-    repo: RepoEntity,
+    repo: Repo,
     onDelete: () -> Unit,
     onWorkflow: () -> Unit,
 ) {
