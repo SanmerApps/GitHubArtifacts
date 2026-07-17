@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.sanmer.github.artifacts.Const.DATETIME_DISPLAY
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.entity.RepoEntity
 import dev.sanmer.github.artifacts.ui.component.Title
@@ -34,6 +35,7 @@ import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.artifacts.ui.screen.home.component.repoType
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
@@ -56,6 +58,7 @@ fun RepoItem(
         val pushedAt by remember(repo.id) {
             derivedStateOf {
                 repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+                    .format(DATETIME_DISPLAY)
             }
         }
 

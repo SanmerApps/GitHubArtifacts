@@ -18,11 +18,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Value(
-    value: Any,
+    value: String,
     modifier: Modifier = Modifier,
     color: Color = LocalContentColor.current
 ) = Text(
-    text = value.toString(),
+    text = value,
     modifier = modifier,
     color = color,
     style = MaterialTheme.typography.bodyMedium,
@@ -33,7 +33,7 @@ fun Value(
 @Composable
 fun Value(
     icon: @Composable () -> Unit,
-    value: Any,
+    value: String,
     modifier: Modifier = Modifier,
     color: Color = LocalContentColor.current
 ) = Row(
@@ -51,7 +51,7 @@ fun Value(
 @Composable
 fun Value(
     @DrawableRes icon: Int,
-    value: Any,
+    value: String,
     modifier: Modifier = Modifier,
     color: Color = LocalContentColor.current
 ) = Value(

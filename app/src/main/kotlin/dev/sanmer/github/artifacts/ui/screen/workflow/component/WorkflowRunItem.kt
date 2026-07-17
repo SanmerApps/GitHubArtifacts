@@ -11,12 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.sanmer.github.artifacts.Const.DATETIME_DISPLAY
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.LabelText
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime
 
 @Composable
@@ -29,6 +31,7 @@ fun WorkflowRunItem(
     val updatedAt by remember(run.id) {
         derivedStateOf {
             run.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+                .format(DATETIME_DISPLAY)
         }
     }
 
@@ -64,7 +67,7 @@ private fun Values(
 
     Value(
         icon = R.drawable.hash,
-        value = run.runNumber,
+        value = run.runNumber.toString(),
         color = MaterialTheme.colorScheme.outline
     )
 
