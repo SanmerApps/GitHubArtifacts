@@ -1,3 +1,4 @@
+import com.android.build.api.variant.BuildConfigField
 import java.time.Instant
 
 plugins {
@@ -43,18 +44,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            optimization {
+                enable = true
+            }
         }
 
         all {
             signingConfig = releaseSigning
-            buildConfigField("String", "GIT_SHA", "\"$gitCommitSha\"")
-            buildConfigField("long", "BUILD_TIME", Instant.now().toEpochMilli().toString())
         }
     }
 
@@ -74,8 +70,16 @@ android {
 }
 
 androidComponents.onVariants { variant ->
-    variant.outputs.forEach {
-        it.outputFileName = "GitHubArtifacts-${it.versionName.get()}-${it.versionCode.get()}-${variant.buildType}.apk"
+    variant.buildConfigFields?.apply {
+        put("GIT_SHA", BuildConfigField("String", "\"$gitCommitSha\"", null))
+        put("BUILD_TIME", BuildConfigField("long", Instant.now().toEpochMilli().toString(), null))
+    }
+
+    variant.outputs.forEach { output ->
+        output.outputFileName =
+            output.versionName.zip(output.versionCode) { versionName, versionCode ->
+                "GitHubArtifacts-$versionName-$versionCode-${variant.buildType}.apk"
+            }
     }
 }
 
