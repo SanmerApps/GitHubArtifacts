@@ -2,20 +2,16 @@ package dev.sanmer.github.artifacts.ui.screen.token.component
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
@@ -25,8 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,21 +41,24 @@ fun RepoItem(
     repo: RepoEntity,
     onDelete: () -> Unit,
     onWorkflow: () -> Unit,
-) = Row(
-    modifier = Modifier
-        .padding(horizontal = 15.dp, vertical = (2.5).dp)
-        .fillMaxWidth(),
-    verticalAlignment = Alignment.CenterVertically
 ) {
-    val pushedAt by remember(repo.id) {
-        derivedStateOf {
-            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
-        }
-    }
+    var expanded by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.weight(1f)
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(
+                onClick = { expanded = true }
+            )
+            .padding(horizontal = 15.dp, vertical = 10.dp)
+            .fillMaxWidth()
     ) {
+        val pushedAt by remember(repo.id) {
+            derivedStateOf {
+                repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+            }
+        }
+
         Title(
             title = repo.fullName,
             subtitle = repo.repoType(),
@@ -70,28 +69,11 @@ fun RepoItem(
             value = pushedAt,
             color = MaterialTheme.colorScheme.outline
         )
-    }
-
-    Box(
-        modifier = Modifier.wrapContentSize(Alignment.TopStart)
-    ) {
-        var expanded by remember { mutableStateOf(false) }
-
-        IconButton(
-            onClick = { expanded = true }
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.dots),
-                contentDescription = null
-            )
-        }
 
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            shape = MaterialTheme.shapes.medium,
-            border = CardDefaults.outlinedCardBorder(false),
-            shadowElevation = 0.dp
+            shape = MaterialTheme.shapes.medium
         ) {
             MenuItem(
                 onClick = {

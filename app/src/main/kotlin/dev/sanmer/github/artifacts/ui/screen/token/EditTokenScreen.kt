@@ -107,7 +107,7 @@ fun EditTokenScreen(
                 .animateContentSize()
                 .nestedScroll(scrollBehavior.nestedScrollConnection),
             contentPadding = contentPadding + PaddingValues(all = 15.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             item {
                 EditTokenItem(
