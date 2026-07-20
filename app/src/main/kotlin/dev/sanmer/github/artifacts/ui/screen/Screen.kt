@@ -1,7 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen
 
 import androidx.navigation3.runtime.NavKey
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
+import dev.sanmer.github.artifacts.database.model.Repo
 import kotlinx.serialization.Serializable
 
 sealed interface Screen : NavKey {
@@ -14,7 +14,7 @@ sealed interface Screen : NavKey {
         val owner: String,
         val name: String
     ) : Screen {
-        constructor(token: String, repo: RepoEntity) : this(
+        constructor(token: String, repo: Repo) : this(
             token = token,
             owner = repo.owner,
             name = repo.name
@@ -26,6 +26,6 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data class EditToken(
-        val id: Long = Long.MAX_VALUE
+        val tokenId: Long = -1L
     ) : Screen
 }

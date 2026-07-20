@@ -9,8 +9,8 @@ import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.artifacts.Logger
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
-import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.database.model.Repo
+import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
@@ -23,7 +23,7 @@ class HomeViewModel(
     private val dbRepository: DbRepository,
     private val github: GitHub
 ) : ViewModel() {
-    var loadData by mutableStateOf<LoadData<List<RepoEntity.AndToken>>>(LoadData.Loading)
+    var loadData by mutableStateOf<LoadData<List<Repo.AndToken>>>(LoadData.Loading)
         private set
 
     val list inline get() = loadData.getValue(emptyList()) { it }
@@ -40,16 +40,18 @@ class HomeViewModel(
     private fun loadDb() {
         viewModelScope.launch {
             dbRepository.getReposAndTokenAsFlow()
-                .collect {
-                    update(it)
-                    loadData = LoadData.Success(it)
+                .collect { list ->
+                    update(list)
+                    loadData = LoadData.Success(
+                        list.sortedByDescending { it.repo.pushedAt }
+                    )
                 }
         }
     }
 
-    fun update(repo: RepoEntity) = updates.getOrDefault(repo.id, LoadData.Pending)
+    fun update(repo: Repo) = updates.getOrDefault(repo.id, LoadData.Pending)
 
-    fun update(repo: RepoEntity, token: TokenEntity) {
+    fun update(repo: Repo, token: Token) {
         viewModelScope.launch {
             when (update(repo)) {
                 LoadData.Pending, is LoadData.Failure -> {
@@ -62,7 +64,7 @@ class HomeViewModel(
         }
     }
 
-    private fun update(list: List<RepoEntity.AndToken>) {
+    private fun update(list: List<Repo.AndToken>) {
         viewModelScope.launch {
             list.map { (repo, token) ->
                 async {
@@ -75,7 +77,7 @@ class HomeViewModel(
         }
     }
 
-    private suspend fun getRepo(repo: RepoEntity, token: TokenEntity) =
+    private suspend fun getRepo(repo: Repo, token: Token) =
         runCatching {
             github.getRepository(
                 auth = token.token.toBearerAuth(),
@@ -83,7 +85,7 @@ class HomeViewModel(
                 repo = repo.name
             )
         }.onSuccess {
-            dbRepository.updateRepo(repo.copy(repo = it))
+            dbRepository.upsertRepo(repo.copy(repo = it))
         }.onFailure {
             logger.e(it)
         }

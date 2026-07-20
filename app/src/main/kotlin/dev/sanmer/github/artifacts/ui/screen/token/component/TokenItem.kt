@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.database.entity.RepoEntity
-import dev.sanmer.github.artifacts.database.entity.TokenEntity
+import dev.sanmer.github.artifacts.database.model.Repo
+import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.ui.component.LabelText
 import dev.sanmer.github.artifacts.ui.component.Title
@@ -30,8 +30,8 @@ import kotlinx.datetime.TimeZone
 
 @Composable
 fun TokenItem(
-    token: TokenEntity,
-    repos: List<RepoEntity>,
+    token: Token,
+    repos: List<Repo>,
     onClick: () -> Unit
 ) = Column(
     modifier = Modifier
@@ -81,7 +81,7 @@ fun TokenItem(
 
 @Composable
 private fun Values(
-    repos: List<RepoEntity>,
+    repos: List<Repo>,
     modifier: Modifier = Modifier
 ) = FlowRow(
     modifier = modifier,

@@ -1,14 +1,14 @@
-package dev.sanmer.github.artifacts.database.entity
+package dev.sanmer.github.artifacts.database.model
 
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.Relation
+import androidx.room3.Embedded
+import androidx.room3.Entity
+import androidx.room3.PrimaryKey
+import androidx.room3.Relation
 import dev.sanmer.github.response.repository.Repository
 import kotlin.time.Instant
 
-@Entity(tableName = "repo")
-data class RepoEntity(
+@Entity
+data class Repo(
     @PrimaryKey
     val id: Long,
     val tokenId: Long,
@@ -48,15 +48,15 @@ data class RepoEntity(
         license = repo.license.spdxId
     )
 
-    fun copy(repo: Repository) = RepoEntity(
+    fun copy(repo: Repository) = Repo(
         tokenId = tokenId,
         repo = repo
     )
 
     data class AndToken(
         @Embedded
-        val repo: RepoEntity,
-        @Relation(parentColumn = "tokenId", entityColumn = "id")
-        val token: TokenEntity
+        val repo: Repo,
+        @Relation(parentColumns = ["tokenId"], entityColumns = ["id"])
+        val token: Token
     )
 }
