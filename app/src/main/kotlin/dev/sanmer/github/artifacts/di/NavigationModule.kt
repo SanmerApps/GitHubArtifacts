@@ -1,21 +1,29 @@
-package dev.sanmer.github.artifacts.ui.di
+package dev.sanmer.github.artifacts.di
 
 import androidx.navigation3.runtime.NavBackStack
 import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.HomeScreen
+import dev.sanmer.github.artifacts.ui.screen.home.HomeViewModel
 import dev.sanmer.github.artifacts.ui.screen.token.EditTokenScreen
+import dev.sanmer.github.artifacts.ui.screen.token.EditTokenViewModel
 import dev.sanmer.github.artifacts.ui.screen.token.TokenScreen
+import dev.sanmer.github.artifacts.ui.screen.token.TokenViewModel
 import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowScreen
+import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.scope.dsl.activityRetainedScope
 import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module
 import org.koin.dsl.navigation3.navigation
 
 @OptIn(KoinExperimentalAPI::class)
 val Navigation = module {
-    includes(ViewModels)
+    viewModelOf(::HomeViewModel)
+    viewModelOf(::WorkflowViewModel)
+    viewModelOf(::TokenViewModel)
+    viewModelOf(::EditTokenViewModel)
 
     activityRetainedScope {
         scoped { NavBackStack(Screen.Home) }
