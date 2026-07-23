@@ -88,7 +88,7 @@ fun EditTokenScreen(
         },
         floatingActionButton = {
             AnimatedVisibility(
-                visible = isScrollingUp,
+                visible = !add && isScrollingUp,
                 enter = fadeIn() + scaleIn(),
                 exit = scaleOut() + fadeOut()
             ) {
