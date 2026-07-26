@@ -41,7 +41,7 @@ class EditTokenViewModel(
         private set
     val isDeletable inline get() = isEdit && repos.isEmpty()
 
-    var loadData by mutableStateOf<LoadData<Unit>>(LoadData.Pending)
+    var addRepo by mutableStateOf<LoadData<Unit>>(LoadData.Pending)
         private set
 
     private val logger = Logger.Android("EditTokenViewModel")
@@ -95,8 +95,8 @@ class EditTokenViewModel(
 
     fun addRepo(block: () -> Unit = {}) {
         viewModelScope.launch {
-            loadData = LoadData.Loading
-            loadData = runCatching {
+            addRepo = LoadData.Loading
+            addRepo = runCatching {
                 val repo = github.getRepository(
                     auth = tokenInput.tokenValue.toBearerAuth(),
                     owner = repoInput.ownerValue,
@@ -118,8 +118,8 @@ class EditTokenViewModel(
         }
     }
 
-    fun revertLoadData() {
-        loadData = LoadData.Pending
+    fun revertAddRepo() {
+        addRepo = LoadData.Pending
     }
 
     data class TokenInput(

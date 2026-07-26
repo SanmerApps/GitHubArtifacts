@@ -319,20 +319,13 @@ private fun WorkflowRunContent(
                 .fillMaxSize(),
         )
 
-        else -> if (workflowRuns.isEmpty()) {
-            Finished(
-                label = R.string.workflow_run_empty,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            WorkflowRunList(
-                workflowRuns = workflowRuns,
-                artifacts = artifacts,
-                onListArtifacts = onListArtifacts,
-                onDownloadArtifact = onDownloadArtifact,
-                state = listState
-            )
-        }
+        else -> WorkflowRunList(
+            workflowRuns = workflowRuns,
+            artifacts = artifacts,
+            onListArtifacts = onListArtifacts,
+            onDownloadArtifact = onDownloadArtifact,
+            state = listState
+        )
     }
 }
 

@@ -3,7 +3,6 @@ package dev.sanmer.github.artifacts.ui.screen.workflow.component
 import android.content.Context
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -58,12 +57,11 @@ fun WorkflowRunList(
     artifacts: (WorkflowRun) -> LoadData<List<Artifact>>,
     onListArtifacts: (WorkflowRun) -> Unit,
     onDownloadArtifact: (Context, Artifact) -> Unit,
+    modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
-    modifier = Modifier
-        .fillMaxWidth()
-        .animateContentSize(),
+    modifier = modifier,
     state = state,
     contentPadding = contentPadding
 ) {

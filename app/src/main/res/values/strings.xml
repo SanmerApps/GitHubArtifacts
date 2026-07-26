@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Home -->
-    <string name="repo_empty">No repositories</string>
     <string name="repo_private">Private</string>
     <string name="repo_private_template">Private template</string>
     <string name="repo_private_archive">Private archive</string>
@@ -17,12 +16,10 @@
     <string name="workflow_empty">No workflows</string>
     <string name="workflow_run_event">Event</string>
     <string name="workflow_run_status">Status</string>
-    <string name="workflow_run_empty">No results</string>
     <string name="artifact_expired">Expired</string>
 
     <!-- Token -->
     <string name="token_title">Tokens</string>
-    <string name="token_empty">No tokens</string>
     <string name="token_expire">Expires on %1$s</string>
 
     <!-- Edit -->

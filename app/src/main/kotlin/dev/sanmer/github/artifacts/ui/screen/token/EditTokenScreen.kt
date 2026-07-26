@@ -2,7 +2,6 @@ package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -69,10 +68,10 @@ fun EditTokenScreen(
     val (add, setAdd) = remember { mutableStateOf(false) }
     if (add) AddRepoBottomSheet(
         input = viewModel.repoInput,
-        data = viewModel.loadData,
+        data = viewModel.addRepo,
         onClose = { setAdd(false) },
         onSave = { viewModel.addRepo { setAdd(false) } },
-        onRevert = viewModel::revertLoadData
+        onRevert = viewModel::revertAddRepo
     )
 
     Scaffold(
@@ -87,25 +86,17 @@ fun EditTokenScreen(
             )
         },
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = !add && isScrollingUp,
-                enter = fadeIn() + scaleIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                ActionButton(
-                    isChanged = viewModel.isChanged,
-                    onSave = { viewModel.save { if (!viewModel.isEdit) goBack() } },
-                    onAdd = { setAdd(true) }
-                )
-            }
+            ActionButton(
+                isChanged = viewModel.isChanged,
+                onSave = { viewModel.save { if (!viewModel.isEdit) goBack() } },
+                onAdd = { setAdd(true) },
+                visible = !add && isScrollingUp
+            )
         }
     ) { contentPadding ->
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             contentPadding = contentPadding + PaddingValues(all = 15.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
@@ -265,7 +256,12 @@ private fun TopBar(
 private fun ActionButton(
     isChanged: Boolean,
     onSave: () -> Unit,
-    onAdd: () -> Unit
+    onAdd: () -> Unit,
+    visible: Boolean = true
+) = AnimatedVisibility(
+    visible = visible,
+    enter = fadeIn() + scaleIn(),
+    exit = scaleOut() + fadeOut()
 ) {
     val isImeVisible = WindowInsets.isImeVisible
     val keyboardController = LocalSoftwareKeyboardController.current

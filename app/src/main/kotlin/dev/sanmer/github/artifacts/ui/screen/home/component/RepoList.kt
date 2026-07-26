@@ -1,7 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.home.component
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -34,12 +33,11 @@ fun RepoList(
     update: (Repo) -> LoadData<Unit>,
     onUpdate: (Repo, Token) -> Unit,
     onClick: (Token, Repo) -> Unit,
+    modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
-    modifier = Modifier
-        .fillMaxWidth()
-        .animateContentSize(),
+    modifier = modifier,
     state = state,
     contentPadding = contentPadding
 ) {

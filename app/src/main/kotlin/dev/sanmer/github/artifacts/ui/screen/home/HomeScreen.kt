@@ -5,9 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -26,8 +23,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.ktx.viewUrl
-import dev.sanmer.github.artifacts.ui.component.Finished
+import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoList
@@ -48,39 +46,24 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = isScrollingUp,
-                enter = fadeIn() + scaleIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                ActionButton(
-                    onToken = { goTo(Screen.Token) }
-                )
-            }
+            ActionButton(
+                onClick = { goTo(Screen.Token) },
+                visible = isScrollingUp
+            )
         }
     ) { contentPadding ->
-        Box(
-            modifier = Modifier
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
-                .fillMaxSize(),
-        ) {
-            if (viewModel.loadData.isSuccess && viewModel.list.isEmpty()) {
-                Finished(
-                    label = R.string.repo_empty,
-                    modifier = Modifier
-                        .padding(contentPadding)
-                        .fillMaxSize()
-                )
-            }
-
-            RepoList(
-                list = viewModel.list,
+        when (val data = viewModel.data) {
+            is LoadData.Success<List<Repo.AndToken>> -> RepoList(
+                list = data.value,
+                state = listState,
                 update = viewModel::update,
                 onUpdate = viewModel::update,
                 onClick = { token, repo -> goTo(Screen.Workflow(token.token, repo)) },
-                state = listState,
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             )
+
+            else -> {}
         }
     }
 }
@@ -106,12 +89,19 @@ private fun TopBar(
 
 @Composable
 private fun ActionButton(
-    onToken: () -> Unit
-) = FloatingActionButton(
-    onClick = onToken
+    onClick: () -> Unit,
+    visible: Boolean = true
+) = AnimatedVisibility(
+    visible = visible,
+    enter = fadeIn() + scaleIn(),
+    exit = scaleOut() + fadeOut()
 ) {
-    Icon(
-        painter = painterResource(R.drawable.key),
-        contentDescription = null
-    )
+    FloatingActionButton(
+        onClick = onClick
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.key),
+            contentDescription = null
+        )
+    }
 }

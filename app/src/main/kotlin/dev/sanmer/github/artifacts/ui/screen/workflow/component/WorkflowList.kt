@@ -1,6 +1,5 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow.component
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,12 +30,11 @@ fun WorkflowList(
     workflows: LazyPagingItems<Workflow>,
     workflow: Workflow?,
     onWorkflowChange: (Workflow?) -> Unit,
+    modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
-    modifier = Modifier
-        .fillMaxWidth()
-        .animateContentSize(),
+    modifier = modifier,
     state = state,
     contentPadding = contentPadding + PaddingValues(all = 15.dp),
     verticalArrangement = Arrangement.spacedBy(15.dp)

@@ -1,17 +1,12 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -33,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.model.Token
-import dev.sanmer.github.artifacts.ui.component.Finished
+import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.screen.Screen
@@ -57,37 +52,22 @@ fun TokenScreen(
             )
         },
         floatingActionButton = {
-            AnimatedVisibility(
-                visible = isScrollingUp,
-                enter = fadeIn() + scaleIn(),
-                exit = scaleOut() + fadeOut()
-            ) {
-                ActionButton(
-                    onAdd = { goTo(Screen.EditToken()) }
-                )
-            }
+            ActionButton(
+                onClick = { goTo(Screen.EditToken()) },
+                visible = isScrollingUp
+            )
         }
     ) { contentPadding ->
-        Box(
-            modifier = Modifier
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
-                .fillMaxSize()
-        ) {
-            if (viewModel.loadData.isSuccess && viewModel.list.isEmpty()) {
-                Finished(
-                    label = R.string.token_empty,
-                    modifier = Modifier
-                        .padding(contentPadding)
-                        .fillMaxSize()
-                )
-            }
-
-            TokenList(
-                list = viewModel.list,
-                onClick = { goTo(Screen.EditToken(it.id)) },
+        when (val data = viewModel.data) {
+            is LoadData.Success<List<Token.AndRepos>> -> TokenList(
+                list = data.value,
                 state = listState,
-                contentPadding = contentPadding
+                onClick = { goTo(Screen.EditToken(it.id)) },
+                contentPadding = contentPadding,
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             )
+
+            else -> {}
         }
     }
 }
@@ -96,12 +76,11 @@ fun TokenScreen(
 private fun TokenList(
     list: List<Token.AndRepos>,
     onClick: (Token) -> Unit,
+    modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) = LazyColumn(
-    modifier = Modifier
-        .fillMaxWidth()
-        .animateContentSize(),
+    modifier = modifier,
     state = state,
     contentPadding = contentPadding + PaddingValues(all = 15.dp),
     verticalArrangement = Arrangement.spacedBy(15.dp)
@@ -139,12 +118,19 @@ private fun TopBar(
 
 @Composable
 private fun ActionButton(
-    onAdd: () -> Unit
-) = FloatingActionButton(
-    onClick = onAdd
+    onClick: () -> Unit,
+    visible: Boolean = true
+) = AnimatedVisibility(
+    visible = visible,
+    enter = fadeIn() + scaleIn(),
+    exit = scaleOut() + fadeOut()
 ) {
-    Icon(
-        painter = painterResource(R.drawable.plus),
-        contentDescription = null
-    )
+    FloatingActionButton(
+        onClick = onClick
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.plus),
+            contentDescription = null
+        )
+    }
 }

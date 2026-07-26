@@ -13,7 +13,6 @@ import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
-import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,10 +22,8 @@ class HomeViewModel(
     private val dbRepository: DbRepository,
     private val github: GitHub
 ) : ViewModel() {
-    var loadData by mutableStateOf<LoadData<List<Repo.AndToken>>>(LoadData.Loading)
+    var data by mutableStateOf<LoadData<List<Repo.AndToken>>>(LoadData.Loading)
         private set
-
-    val list inline get() = loadData.getValue(emptyList()) { it }
 
     private val updates = mutableStateMapOf<Long, LoadData<Unit>>()
 
@@ -42,7 +39,7 @@ class HomeViewModel(
             dbRepository.getReposAndTokenAsFlow()
                 .collect { list ->
                     update(list)
-                    loadData = LoadData.Success(
+                    data = LoadData.Success(
                         list.sortedByDescending { it.repo.pushedAt }
                     )
                 }

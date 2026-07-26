@@ -8,17 +8,14 @@ import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.model.LoadData.Default.getValue
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.launch
 
 class TokenViewModel(
     private val dbRepository: DbRepository
 ) : ViewModel() {
-    var loadData by mutableStateOf<LoadData<List<Token.AndRepos>>>(LoadData.Loading)
+    var data by mutableStateOf<LoadData<List<Token.AndRepos>>>(LoadData.Loading)
         private set
-
-    val list inline get() = loadData.getValue(emptyList()) { it }
 
     private val logger = Logger.Android("TokenViewModel")
 
@@ -31,7 +28,7 @@ class TokenViewModel(
         viewModelScope.launch {
             dbRepository.getTokensAndReposAsFlow()
                 .collect { list ->
-                    loadData = LoadData.Success(
+                    data = LoadData.Success(
                         list.map { (token, repos) ->
                             Token.AndRepos(
                                 token = token,
