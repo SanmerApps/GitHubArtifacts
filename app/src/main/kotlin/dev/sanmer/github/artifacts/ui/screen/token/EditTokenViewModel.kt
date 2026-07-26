@@ -2,8 +2,7 @@ package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.delete
-import androidx.compose.foundation.text.input.placeCursorAtEnd
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -153,23 +152,11 @@ class EditTokenViewModel(
 
         fun update(value: Token) {
             _token = value.token
-            token.edit {
-                delete(0, length)
-                append(value.token)
-                placeCursorAtEnd()
-            }
+            token.setTextAndPlaceCursorAtEnd(value.token)
             _name = value.name
-            name.edit {
-                delete(0, length)
-                append(value.name)
-                placeCursorAtEnd()
-            }
+            name.setTextAndPlaceCursorAtEnd(value.name)
             _expiredAt = value.expiredAt.toLocalDate().format(LocalDate.Formats.ISO_BASIC)
-            expiredAt.edit {
-                delete(0, length)
-                append(_expiredAt)
-                placeCursorAtEnd()
-            }
+            expiredAt.setTextAndPlaceCursorAtEnd(_expiredAt!!)
         }
     }
 
