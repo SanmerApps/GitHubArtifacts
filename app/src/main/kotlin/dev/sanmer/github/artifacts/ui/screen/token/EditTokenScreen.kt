@@ -9,11 +9,9 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -68,7 +66,7 @@ fun EditTokenScreen(
     val (add, setAdd) = remember { mutableStateOf(false) }
     if (add) AddRepoBottomSheet(
         input = viewModel.repoInput,
-        data = viewModel.addRepo,
+        addRepo = viewModel.addRepo,
         onClose = { setAdd(false) },
         onSave = { viewModel.addRepo { setAdd(false) } },
         onRevert = viewModel::revertAddRepo
@@ -123,83 +121,73 @@ fun EditTokenScreen(
 @Composable
 private fun AddRepoBottomSheet(
     input: EditTokenViewModel.RepoInput,
-    data: LoadData<Unit>,
+    addRepo: LoadData<Unit>,
     onClose: () -> Unit,
     onSave: () -> Unit,
     onRevert: () -> Unit
+) = ModalBottomSheet(
+    onDismissRequest = onClose,
+    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    shape = MaterialTheme.shapes.large.bottom(0.dp),
+    dragHandle = null
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
+    DragHandle()
 
-    DisposableEffect(true) {
+    Text(
+        text = stringResource(R.string.add_repo_title),
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.align(Alignment.CenterHorizontally)
+    )
+
+    Crossfade(
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(all = 15.dp),
+        targetState = addRepo
+    ) {
+        when (it) {
+            LoadData.Loading -> Loading(
+                modifier = Modifier
+                    .height(138.dp)
+                    .fillMaxWidth()
+            )
+
+            is LoadData.Failure -> Finished(
+                label = it.error.message ?: it.error.javaClass.name,
+                modifier = Modifier
+                    .padding(horizontal = 15.dp)
+                    .height(138.dp)
+                    .fillMaxWidth(),
+            )
+
+            else -> EditRepoItem(
+                input = input
+            )
+        }
+    }
+
+    Button(
+        onClick = if (addRepo.isFailure) onRevert else onSave,
+        enabled = input.isNotEmpty && !addRepo.isLoading,
+        modifier = Modifier
+            .padding(horizontal = 15.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = stringResource(
+                when {
+                    addRepo.isFailure -> R.string.edit_back
+                    else -> R.string.edit_save
+                }
+            )
+        )
+    }
+
+    DisposableEffect(Unit) {
         onDispose(onRevert)
     }
 
-    ModalBottomSheet(
-        onDismissRequest = {
-            keyboardController?.hide()
-            if (!data.isLoading) onClose()
-        },
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        shape = MaterialTheme.shapes.large.bottom(0.dp),
-        dragHandle = null
-    ) {
-        DragHandle()
-
-        Text(
-            text = stringResource(R.string.add_repo_title),
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Crossfade(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(all = 15.dp),
-            targetState = data
-        ) {
-            when (it) {
-                LoadData.Loading -> Loading(
-                    modifier = Modifier
-                        .height(138.dp)
-                        .fillMaxWidth()
-                )
-
-                is LoadData.Failure -> Finished(
-                    label = it.error.message ?: it.error.javaClass.name,
-                    modifier = Modifier
-                        .padding(horizontal = 15.dp)
-                        .height(138.dp)
-                        .fillMaxWidth(),
-                )
-
-                else -> EditRepoItem(
-                    input = input
-                )
-            }
-        }
-
-        Button(
-            onClick = {
-                keyboardController?.hide()
-                if (data.isFailure) onRevert() else onSave()
-            },
-            enabled = input.isNotEmpty && !data.isLoading,
-            modifier = Modifier
-                .padding(horizontal = 15.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = stringResource(
-                    when {
-                        data.isFailure -> R.string.edit_back
-                        else -> R.string.edit_save
-                    }
-                )
-            )
-        }
-
-        Spacer(modifier = Modifier.height(15.dp))
-    }
+    Spacer(modifier = Modifier.height(15.dp))
 }
 
 @Composable
@@ -209,48 +197,45 @@ private fun TopBar(
     isDeletable: Boolean,
     onDelete: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
-) {
-    val isImeVisible = WindowInsets.isImeVisible
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    TopAppBar(
-        title = {
-            Text(
-                text = stringResource(
-                    if (isEdit) R.string.edit_token_title
-                    else R.string.add_token_title
-                )
+) = TopAppBar(
+    title = {
+        Text(
+            text = stringResource(
+                if (isEdit) R.string.edit_token_title
+                else R.string.add_token_title
             )
-        },
-        navigationIcon = {
+        )
+    },
+    navigationIcon = {
+        val keyboardController = LocalSoftwareKeyboardController.current
+
+        IconButton(
+            onClick = {
+                keyboardController?.hide()
+                onClose()
+            },
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.arrow_left),
+                contentDescription = null
+            )
+        }
+    },
+    actions = {
+        if (isEdit) {
             IconButton(
-                onClick = {
-                    if (isImeVisible) keyboardController?.hide()
-                    onClose()
-                },
+                onClick = onDelete,
+                enabled = isDeletable
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.arrow_left),
+                    painter = painterResource(R.drawable.trash_x),
                     contentDescription = null
                 )
             }
-        },
-        actions = {
-            if (isEdit) {
-                IconButton(
-                    onClick = onDelete,
-                    enabled = isDeletable
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.trash_x),
-                        contentDescription = null
-                    )
-                }
-            }
-        },
-        scrollBehavior = scrollBehavior
-    )
-}
+        }
+    },
+    scrollBehavior = scrollBehavior
+)
 
 @Composable
 private fun ActionButton(
@@ -263,16 +248,10 @@ private fun ActionButton(
     enter = fadeIn() + scaleIn(),
     exit = scaleOut() + fadeOut()
 ) {
-    val isImeVisible = WindowInsets.isImeVisible
-    val keyboardController = LocalSoftwareKeyboardController.current
-
     FloatingActionButton(
-        onClick = {
-            if (isImeVisible) keyboardController?.hide()
-            when {
-                isChanged -> onSave()
-                else -> onAdd()
-            }
+        onClick = when {
+            isChanged -> onSave
+            else -> onAdd
         }
     ) {
         Icon(
