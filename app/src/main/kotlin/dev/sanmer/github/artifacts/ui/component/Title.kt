@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -29,21 +30,22 @@ fun Title(
     Text(
         text = title,
         style = titleStyle,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.align(Alignment.CenterVertically)
     )
 
-    if (subtitle != null) {
-        Text(
-            text = subtitle,
-            style = subtitleStyle,
-            color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .border(
-                    border = CardDefaults.outlinedCardBorder(),
-                    shape = CircleShape
-                )
-                .padding(horizontal = 8.dp, vertical = 2.dp)
-        )
-    }
+    if (subtitle != null) Text(
+        text = subtitle,
+        style = subtitleStyle,
+        color = MaterialTheme.colorScheme.outline,
+        maxLines = 1,
+        modifier = Modifier
+            .align(Alignment.CenterVertically)
+            .border(
+                border = CardDefaults.outlinedCardBorder(),
+                shape = CircleShape
+            )
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+    )
 }
