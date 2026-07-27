@@ -30,7 +30,7 @@ fun Title(
     Text(
         text = title,
         style = titleStyle,
-        maxLines = 1,
+        maxLines = 2,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.align(Alignment.CenterVertically)
     )
