@@ -10,7 +10,7 @@ import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
+import dev.sanmer.github.artifacts.model.LoadData.Default.loadData
 import dev.sanmer.github.artifacts.paging.WorkflowPagingSource
 import dev.sanmer.github.artifacts.paging.WorkflowRunPagingSource
 import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
@@ -74,14 +74,14 @@ class WorkflowViewModel(
             when (artifacts(run)) {
                 LoadData.Pending, is LoadData.Failure -> {
                     artifacts[run.id] = LoadData.Loading
-                    artifacts[run.id] = runCatching {
+                    artifacts[run.id] = loadData {
                         github.listArtifact(
                             auth = token.toBearerAuth(),
                             owner = owner,
                             repo = name,
                             runId = run.id
                         ).artifacts
-                    }.asLoadData()
+                    }
                 }
 
                 else -> {}

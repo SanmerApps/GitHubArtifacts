@@ -139,17 +139,13 @@ private fun WorkflowRunItem(
         enter = fadeIn() + expandVertically(),
         exit = shrinkVertically() + fadeOut()
     ) {
-        when (artifacts) {
-            is LoadData.Success<List<Artifact>> -> {
-                if (artifacts.value.isNotEmpty()) {
-                    ArtifactList(
-                        artifacts = artifacts.value,
-                        onDownload = onDownloadArtifact
-                    )
-                }
+        artifacts.onSuccess { list ->
+            if (list.isNotEmpty()) {
+                ArtifactList(
+                    artifacts = list,
+                    onDownload = onDownloadArtifact
+                )
             }
-
-            else -> {}
         }
     }
 }

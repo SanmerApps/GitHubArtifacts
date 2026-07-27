@@ -17,7 +17,7 @@ import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.ktx.toInstant
 import dev.sanmer.github.artifacts.ktx.toLocalDate
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
+import dev.sanmer.github.artifacts.model.LoadData.Default.loadData
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -47,10 +47,10 @@ class EditTokenViewModel(
 
     init {
         logger.d("init")
-        loadDb()
+        loadData()
     }
 
-    private fun loadDb() {
+    private fun loadData() {
         viewModelScope.launch {
             if (isEdit) {
                 dbRepository.getTokenAndReposAsFlow(tokenId)
@@ -62,7 +62,7 @@ class EditTokenViewModel(
         }
     }
 
-    fun save(block: () -> Unit = {}) {
+    fun save(onBack: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching {
                 val token = Token(
@@ -73,29 +73,29 @@ class EditTokenViewModel(
                 )
                 dbRepository.upsertToken(token)
             }.onSuccess {
-                block()
+                if (!isEdit) onBack()
             }.onFailure {
                 logger.e(it)
             }
         }
     }
 
-    fun delete(block: () -> Unit = {}) {
+    fun delete(onBack: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching {
                 dbRepository.deleteToken(tokenId)
             }.onSuccess {
-                block()
+                onBack()
             }.onFailure {
                 logger.e(it)
             }
         }
     }
 
-    fun addRepo(block: () -> Unit = {}) {
+    fun addRepo(onBack: () -> Unit = {}) {
         viewModelScope.launch {
             addRepo = LoadData.Loading
-            addRepo = runCatching {
+            addRepo = loadData {
                 val repo = github.getRepository(
                     auth = tokenInput.tokenValue.toBearerAuth(),
                     owner = repoInput.ownerValue,
@@ -104,10 +104,10 @@ class EditTokenViewModel(
                 dbRepository.upsertRepo(Repo(tokenId, repo))
                 repoInput.clear()
             }.onSuccess {
-                block()
+                onBack()
             }.onFailure {
                 logger.e(it)
-            }.asLoadData()
+            }
         }
     }
 

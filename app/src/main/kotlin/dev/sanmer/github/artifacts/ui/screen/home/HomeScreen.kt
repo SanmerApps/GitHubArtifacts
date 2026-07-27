@@ -23,9 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.ktx.viewUrl
-import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoList
@@ -52,9 +50,9 @@ fun HomeScreen(
             )
         }
     ) { contentPadding ->
-        when (val data = viewModel.data) {
-            is LoadData.Success<List<Repo.AndToken>> -> RepoList(
-                list = data.value,
+        viewModel.data.onSuccess { list ->
+            RepoList(
+                list = list,
                 state = listState,
                 update = viewModel::update,
                 onUpdate = viewModel::update,
@@ -62,8 +60,6 @@ fun HomeScreen(
                 contentPadding = contentPadding,
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             )
-
-            else -> {}
         }
     }
 }

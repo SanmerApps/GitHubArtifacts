@@ -77,7 +77,7 @@ fun EditTokenScreen(
         topBar = {
             TopBar(
                 isEdit = viewModel.isEdit,
-                onClose = goBack,
+                onBack = goBack,
                 isDeletable = viewModel.isDeletable,
                 onDelete = { viewModel.delete(goBack) },
                 scrollBehavior = scrollBehavior
@@ -86,7 +86,7 @@ fun EditTokenScreen(
         floatingActionButton = {
             ActionButton(
                 isChanged = viewModel.isChanged,
-                onSave = { viewModel.save { if (!viewModel.isEdit) goBack() } },
+                onSave = { viewModel.save(goBack) },
                 onAdd = { setAdd(true) },
                 visible = !add && isScrollingUp
             )
@@ -193,7 +193,7 @@ private fun AddRepoBottomSheet(
 @Composable
 private fun TopBar(
     isEdit: Boolean,
-    onClose: () -> Unit,
+    onBack: () -> Unit,
     isDeletable: Boolean,
     onDelete: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
@@ -212,7 +212,7 @@ private fun TopBar(
         IconButton(
             onClick = {
                 keyboardController?.hide()
-                onClose()
+                onBack()
             },
         ) {
             Icon(

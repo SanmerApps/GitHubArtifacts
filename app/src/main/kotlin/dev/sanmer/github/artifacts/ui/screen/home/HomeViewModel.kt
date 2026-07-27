@@ -12,7 +12,7 @@ import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.model.LoadData.Default.asLoadData
+import dev.sanmer.github.artifacts.model.LoadData.Default.loadData
 import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -53,7 +53,7 @@ class HomeViewModel(
             when (update(repo)) {
                 LoadData.Pending, is LoadData.Failure -> {
                     updates[repo.id] = LoadData.Loading
-                    updates[repo.id] = getRepo(repo, token).asLoadData {}
+                    updates[repo.id] = getRepo(repo, token)
                 }
 
                 else -> {}
@@ -67,7 +67,7 @@ class HomeViewModel(
                 async {
                     if (repo.id !in updates) {
                         updates[repo.id] = LoadData.Loading
-                        updates[repo.id] = getRepo(repo, token).asLoadData {}
+                        updates[repo.id] = getRepo(repo, token)
                     }
                 }
             }.awaitAll()
@@ -75,14 +75,13 @@ class HomeViewModel(
     }
 
     private suspend fun getRepo(repo: Repo, token: Token) =
-        runCatching {
-            github.getRepository(
+        loadData {
+            val new = github.getRepository(
                 auth = token.token.toBearerAuth(),
                 owner = repo.owner,
                 repo = repo.name
             )
-        }.onSuccess {
-            dbRepository.upsertRepo(repo.copy(repo = it))
+            dbRepository.upsertRepo(repo.copy(repo = new))
         }.onFailure {
             logger.e(it)
         }

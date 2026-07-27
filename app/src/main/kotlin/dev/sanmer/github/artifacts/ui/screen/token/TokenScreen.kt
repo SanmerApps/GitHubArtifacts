@@ -28,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.model.Token
-import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.screen.Screen
@@ -58,16 +57,14 @@ fun TokenScreen(
             )
         }
     ) { contentPadding ->
-        when (val data = viewModel.data) {
-            is LoadData.Success<List<Token.AndRepos>> -> TokenList(
-                list = data.value,
+        viewModel.data.onSuccess { list ->
+            TokenList(
+                list = list,
                 state = listState,
                 onClick = { goTo(Screen.EditToken(it.id)) },
                 contentPadding = contentPadding,
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
             )
-
-            else -> {}
         }
     }
 }
