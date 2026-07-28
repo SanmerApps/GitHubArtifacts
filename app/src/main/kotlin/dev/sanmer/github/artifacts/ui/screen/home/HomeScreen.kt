@@ -1,5 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.home
 
+import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import dev.sanmer.github.artifacts.Const
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ktx.viewUrl
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.screen.Screen
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoList
@@ -72,7 +72,11 @@ private fun TopBar(
     actions = {
         val context = LocalContext.current
         IconButton(
-            onClick = { context.viewUrl(Const.GITHUB_URL) }
+            onClick = {
+                context.startActivity(
+                    Intent.parseUri(Const.GITHUB_URL, Intent.URI_INTENT_SCHEME)
+                )
+            }
         ) {
             Icon(
                 painter = painterResource(R.drawable.brand_github),

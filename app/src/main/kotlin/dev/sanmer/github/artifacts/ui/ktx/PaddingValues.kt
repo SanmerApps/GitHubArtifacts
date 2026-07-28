@@ -1,5 +1,3 @@
-@file:Suppress("NOTHING_TO_INLINE")
-
 package dev.sanmer.github.artifacts.ui.ktx
 
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,10 +6,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
-inline operator fun PaddingValues.plus(other: PaddingValues): PaddingValues =
+operator fun PaddingValues.plus(other: PaddingValues): PaddingValues =
     OperatorPaddingValues(this, other, Dp::plus)
 
-inline operator fun PaddingValues.minus(other: PaddingValues): PaddingValues =
+operator fun PaddingValues.minus(other: PaddingValues): PaddingValues =
     OperatorPaddingValues(this, other, Dp::minus)
 
 @Immutable
@@ -45,7 +43,7 @@ class OperatorPaddingValues(
         )
 }
 
-inline fun PaddingValues.horizontal() = HorizontalPaddingValues(this)
+fun PaddingValues.horizontal() = HorizontalPaddingValues(this)
 
 @Immutable
 class HorizontalPaddingValues(
@@ -62,7 +60,7 @@ class HorizontalPaddingValues(
     override fun calculateBottomPadding() = 0.dp
 }
 
-inline fun PaddingValues.vertical() = VerticalPaddingValues(this)
+fun PaddingValues.vertical() = VerticalPaddingValues(this)
 
 @Immutable
 class VerticalPaddingValues(
