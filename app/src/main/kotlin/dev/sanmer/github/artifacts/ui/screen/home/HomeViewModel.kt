@@ -1,5 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.home
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,8 @@ class HomeViewModel(
 
     private val updates = mutableStateMapOf<Long, LoadData<Unit>>()
 
+    val listState = LazyListState()
+
     private val logger = Logger.Android("HomeViewModel")
 
     init {
@@ -53,7 +56,9 @@ class HomeViewModel(
             when (update(repo)) {
                 LoadData.Pending, is LoadData.Failure -> {
                     updates[repo.id] = LoadData.Loading
-                    updates[repo.id] = getRepo(repo, token)
+                    updates[repo.id] = getRepo(repo, token).onSuccess {
+                        listState.requestScrollToItem(0)
+                    }
                 }
 
                 else -> {}
@@ -71,6 +76,7 @@ class HomeViewModel(
                     }
                 }
             }.awaitAll()
+            listState.requestScrollToItem(0)
         }
     }
 

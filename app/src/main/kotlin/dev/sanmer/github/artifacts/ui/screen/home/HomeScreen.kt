@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,8 +33,7 @@ fun HomeScreen(
     goTo: (Screen) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val listState = rememberLazyListState()
-    val isScrollingUp by listState.isScrollingUp()
+    val isScrollingUp by viewModel.listState.isScrollingUp()
 
     Scaffold(
         topBar = {
@@ -53,7 +51,7 @@ fun HomeScreen(
         viewModel.data.onSuccess { list ->
             RepoList(
                 list = list,
-                state = listState,
+                state = viewModel.listState,
                 update = viewModel::update,
                 onUpdate = viewModel::update,
                 onClick = { token, repo -> goTo(Screen.Workflow(token.token, repo)) },
