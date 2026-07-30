@@ -63,6 +63,7 @@ class EditTokenViewModel(
     }
 
     fun save(onBack: () -> Unit = {}) {
+        if (tokenInput.tokenValue.isEmpty()) return
         viewModelScope.launch {
             runCatching {
                 val token = Token(
@@ -137,16 +138,16 @@ class EditTokenViewModel(
         )
 
         val tokenValue inline get() = token.text.trim().toString()
-        private var _token by mutableStateOf<String?>(null)
-        private val _isTokenChanged inline get() = _token != null && token.text.trim() != _token
+        private var _token by mutableStateOf(token.text.toString())
+        private val _isTokenChanged inline get() = token.text.trim() != _token
 
         val nameValue inline get() = name.text.trim().toString()
-        private var _name by mutableStateOf<String?>(null)
-        private val _isNameChanged inline get() = _name != null && name.text.trim() != _name
+        private var _name by mutableStateOf(name.text.toString())
+        private val _isNameChanged inline get() = name.text.trim() != _name
 
         val expiredAtValue inline get() = LocalDate.Formats.ISO_BASIC.parse(expiredAt.text)
-        private var _expiredAt by mutableStateOf<String?>(null)
-        private val _isExpiredAtChanged inline get() = _expiredAt != null && expiredAt.text != _expiredAt
+        private var _expiredAt by mutableStateOf(expiredAt.text.toString())
+        private val _isExpiredAtChanged inline get() = expiredAt.text != _expiredAt
 
         val isAnyChanged by derivedStateOf { _isTokenChanged || _isNameChanged || _isExpiredAtChanged }
 
@@ -156,7 +157,7 @@ class EditTokenViewModel(
             _name = value.name
             name.setTextAndPlaceCursorAtEnd(value.name)
             _expiredAt = value.expiredAt.toLocalDate().format(LocalDate.Formats.ISO_BASIC)
-            expiredAt.setTextAndPlaceCursorAtEnd(_expiredAt!!)
+            expiredAt.setTextAndPlaceCursorAtEnd(_expiredAt)
         }
     }
 
