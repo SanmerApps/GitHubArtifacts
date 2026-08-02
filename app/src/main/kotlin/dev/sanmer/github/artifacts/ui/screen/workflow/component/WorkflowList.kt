@@ -59,7 +59,7 @@ private fun WorkflowItem(
 ) = Row(
     modifier = Modifier
         .surface(
-            shape = MaterialTheme.shapes.large,
+            shape = MaterialTheme.shapes.medium,
             backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
             border = CardDefaults.outlinedCardBorder(false)
         )
