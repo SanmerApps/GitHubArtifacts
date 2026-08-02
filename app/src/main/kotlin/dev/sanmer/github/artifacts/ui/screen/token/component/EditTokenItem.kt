@@ -58,7 +58,7 @@ fun EditTokenItem(
         state = input.token,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done
+            imeAction = ImeAction.Next
         ),
         shape = MaterialTheme.shapes.medium,
         label = { Text(text = stringResource(R.string.edit_token)) },
@@ -78,7 +78,7 @@ fun EditTokenItem(
         },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Next
+            imeAction = ImeAction.Done
         ),
         shape = MaterialTheme.shapes.medium,
         label = { Text(text = stringResource(R.string.edit_expiration)) },
