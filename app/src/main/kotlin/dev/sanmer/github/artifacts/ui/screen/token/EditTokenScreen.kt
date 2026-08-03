@@ -208,7 +208,6 @@ private fun TopBar(
     },
     navigationIcon = {
         val keyboardController = LocalSoftwareKeyboardController.current
-
         IconButton(
             onClick = {
                 keyboardController?.hide()
@@ -248,10 +247,14 @@ private fun ActionButton(
     enter = fadeIn() + scaleIn(),
     exit = scaleOut() + fadeOut()
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     FloatingActionButton(
-        onClick = when {
-            isChanged -> onSave
-            else -> onAdd
+        onClick = {
+            keyboardController?.hide()
+            when {
+                isChanged -> onSave()
+                else -> onAdd()
+            }
         }
     ) {
         Icon(
