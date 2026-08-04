@@ -69,6 +69,7 @@ import dev.sanmer.github.response.artifact.Artifact
 import dev.sanmer.github.response.workflow.Workflow
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.coroutines.launch
+import kotlin.enums.enumEntries
 
 @Composable
 fun WorkflowScreen(
@@ -143,14 +144,14 @@ private fun QueryBar(
             onWorkflowChange = { workflow -> onUpdateQuery { it.copy(workflow = workflow) } }
         )
 
-        BottomSheet.Event -> EnumValuesBottomSheet(
+        BottomSheet.Event -> EnumBottomSheet(
             onClose = { setBottomSheet(BottomSheet.None) },
             title = stringResource(R.string.workflow_run_event),
             value = query.event,
             onValueChange = { event -> onUpdateQuery { it.copy(event = event) } }
         )
 
-        BottomSheet.Status -> EnumValuesBottomSheet(
+        BottomSheet.Status -> EnumBottomSheet(
             onClose = { setBottomSheet(BottomSheet.None) },
             title = stringResource(R.string.workflow_run_status),
             value = query.status,
@@ -260,13 +261,13 @@ private fun WorkflowBottomSheet(
 }
 
 @Composable
-private inline fun <reified T : Enum<T>> EnumValuesBottomSheet(
-    noinline onClose: () -> Unit,
+private inline fun <reified T : Enum<T>> EnumBottomSheet(
+    crossinline onClose: () -> Unit,
     title: String,
     value: T?,
     crossinline onValueChange: (T?) -> Unit
 ) = ModalBottomSheet(
-    onDismissRequest = onClose,
+    onDismissRequest = { onClose() },
     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     shape = MaterialTheme.shapes.large.bottom(0.dp),
     dragHandle = null
@@ -285,7 +286,7 @@ private inline fun <reified T : Enum<T>> EnumValuesBottomSheet(
         modifier = Modifier.padding(all = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        enumValues<T>().forEach {
+        enumEntries<T>().forEach {
             FilterItem(
                 selected = it == value,
                 onClick = { onValueChange(if (it == value) null else it) },
