@@ -35,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -68,7 +67,6 @@ import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowRunList
 import dev.sanmer.github.response.artifact.Artifact
 import dev.sanmer.github.response.workflow.Workflow
 import dev.sanmer.github.response.workflow.run.WorkflowRun
-import kotlinx.coroutines.launch
 import kotlin.enums.enumEntries
 
 @Composable
@@ -81,8 +79,6 @@ fun WorkflowScreen(
     val workflowRuns = viewModel.workflowRuns.collectAsLazyPagingItems()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -90,12 +86,7 @@ fun WorkflowScreen(
                 name = viewModel.name,
                 onBack = goBack,
                 isRefreshing = workflowRuns.isNotEmpty() && workflowRuns.loadState.refresh.isLoading,
-                onRefresh = {
-                    scope.launch {
-                        listState.animateScrollToItem(0)
-                        workflowRuns.refresh()
-                    }
-                },
+                onRefresh = workflowRuns::refresh,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -119,8 +110,7 @@ fun WorkflowScreen(
                 artifacts = viewModel::artifacts,
                 onListArtifacts = viewModel::listArtifacts,
                 onDownloadArtifact = viewModel::downloadArtifact,
-                modifier = Modifier.padding(contentPadding.horizontal()),
-                listState = listState
+                modifier = Modifier.padding(contentPadding.horizontal())
             )
         }
     }
