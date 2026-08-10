@@ -9,31 +9,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,25 +42,23 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.ui.component.DragHandle
 import dev.sanmer.github.artifacts.ui.component.Finished
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.component.appBarContainerColor
-import dev.sanmer.github.artifacts.ui.ktx.bottom
 import dev.sanmer.github.artifacts.ui.ktx.horizontal
 import dev.sanmer.github.artifacts.ui.ktx.isEmpty
 import dev.sanmer.github.artifacts.ui.ktx.isLoading
 import dev.sanmer.github.artifacts.ui.ktx.isNotEmpty
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.ktx.vertical
-import dev.sanmer.github.artifacts.ui.screen.workflow.component.FilterItem
+import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowViewModel.BottomSheet
+import dev.sanmer.github.artifacts.ui.screen.workflow.component.EnumBottomSheet
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.QueryItem
-import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowList
+import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowBottomSheet
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowRunList
 import dev.sanmer.github.response.artifact.Artifact
 import dev.sanmer.github.response.workflow.Workflow
 import dev.sanmer.github.response.workflow.run.WorkflowRun
-import kotlin.enums.enumEntries
 
 @Composable
 fun WorkflowScreen(
@@ -79,6 +70,30 @@ fun WorkflowScreen(
     val workflowRuns = viewModel.workflowRuns.collectAsLazyPagingItems()
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
+    when (viewModel.bottomSheet) {
+        BottomSheet.None -> {}
+        BottomSheet.Workflow -> WorkflowBottomSheet(
+            onClose = { viewModel.bottomSheet = BottomSheet.None },
+            workflows = workflows,
+            workflow = query.workflow,
+            onWorkflowChange = { workflow -> viewModel.updateQuery { it.copy(workflow = workflow) } }
+        )
+
+        BottomSheet.Event -> EnumBottomSheet(
+            onClose = { viewModel.bottomSheet = BottomSheet.None },
+            title = stringResource(R.string.workflow_run_event),
+            value = query.event,
+            onValueChange = { event -> viewModel.updateQuery { it.copy(event = event) } }
+        )
+
+        BottomSheet.Status -> EnumBottomSheet(
+            onClose = { viewModel.bottomSheet = BottomSheet.None },
+            title = stringResource(R.string.workflow_run_status),
+            value = query.status,
+            onValueChange = { status -> viewModel.updateQuery { it.copy(status = status) } }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -100,7 +115,7 @@ fun WorkflowScreen(
             QueryBar(
                 workflows = workflows,
                 query = query,
-                onUpdateQuery = viewModel::updateQuery,
+                onBottomSheet = { viewModel.bottomSheet = it },
                 scrollBehavior = scrollBehavior,
                 contentPadding = contentPadding.horizontal()
             )
@@ -120,36 +135,12 @@ fun WorkflowScreen(
 private fun QueryBar(
     workflows: LazyPagingItems<Workflow>,
     query: WorkflowViewModel.RunsQuery,
-    onUpdateQuery: ((WorkflowViewModel.RunsQuery) -> WorkflowViewModel.RunsQuery) -> Unit,
+    onBottomSheet: (BottomSheet) -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     contentPadding: PaddingValues = PaddingValues(all = 0.dp)
 ) {
-    val (bottomSheet, setBottomSheet) = remember { mutableStateOf(BottomSheet.None) }
-    when (bottomSheet) {
-        BottomSheet.None -> {}
-        BottomSheet.Workflow -> WorkflowBottomSheet(
-            onClose = { setBottomSheet(BottomSheet.None) },
-            workflows = workflows,
-            workflow = query.workflow,
-            onWorkflowChange = { workflow -> onUpdateQuery { it.copy(workflow = workflow) } }
-        )
-
-        BottomSheet.Event -> EnumBottomSheet(
-            onClose = { setBottomSheet(BottomSheet.None) },
-            title = stringResource(R.string.workflow_run_event),
-            value = query.event,
-            onValueChange = { event -> onUpdateQuery { it.copy(event = event) } }
-        )
-
-        BottomSheet.Status -> EnumBottomSheet(
-            onClose = { setBottomSheet(BottomSheet.None) },
-            title = stringResource(R.string.workflow_run_status),
-            value = query.status,
-            onValueChange = { status -> onUpdateQuery { it.copy(status = status) } }
-        )
-    }
-
     val containerColor by appBarContainerColor(scrollBehavior)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -165,7 +156,7 @@ private fun QueryBar(
                 if (workflows.loadState.hasError) {
                     workflows.retry()
                 } else {
-                    setBottomSheet(BottomSheet.Workflow)
+                    onBottomSheet(BottomSheet.Workflow)
                 }
             },
             label = query.workflow?.name ?: stringResource(R.string.workflow_name),
@@ -174,115 +165,15 @@ private fun QueryBar(
 
         QueryItem(
             selected = query.event != null,
-            onClick = { setBottomSheet(BottomSheet.Event) },
+            onClick = { onBottomSheet(BottomSheet.Event) },
             label = query.event?.name ?: stringResource(R.string.workflow_run_event)
         )
 
         QueryItem(
             selected = query.status != null,
-            onClick = { setBottomSheet(BottomSheet.Status) },
+            onClick = { onBottomSheet(BottomSheet.Status) },
             label = query.status?.name ?: stringResource(R.string.workflow_run_status)
         )
-    }
-}
-
-enum class BottomSheet {
-    None,
-    Workflow,
-    Event,
-    Status
-}
-
-@Composable
-private fun WorkflowBottomSheet(
-    onClose: () -> Unit,
-    workflows: LazyPagingItems<Workflow>,
-    workflow: Workflow?,
-    onWorkflowChange: (Workflow?) -> Unit
-) = ModalBottomSheet(
-    onDismissRequest = onClose,
-    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    shape = MaterialTheme.shapes.large.bottom(0.dp),
-    dragHandle = null
-) {
-    DragHandle()
-
-    Text(
-        text = stringResource(R.string.workflow_name),
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
-    )
-
-    Crossfade(
-        modifier = Modifier
-            .align(Alignment.CenterHorizontally)
-            .padding(top = 10.dp),
-        targetState = workflows.loadState.refresh
-    ) {
-        when (it) {
-            LoadState.Loading if (workflows.isEmpty()) -> Loading(
-                modifier = Modifier
-                    .height(240.dp)
-                    .fillMaxWidth()
-            )
-
-            is LoadState.Error -> Finished(
-                label = it.error.message ?: it.error.javaClass.name,
-                modifier = Modifier
-                    .padding(horizontal = 15.dp)
-                    .height(240.dp)
-                    .fillMaxWidth()
-            )
-
-            else -> if (workflows.isEmpty()) {
-                Finished(
-                    label = R.string.workflow_empty,
-                    modifier = Modifier.height(240.dp)
-                )
-            } else {
-                WorkflowList(
-                    workflows = workflows,
-                    workflow = workflow,
-                    onWorkflowChange = onWorkflowChange
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private inline fun <reified T : Enum<T>> EnumBottomSheet(
-    crossinline onClose: () -> Unit,
-    title: String,
-    value: T?,
-    crossinline onValueChange: (T?) -> Unit
-) = ModalBottomSheet(
-    onDismissRequest = { onClose() },
-    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    shape = MaterialTheme.shapes.large.bottom(0.dp),
-    dragHandle = null
-) {
-    DragHandle()
-
-    Text(
-        text = title,
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
-    )
-
-    Spacer(modifier = Modifier.height(10.dp))
-
-    FlowRow(
-        modifier = Modifier.padding(all = 15.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        enumEntries<T>().forEach {
-            FilterItem(
-                selected = it == value,
-                onClick = { onValueChange(if (it == value) null else it) },
-                label = it.name
-            )
-        }
     }
 }
 

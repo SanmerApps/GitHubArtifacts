@@ -1,7 +1,10 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow
 
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -57,6 +60,8 @@ class WorkflowViewModel(
 
     private val artifacts = mutableStateMapOf<Long, LoadData<List<Artifact>>>()
 
+    var bottomSheet by mutableStateOf<BottomSheet>(BottomSheet.None)
+
     private val logger = Logger.Android("WorkflowViewModel")
 
     init {
@@ -103,4 +108,11 @@ class WorkflowViewModel(
         val event: WorkflowRunEvent? = null,
         val status: WorkflowRunStatus? = null
     )
+
+    sealed interface BottomSheet {
+        data object None : BottomSheet
+        data object Workflow : BottomSheet
+        data object Event : BottomSheet
+        data object Status : BottomSheet
+    }
 }
