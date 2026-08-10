@@ -45,7 +45,7 @@ data class Repo(
         hasIssues = repo.hasIssues,
         archived = repo.archived,
         pushedAt = repo.pushedAt,
-        license = repo.license.spdxId
+        license = repo.license.name
     )
 
     fun copy(repo: Repository) = Repo(

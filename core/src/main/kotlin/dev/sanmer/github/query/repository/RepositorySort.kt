@@ -6,7 +6,5 @@ enum class RepositorySort(private val value: String) {
     Pushed("pushed"),
     FullName("full_name");
 
-    override fun toString(): String {
-        return value
-    }
+    override fun toString() = value
 }
