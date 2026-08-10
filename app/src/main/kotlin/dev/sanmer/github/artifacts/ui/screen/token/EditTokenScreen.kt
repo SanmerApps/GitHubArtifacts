@@ -1,39 +1,26 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -42,14 +29,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.ui.component.DragHandle
-import dev.sanmer.github.artifacts.ui.component.Finished
-import dev.sanmer.github.artifacts.ui.component.Loading
-import dev.sanmer.github.artifacts.ui.ktx.bottom
 import dev.sanmer.github.artifacts.ui.ktx.isScrollingUp
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.screen.Screen
-import dev.sanmer.github.artifacts.ui.screen.token.component.EditRepoItem
+import dev.sanmer.github.artifacts.ui.screen.token.EditTokenViewModel.BottomSheet
+import dev.sanmer.github.artifacts.ui.screen.token.component.AddRepoBottomSheet
 import dev.sanmer.github.artifacts.ui.screen.token.component.EditTokenItem
 import dev.sanmer.github.artifacts.ui.screen.token.component.RepoItem
 
@@ -63,14 +47,17 @@ fun EditTokenScreen(
     val listState = rememberLazyListState()
     val isScrollingUp by listState.isScrollingUp()
 
-    val (add, setAdd) = remember { mutableStateOf(false) }
-    if (add) AddRepoBottomSheet(
-        input = viewModel.repoInput,
-        addRepo = viewModel.addRepo,
-        onClose = { setAdd(false) },
-        onSave = { viewModel.addRepo { setAdd(false) } },
-        onRevert = viewModel::revertAddRepo
-    )
+    when (val bs = viewModel.bottomSheet) {
+        BottomSheet.None -> {}
+        is BottomSheet.AddRepo -> AddRepoBottomSheet(
+            onClose = { viewModel.bottomSheet = BottomSheet.None },
+            input = viewModel.repoInput,
+            repo = bs.repo,
+            onFetch = viewModel::fetchRepo,
+            onSave = viewModel::saveRepo,
+            onRevert = { viewModel.bottomSheet = BottomSheet.AddRepo(LoadData.Pending) }
+        )
+    }
 
     Scaffold(
         modifier = Modifier.imePadding(),
@@ -78,17 +65,17 @@ fun EditTokenScreen(
             TopBar(
                 isEdit = viewModel.isEdit,
                 onBack = goBack,
-                isDeletable = viewModel.isDeletable,
-                onDelete = { viewModel.delete(goBack) },
+                isRepoEmpty = viewModel.isRepoEmpty,
+                onDelete = { viewModel.deleteToken(goBack) },
                 scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
             ActionButton(
                 isChanged = viewModel.isChanged,
-                onSave = { viewModel.save(goBack) },
-                onAdd = { setAdd(true) },
-                visible = !add && isScrollingUp
+                onSave = { viewModel.saveToken(goBack) },
+                onAdd = { viewModel.bottomSheet = BottomSheet.AddRepo(LoadData.Pending) },
+                visible = viewModel.bottomSheet == BottomSheet.None && isScrollingUp
             )
         }
     ) { contentPadding ->
@@ -119,82 +106,10 @@ fun EditTokenScreen(
 }
 
 @Composable
-private fun AddRepoBottomSheet(
-    input: EditTokenViewModel.RepoInput,
-    addRepo: LoadData<Unit>,
-    onClose: () -> Unit,
-    onSave: () -> Unit,
-    onRevert: () -> Unit
-) = ModalBottomSheet(
-    onDismissRequest = onClose,
-    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    shape = MaterialTheme.shapes.large.bottom(0.dp),
-    dragHandle = null
-) {
-    DragHandle()
-
-    Text(
-        text = stringResource(R.string.add_repo_title),
-        style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
-    )
-
-    Crossfade(
-        modifier = Modifier
-            .align(Alignment.CenterHorizontally)
-            .padding(all = 15.dp),
-        targetState = addRepo
-    ) {
-        when (it) {
-            LoadData.Loading -> Loading(
-                modifier = Modifier
-                    .height(138.dp)
-                    .fillMaxWidth()
-            )
-
-            is LoadData.Failure -> Finished(
-                label = it.error.message ?: it.error.javaClass.name,
-                modifier = Modifier
-                    .padding(horizontal = 15.dp)
-                    .height(138.dp)
-                    .fillMaxWidth(),
-            )
-
-            else -> EditRepoItem(
-                input = input
-            )
-        }
-    }
-
-    Button(
-        onClick = if (addRepo.isFailure) onRevert else onSave,
-        enabled = input.isNotEmpty && !addRepo.isLoading,
-        modifier = Modifier
-            .padding(horizontal = 15.dp)
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = stringResource(
-                when {
-                    addRepo.isFailure -> R.string.edit_back
-                    else -> R.string.edit_save
-                }
-            )
-        )
-    }
-
-    DisposableEffect(Unit) {
-        onDispose(onRevert)
-    }
-
-    Spacer(modifier = Modifier.height(15.dp))
-}
-
-@Composable
 private fun TopBar(
     isEdit: Boolean,
     onBack: () -> Unit,
-    isDeletable: Boolean,
+    isRepoEmpty: Boolean,
     onDelete: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
@@ -224,7 +139,7 @@ private fun TopBar(
         if (isEdit) {
             IconButton(
                 onClick = onDelete,
-                enabled = isDeletable
+                enabled = isRepoEmpty
             ) {
                 Icon(
                     painter = painterResource(R.drawable.trash_x),

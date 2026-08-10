@@ -35,13 +35,13 @@ class EditTokenViewModel(
     val tokenInput = TokenInput()
     val isChanged inline get() = !isEdit || tokenInput.isAnyChanged
 
-    val repoInput = RepoInput()
     var repos by mutableStateOf(emptyList<Repo>())
         private set
-    val isDeletable inline get() = isEdit && repos.isEmpty()
+    val isRepoEmpty inline get() = isEdit && repos.isEmpty()
 
-    var addRepo by mutableStateOf<LoadData<Unit>>(LoadData.Pending)
-        private set
+    val repoInput = RepoInput()
+
+    var bottomSheet by mutableStateOf<BottomSheet>(BottomSheet.None)
 
     private val logger = Logger.Android("EditTokenViewModel")
 
@@ -62,8 +62,7 @@ class EditTokenViewModel(
         }
     }
 
-    fun save(onBack: () -> Unit = {}) {
-        if (tokenInput.tokenValue.isEmpty()) return
+    fun saveToken(onBack: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching {
                 val token = Token(
@@ -73,7 +72,6 @@ class EditTokenViewModel(
                     expiredAt = tokenInput.expiredAtValue.toInstant()
                 )
                 dbRepository.upsertToken(token)
-            }.onSuccess {
                 if (!isEdit) onBack()
             }.onFailure {
                 logger.e(it)
@@ -81,11 +79,10 @@ class EditTokenViewModel(
         }
     }
 
-    fun delete(onBack: () -> Unit = {}) {
+    fun deleteToken(onBack: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching {
                 dbRepository.deleteToken(tokenId)
-            }.onSuccess {
                 onBack()
             }.onFailure {
                 logger.e(it)
@@ -93,22 +90,26 @@ class EditTokenViewModel(
         }
     }
 
-    fun addRepo(onBack: () -> Unit = {}) {
+    fun fetchRepo() {
         viewModelScope.launch {
-            addRepo = LoadData.Loading
-            addRepo = loadData {
+            bottomSheet = BottomSheet.AddRepo(LoadData.Loading)
+            val repo = loadData {
                 val repo = github.getRepository(
                     auth = tokenInput.tokenValue.toBearerAuth(),
                     owner = repoInput.ownerValue,
                     repo = repoInput.nameValue
                 )
-                dbRepository.upsertRepo(Repo(tokenId, repo))
-                repoInput.clear()
-            }.onSuccess {
-                onBack()
-            }.onFailure {
-                logger.e(it)
+                Repo(tokenId, repo)
             }
+            bottomSheet = BottomSheet.AddRepo(repo)
+        }
+    }
+
+    fun saveRepo(repo: Repo) {
+        viewModelScope.launch {
+            dbRepository.upsertRepo(repo)
+            bottomSheet = BottomSheet.AddRepo(LoadData.Pending)
+            repoInput.clear()
         }
     }
 
@@ -116,10 +117,6 @@ class EditTokenViewModel(
         viewModelScope.launch {
             dbRepository.deleteRepo(repo.id)
         }
-    }
-
-    fun revertAddRepo() {
-        addRepo = LoadData.Pending
     }
 
     data class TokenInput(
@@ -181,5 +178,10 @@ class EditTokenViewModel(
             owner.clearText()
             name.clearText()
         }
+    }
+
+    sealed interface BottomSheet {
+        data object None : BottomSheet
+        data class AddRepo(val repo: LoadData<Repo>) : BottomSheet
     }
 }
