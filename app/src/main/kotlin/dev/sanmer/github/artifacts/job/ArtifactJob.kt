@@ -23,8 +23,6 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.PermissionCompat
 import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
-import dev.sanmer.github.artifacts.ktx.dropWithin
-import dev.sanmer.github.artifacts.ktx.shortId
 import dev.sanmer.github.response.artifact.Artifact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -32,6 +30,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import okhttp3.Headers
@@ -40,22 +40,41 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 class ArtifactJob : LifecycleService(), KoinComponent {
     private val okhttp by inject<OkHttpClient>()
     private val notificationManager by lazy { NotificationManagerCompat.from(this) }
 
+    private val runningMutex = Mutex()
+    private val runningJob = mutableListOf<Long>()
+
     private val logger = Logger.Android("ArtifactJob")
 
-    @SuppressLint("MissingPermission")
-    private inline fun notify(id: Int, block: NotificationCompat.Builder.() -> Unit) {
-        val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_ARTIFACT_JOB)
-        builder.setSmallIcon(R.drawable.box)
-        builder.block()
-        notificationManager.notify(id, builder.build())
+    private suspend inline fun autoStopSelf(artifact: Artifact, block: (Artifact) -> Unit) {
+        if (!runningMutex.withLock {
+                runningJob.contains(artifact.id).also {
+                    if (!it) runningJob.add(artifact.id)
+                }
+            }) {
+            block(artifact)
+            if (runningMutex.withLock {
+                    runningJob.remove(artifact.id)
+                    runningJob.isEmpty()
+                }) {
+                delay(5.seconds)
+                if (runningMutex.withLock { runningJob.isEmpty() }) stopSelf()
+            }
+        }
     }
+
+    @SuppressLint("MissingPermission")
+    private fun notify(
+        id: Int,
+        builder: NotificationCompat.Builder,
+        block: NotificationCompat.Builder.() -> NotificationCompat.Builder
+    ) = notificationManager.notify(id, builder.block().build())
 
     override fun onCreate() {
         logger.d("onCreate")
@@ -74,47 +93,6 @@ class ArtifactJob : LifecycleService(), KoinComponent {
             builder.build(),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
         )
-
-        lifecycleScope.launch {
-            jobState.dropWithin(500.milliseconds) {
-                it is JobState.Running
-            }.collect {
-                when (it) {
-                    JobState.Empty -> {}
-                    is JobState.Pending -> notify(it.shortId) {
-                        setContentTitle(it.artifact.name)
-                        setProgress(100, 0, false)
-                        setSilent(true)
-                        setOngoing(true)
-                        setGroup(GROUP_KEY)
-                    }
-
-                    is JobState.Running -> notify(it.shortId) {
-                        setContentTitle(it.artifact.name)
-                        setProgress(it.artifact.sizeInBytes.toInt(), it.copied.toInt(), false)
-                        setSilent(true)
-                        setOngoing(true)
-                        setGroup(GROUP_KEY)
-                    }
-
-                    is JobState.Success -> notify(it.shortId) {
-                        setContentTitle(it.artifact.name)
-                        setContentText(
-                            Formatter.formatFileSize(applicationContext, it.artifact.sizeInBytes)
-                        )
-                        setContentIntent(viewUri(it.uri, it.mimeType))
-                        setSilent(true)
-                        setAutoCancel(true)
-                    }
-
-                    is JobState.Failure -> notify(it.shortId) {
-                        setContentTitle(it.artifact.name)
-                        setContentText(it.error.message ?: it.error.javaClass.name)
-                        setSilent(false)
-                    }
-                }
-            }
-        }
     }
 
     override fun onDestroy() {
@@ -131,41 +109,73 @@ class ArtifactJob : LifecycleService(), KoinComponent {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleScope.launch {
             val token = intent?.token ?: return@launch
-            val artifact = intent.artifact
+            autoStopSelf(intent.artifact) { artifact ->
+                val builder = NotificationCompat.Builder(
+                    applicationContext,
+                    Const.CHANNEL_ID_ARTIFACT_JOB
+                ).apply {
+                    setSmallIcon(R.drawable.box)
+                    setContentTitle(artifact.name)
+                    setOngoing(true)
+                    setSilent(true)
+                    setGroup(GROUP_KEY)
+                }
 
-            val collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL)
-            val entry = ContentValues().apply {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                put(MediaStore.MediaColumns.DISPLAY_NAME, artifact.name)
-            }
-            val uri = requireNotNull(contentResolver.insert(collection, entry))
+                val url = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL)
+                val values = ContentValues().apply {
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, artifact.name)
+                }
+                val uri = contentResolver.insert(url, values) ?: return@autoStopSelf
 
-            runCatching {
-                val mimeType = downloadArtifact(
-                    token = token,
-                    artifact = artifact,
-                    uri = uri
-                )
-                jobState.update { JobState.Success(artifact, uri, mimeType) }
-            }.onFailure { error ->
-                logger.e(error)
-                jobState.update { JobState.Failure(artifact, error) }
-                contentResolver.delete(uri, null)
-            }
+                runCatching {
+                    jobState.update { JobState.Pending(artifact.id) }
+                    notify(startId, builder) {
+                        setProgress(1, 0, false)
+                    }
 
-            pendingJobs.remove(artifact.id)
-            if (pendingJobs.isEmpty()) {
-                delay(5.seconds)
-                if (pendingJobs.isEmpty()) stopSelf()
+                    val mimeType = download(
+                        token = token,
+                        artifact = artifact,
+                        uri = uri,
+                        startId = startId,
+                        builder = builder
+                    )
+
+                    jobState.update { JobState.Success(artifact.id, uri, mimeType) }
+                    notify(startId, builder) {
+                        setProgress(0, 0, false)
+                        setContentText(
+                            Formatter.formatFileSize(applicationContext, artifact.sizeInBytes)
+                        )
+                        setContentIntent(viewUri(uri, mimeType))
+                        setOngoing(false)
+                        setSilent(false)
+                        setAutoCancel(true)
+                    }
+                }.onFailure { error ->
+                    logger.e(error)
+                    contentResolver.delete(uri, null)
+
+                    jobState.update { JobState.Failure(artifact.id, error) }
+                    notify(startId, builder) {
+                        setProgress(0, 0, false)
+                        setContentText(error.message ?: error.javaClass.name)
+                        setOngoing(false)
+                        setSilent(false)
+                    }
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private suspend fun downloadArtifact(
+    private suspend fun download(
         token: String,
         artifact: Artifact,
-        uri: Uri
+        uri: Uri,
+        startId: Int,
+        builder: NotificationCompat.Builder
     ) = withContext(Dispatchers.IO) {
         val request = Request(
             url = artifact.archiveDownloadUrl.toHttpUrl(),
@@ -175,13 +185,25 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         require(response.code == 200) { "Expect code = 200" }
         val body = requireNotNull(response.body) { "Expect body" }
         val output = requireNotNull(contentResolver.openOutputStream(uri)) { "Expect output" }
+
+        val period = 1.seconds
+        var lastNotify = TimeSource.Monotonic.markNow()
+        val sizeBytesF = artifact.sizeInBytes.toFloat()
+        val sizeBytesI = artifact.sizeInBytes.toInt()
+        val onProgress: (Long) -> Unit = { copied ->
+            jobState.tryEmit(JobState.Running(artifact.id, copied / sizeBytesF))
+            if (lastNotify.elapsedNow() >= period) {
+                notify(startId, builder) {
+                    setProgress(sizeBytesI, copied.toInt(), false)
+                }
+                lastNotify = TimeSource.Monotonic.markNow()
+            }
+        }
         val digest = body.byteStream().buffered().use { input ->
-            input.copyToWithSHA256(output) { jobState.tryEmit(JobState.Running(artifact, it)) }
-                .toHexString()
+            input.copyToWithSHA256(output, onProgress).toHexString()
         }
         output.close()
 
-        logger.d("Content-Type = ${body.contentType()}, SHA-256 = $digest")
         val target = artifact.digest.removePrefix("sha256:")
         if (target != artifact.digest) {
             require(digest == target) { "Expect SHA-256 = $target, but $digest" }
@@ -195,16 +217,16 @@ class ArtifactJob : LifecycleService(), KoinComponent {
 
             else -> type
         }
-        val entry = ContentValues()
+        val values = ContentValues()
         when (contentType) {
             "application/zip" if (!artifact.name.endsWith(".zip")) -> {
-                entry.put(MediaStore.MediaColumns.DISPLAY_NAME, "${artifact.name}.zip")
-                entry.put(MediaStore.MediaColumns.MIME_TYPE, "application/zip")
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "${artifact.name}.zip")
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/zip")
             }
 
-            else -> entry.put(MediaStore.MediaColumns.MIME_TYPE, contentType)
+            else -> values.put(MediaStore.MediaColumns.MIME_TYPE, contentType)
         }
-        contentResolver.update(uri, entry, null)
+        contentResolver.update(uri, values, null)
 
         contentType
     }
@@ -214,36 +236,35 @@ class ArtifactJob : LifecycleService(), KoinComponent {
             setDataAndType(uri, mimeType)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        val flag = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        return PendingIntent.getActivity(this, 0, intent, flag)
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
     }
 
-    sealed class JobState(val id: Long) {
-        val shortId by lazy { id.shortId() }
+    sealed interface JobState {
+        val id: Long
 
-        data object Empty : JobState(0)
-
-        class Pending(
-            val artifact: Artifact
-        ) : JobState(artifact.id)
-
-        class Running(
-            val artifact: Artifact,
-            val copied: Long
-        ) : JobState(artifact.id) {
-            val progress get() = copied.toFloat() / artifact.sizeInBytes
+        data object Empty : JobState {
+            override val id = 0L
         }
 
-        class Success(
-            val artifact: Artifact,
+        data class Pending(
+            override val id: Long
+        ) : JobState
+
+        data class Running(
+            override val id: Long,
+            val progress: Float
+        ) : JobState
+
+        data class Success(
+            override val id: Long,
             val uri: Uri,
             val mimeType: String
-        ) : JobState(artifact.id)
+        ) : JobState
 
-        class Failure(
-            val artifact: Artifact,
+        data class Failure(
+            override val id: Long,
             val error: Throwable
-        ) : JobState(artifact.id)
+        ) : JobState
     }
 
     companion object Default {
@@ -265,8 +286,6 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         private val Intent.token: String
             inline get() = checkNotNull(getStringExtra(EXTRA_TOKEN))
 
-        private val pendingJobs = mutableListOf<Long>()
-
         private val jobState = MutableStateFlow<JobState>(JobState.Empty)
         fun getJobState(artifactId: Long) = jobState.filter { it.id == artifactId }
 
@@ -276,9 +295,6 @@ class ArtifactJob : LifecycleService(), KoinComponent {
             token: String
         ) {
             fun start() {
-                if (pendingJobs.contains(artifact.id)) return
-                pendingJobs.add(artifact.id)
-                jobState.update { JobState.Pending(artifact) }
                 context.startService(
                     Intent(context, ArtifactJob::class.java).also {
                         it.putArtifact(artifact)

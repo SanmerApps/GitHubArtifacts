@@ -4,14 +4,13 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.security.MessageDigest
 
-fun InputStream.copyToWithSHA256(
+inline fun InputStream.copyToWithSHA256(
     out: OutputStream,
-    bufferSize: Int = DEFAULT_BUFFER_SIZE,
     onProgress: (Long) -> Unit = {}
 ): ByteArray {
     val digest = MessageDigest.getInstance("SHA-256")
     var bytesCopied = 0L
-    val buffer = ByteArray(bufferSize)
+    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
     var bytes = read(buffer)
     while (bytes >= 0) {
         out.write(buffer, 0, bytes)
