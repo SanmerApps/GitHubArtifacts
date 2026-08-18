@@ -37,5 +37,6 @@
 
     <!-- Job -->
     <string name="artifact_job">Artifact Job</string>
+    <string name="artifact_failed">Failed</string>
 
 </resources>

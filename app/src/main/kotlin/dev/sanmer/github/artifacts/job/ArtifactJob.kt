@@ -149,9 +149,10 @@ class ArtifactJob : LifecycleService(), KoinComponent {
                             Formatter.formatFileSize(applicationContext, artifact.sizeInBytes)
                         )
                         setContentIntent(viewUri(uri, mimeType))
+                        setAutoCancel(true)
                         setOngoing(false)
                         setSilent(false)
-                        setAutoCancel(true)
+                        setGroup(null)
                     }
                 }.onFailure { error ->
                     logger.e(error)
@@ -160,9 +161,14 @@ class ArtifactJob : LifecycleService(), KoinComponent {
                     jobState.update { JobState.Failure(artifact.id, error) }
                     notify(startId, builder) {
                         setProgress(0, 0, false)
-                        setContentText(error.message ?: error.javaClass.name)
+                        setContentText(getString(R.string.artifact_failed))
+                        setStyle(
+                            NotificationCompat.BigTextStyle()
+                                .bigText(error.message ?: error.javaClass.name)
+                        )
                         setOngoing(false)
                         setSilent(false)
+                        setGroup(null)
                     }
                 }
             }
@@ -206,7 +212,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
 
         val target = artifact.digest.removePrefix("sha256:")
         if (target != artifact.digest) {
-            require(digest == target) { "Expect SHA-256 = $target, but $digest" }
+            check(digest == target) { "Expect SHA-256 = $target, but $digest" }
         }
 
         val contentType = when (val type = body.contentType().toString()) {
@@ -217,14 +223,11 @@ class ArtifactJob : LifecycleService(), KoinComponent {
 
             else -> type
         }
-        val values = ContentValues()
-        when (contentType) {
-            "application/zip" if (!artifact.name.endsWith(".zip")) -> {
-                values.put(MediaStore.MediaColumns.DISPLAY_NAME, "${artifact.name}.zip")
-                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/zip")
-            }
-
-            else -> values.put(MediaStore.MediaColumns.MIME_TYPE, contentType)
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.MIME_TYPE, contentType)
+        }
+        if (contentType == "application/zip" && !artifact.name.endsWith(".zip")) {
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, "${artifact.name}.zip")
         }
         contentResolver.update(uri, values, null)
 

@@ -37,5 +37,6 @@
 
     <!-- Job -->
     <string name="artifact_job">工件任务</string>
+    <string name="artifact_failed">失败</string>
 
 </resources>
