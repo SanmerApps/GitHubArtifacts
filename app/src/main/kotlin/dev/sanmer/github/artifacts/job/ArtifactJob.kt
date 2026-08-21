@@ -10,7 +10,6 @@ import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
-import android.text.format.Formatter
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -23,6 +22,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.PermissionCompat
 import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
+import dev.sanmer.github.artifacts.ktx.formatFileSize
 import dev.sanmer.github.response.artifact.Artifact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -145,9 +145,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
                     jobState.update { JobState.Success(artifact.id, uri, mimeType) }
                     notify(startId, builder) {
                         setProgress(0, 0, false)
-                        setContentText(
-                            Formatter.formatFileSize(applicationContext, artifact.sizeInBytes)
-                        )
+                        setContentText(artifact.sizeInBytes.formatFileSize())
                         setContentIntent(viewUri(uri, mimeType))
                         setAutoCancel(true)
                         setOngoing(false)

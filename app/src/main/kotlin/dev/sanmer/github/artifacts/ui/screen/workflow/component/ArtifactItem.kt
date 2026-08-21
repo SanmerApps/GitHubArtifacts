@@ -1,6 +1,5 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow.component
 
-import android.text.format.Formatter
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -10,11 +9,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.Const.DATETIME_DISPLAY
 import dev.sanmer.github.artifacts.R
+import dev.sanmer.github.artifacts.ktx.formatFileSize
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.response.artifact.Artifact
@@ -49,10 +48,9 @@ private fun Values(
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(10.dp)
 ) {
-    val context = LocalContext.current
     val size by remember(artifact.id) {
         derivedStateOf {
-            Formatter.formatFileSize(context, artifact.sizeInBytes)
+            artifact.sizeInBytes.formatFileSize()
         }
     }
     val updatedAt by remember(artifact.id) {
