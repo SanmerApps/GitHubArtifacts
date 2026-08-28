@@ -17,7 +17,7 @@ kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.11.0"
 ksp = "2.3.7"
 squareRetrofit = "3.0.0"
-squareOkhttp = "5.4.0"
+squareOkhttp = "5.5.0"
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle-api", version.ref = "androidGradlePlugin" }
