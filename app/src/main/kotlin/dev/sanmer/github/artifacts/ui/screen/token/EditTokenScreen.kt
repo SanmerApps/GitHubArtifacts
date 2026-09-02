@@ -36,6 +36,7 @@ import dev.sanmer.github.artifacts.ui.screen.token.EditTokenViewModel.BottomShee
 import dev.sanmer.github.artifacts.ui.screen.token.component.AddRepoBottomSheet
 import dev.sanmer.github.artifacts.ui.screen.token.component.EditTokenItem
 import dev.sanmer.github.artifacts.ui.screen.token.component.RepoItem
+import dev.sanmer.github.artifacts.ui.screen.token.component.ViewRepoBottomSheet
 
 @Composable
 fun EditTokenScreen(
@@ -56,6 +57,13 @@ fun EditTokenScreen(
             onFetch = viewModel::fetchRepo,
             onSave = viewModel::saveRepo,
             onRevert = { viewModel.bottomSheet = BottomSheet.AddRepo(LoadData.Pending) }
+        )
+
+        is BottomSheet.ViewRepo -> ViewRepoBottomSheet(
+            onClose = { viewModel.bottomSheet = BottomSheet.None },
+            repo = bs.repo,
+            onWorkflow = { goTo(Screen.Workflow(viewModel.tokenInput.tokenValue, bs.repo)) },
+            onDelete = { viewModel.deleteRepo(bs.repo) }
         )
     }
 
@@ -97,8 +105,7 @@ fun EditTokenScreen(
             ) {
                 RepoItem(
                     repo = it,
-                    onDelete = { viewModel.deleteRepo(it) },
-                    onWorkflow = { goTo(Screen.Workflow(viewModel.tokenInput.tokenValue, it)) }
+                    onClick = { viewModel.bottomSheet = BottomSheet.ViewRepo(it) }
                 )
             }
         }

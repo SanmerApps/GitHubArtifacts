@@ -182,6 +182,11 @@ class EditTokenViewModel(
 
     sealed interface BottomSheet {
         data object None : BottomSheet
-        data class AddRepo(val repo: LoadData<Repo>) : BottomSheet
+
+        @JvmInline
+        value class AddRepo(val repo: LoadData<Repo>) : BottomSheet
+
+        @JvmInline
+        value class ViewRepo(val repo: Repo) : BottomSheet
     }
 }
