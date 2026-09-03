@@ -103,7 +103,7 @@ private fun ArtifactItem(
             )
 
             else -> Icon(
-                painter = painterResource(R.drawable.download),
+                painter = painterResource(R.drawable.download_simple),
                 contentDescription = null
             )
         }

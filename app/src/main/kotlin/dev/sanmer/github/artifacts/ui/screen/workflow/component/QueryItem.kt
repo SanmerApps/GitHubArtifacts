@@ -38,7 +38,7 @@ fun QueryItem(
     },
     trailingIcon = {
         Icon(
-            painter = painterResource(R.drawable.chevron_down),
+            painter = painterResource(R.drawable.caret_down),
             contentDescription = null,
             modifier = Modifier.size(FilterChipDefaults.IconSize)
         )

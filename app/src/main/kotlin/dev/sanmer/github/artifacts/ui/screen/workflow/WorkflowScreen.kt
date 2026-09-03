@@ -244,7 +244,7 @@ private fun TopBar(
             LaunchedEffect(isRefreshing) {
                 if (isRefreshing) {
                     rotation.animateTo(
-                        targetValue = rotation.value - 360f,
+                        targetValue = rotation.value + 360f,
                         animationSpec = tween(
                             durationMillis = 1200,
                             easing = LinearEasing
@@ -254,7 +254,7 @@ private fun TopBar(
             }
 
             Icon(
-                painter = painterResource(R.drawable.refresh),
+                painter = painterResource(R.drawable.arrows_clockwise),
                 contentDescription = null,
                 modifier = Modifier.rotate(rotation.value)
             )

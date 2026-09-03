@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -123,7 +124,8 @@ private fun ActionButton(
     exit = scaleOut() + fadeOut()
 ) {
     FloatingActionButton(
-        onClick = onClick
+        onClick = onClick,
+        shape = CircleShape
     ) {
         Icon(
             painter = painterResource(R.drawable.plus),

@@ -105,7 +105,7 @@ private fun Values(
 
     if (repo.license.isNotEmpty()) {
         Value(
-            icon = R.drawable.scale,
+            icon = R.drawable.scales,
             value = repo.license,
             color = MaterialTheme.colorScheme.outline
         )
@@ -122,14 +122,6 @@ private fun Values(
         value = repo.stargazersCount.format(),
         color = MaterialTheme.colorScheme.outline
     )
-
-    if (repo.hasIssues) {
-        Value(
-            icon = R.drawable.circle_dot,
-            value = repo.openIssuesCount.format(),
-            color = MaterialTheme.colorScheme.outline
-        )
-    }
 }
 
 @Composable

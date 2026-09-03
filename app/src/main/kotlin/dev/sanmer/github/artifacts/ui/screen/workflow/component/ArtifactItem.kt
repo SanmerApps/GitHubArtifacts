@@ -61,7 +61,7 @@ private fun Values(
     }
 
     Value(
-        icon = R.drawable.box,
+        icon = R.drawable.package_,
         value = size,
         color = MaterialTheme.colorScheme.outline
     )

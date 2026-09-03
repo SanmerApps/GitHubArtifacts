@@ -126,7 +126,7 @@ private fun WorkflowRunItem(
                 )
 
                 else -> Icon(
-                    painter = painterResource(R.drawable.chevron_right),
+                    painter = painterResource(R.drawable.caret_right),
                     contentDescription = null,
                     modifier = Modifier.rotate(animatedDegrees)
                 )

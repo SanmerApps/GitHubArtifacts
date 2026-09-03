@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -149,7 +150,7 @@ private fun TopBar(
                 enabled = isRepoEmpty
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.trash_x),
+                    painter = painterResource(R.drawable.trash),
                     contentDescription = null
                 )
             }
@@ -177,12 +178,13 @@ private fun ActionButton(
                 isChanged -> onSave()
                 else -> onAdd()
             }
-        }
+        },
+        shape = CircleShape
     ) {
         Icon(
             painter = painterResource(
                 when {
-                    isChanged -> R.drawable.device_floppy
+                    isChanged -> R.drawable.floppy_disk_back_fill
                     else -> R.drawable.plus
                 }
             ),

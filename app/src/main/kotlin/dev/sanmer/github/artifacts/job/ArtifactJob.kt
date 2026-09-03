@@ -81,7 +81,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         super.onCreate()
 
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_ARTIFACT_JOB)
-            .setSmallIcon(R.drawable.box)
+            .setSmallIcon(R.drawable.package_)
             .setContentTitle(getText(R.string.artifact_job))
             .setSilent(true)
             .setOngoing(true)
@@ -114,7 +114,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
                     applicationContext,
                     Const.CHANNEL_ID_ARTIFACT_JOB
                 ).apply {
-                    setSmallIcon(R.drawable.box)
+                    setSmallIcon(R.drawable.package_)
                     setContentTitle(artifact.name)
                     setOngoing(true)
                     setSilent(true)
