@@ -1,7 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen.main
 
+import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
@@ -29,24 +29,36 @@ fun MainScreen(
             rememberViewModelStoreNavEntryDecorator()
         ),
         transitionSpec = {
-            fadeIn(
-                animationSpec = tween(500)
+            slideIntoContainer(
+                towards = SlideDirection.Start,
+                animationSpec = tween(300)
             ) togetherWith fadeOut(
-                animationSpec = tween(500)
+                animationSpec = tween(300)
+            ) + slideOutOfContainer(
+                towards = SlideDirection.Start,
+                animationSpec = tween(300)
             )
         },
         popTransitionSpec = {
-            fadeIn(
-                animationSpec = tween(500)
+            slideIntoContainer(
+                towards = SlideDirection.End,
+                animationSpec = tween(300)
             ) togetherWith fadeOut(
-                animationSpec = tween(500)
+                animationSpec = tween(300)
+            ) + slideOutOfContainer(
+                towards = SlideDirection.End,
+                animationSpec = tween(300)
             )
         },
         predictivePopTransitionSpec = {
-            fadeIn(
-                animationSpec = tween(500)
+            slideIntoContainer(
+                towards = SlideDirection.End,
+                animationSpec = tween(300)
             ) togetherWith fadeOut(
-                animationSpec = tween(500)
+                animationSpec = tween(300)
+            ) + slideOutOfContainer(
+                towards = SlideDirection.End,
+                animationSpec = tween(300)
             )
         },
         entryProvider = entryProvider
