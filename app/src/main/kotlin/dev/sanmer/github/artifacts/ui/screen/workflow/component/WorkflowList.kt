@@ -60,7 +60,7 @@ private fun WorkflowItem(
     modifier = Modifier
         .surface(
             shape = MaterialTheme.shapes.medium,
-            backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+            backgroundColor = MaterialTheme.colorScheme.surface,
             border = CardDefaults.outlinedCardBorder(false)
         )
         .clickable(onClick = onClick)
