@@ -1,5 +1,7 @@
 package dev.sanmer.github.response.workflow.run
 
+import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.repository.Commit
 import dev.sanmer.github.response.repository.Owner
 import kotlinx.serialization.Contextual
@@ -14,13 +16,14 @@ data class WorkflowRun(
     @SerialName("node_id")
     val nodeId: String,
     @SerialName("head_branch")
-    val headBranch: String,
+    val headBranch: String = "",
     @SerialName("head_sha")
     val headSha: String,
     @SerialName("run_number")
     val runNumber: Int,
-    val event: String,
-    val status: String,
+    val event: WorkflowRunEvent,
+    val status: WorkflowRunStatus?,
+    val conclusion: WorkflowRunStatus?,
     @SerialName("html_url")
     val htmlUrl: String,
     @SerialName("created_at")

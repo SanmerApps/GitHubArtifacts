@@ -1,9 +1,9 @@
 package dev.sanmer.github
 
 import androidx.annotation.IntRange
-import dev.sanmer.github.query.repository.RepositorySort
-import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
-import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
+import dev.sanmer.github.request.repository.RepositorySort
+import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.artifact.ArtifactList
 import dev.sanmer.github.response.repository.Repository
 import dev.sanmer.github.response.repository.RepositoryList
