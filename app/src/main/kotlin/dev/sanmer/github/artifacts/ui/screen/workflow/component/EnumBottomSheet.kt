@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -48,7 +50,9 @@ inline fun <reified T : Enum<T>> EnumBottomSheet(
     Spacer(modifier = Modifier.height(10.dp))
 
     FlowRow(
-        modifier = Modifier.padding(all = 15.dp),
+        modifier = Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(all = 15.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         enumEntries<T>().forEach {

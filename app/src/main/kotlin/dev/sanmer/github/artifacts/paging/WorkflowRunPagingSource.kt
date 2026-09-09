@@ -6,8 +6,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.GitHub.Default.toBearerAuth
-import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
-import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
+import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 
 data class WorkflowRunPagingSource(
@@ -18,11 +18,12 @@ data class WorkflowRunPagingSource(
     private val perPage: Int = 20,
     private val workflowId: Long? = null,
     private val event: WorkflowRunEvent? = null,
-    private val status: WorkflowRunStatus? = null
+    private val status: WorkflowRunStatus? = null,
+    private val onProgress: (Float) -> Unit = {}
 ) : PagingSource<Int, WorkflowRun>() {
     override suspend fun load(params: LoadParams<Int>) = try {
         val page = params.key ?: 1
-        val workflowRuns = if (workflowId != null) {
+        val list = if (workflowId != null) {
             github.listWorkflowRun(
                 auth = token.toBearerAuth(),
                 owner = owner,
@@ -43,12 +44,14 @@ data class WorkflowRunPagingSource(
                 event = event,
                 status = status
             )
-        }.workflowRuns
+        }
 
         LoadResult.Page(
-            data = workflowRuns,
+            data = list.workflowRuns,
             prevKey = if (page == 1) null else page - 1,
-            nextKey = if (workflowRuns.size < perPage) null else page + 1,
+            nextKey = if (list.workflowRuns.size < perPage) null else page + 1,
+            itemsBefore = (page - 1) * perPage,
+            itemsAfter = (list.totalCount - page * perPage).coerceAtLeast(0)
         )
     } catch (e: Throwable) {
         LoadResult.Error(e)
@@ -62,8 +65,7 @@ data class WorkflowRunPagingSource(
 
     fun asPager() = Pager(
         config = PagingConfig(
-            pageSize = perPage,
-            enablePlaceholders = false
+            pageSize = perPage
         ),
         pagingSourceFactory = ::copy
     )

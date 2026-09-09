@@ -86,7 +86,7 @@ private fun ArtifactItem(
 
     AnimatedContent(
         targetState = jobState,
-        transitionSpec = { (fadeIn() + scaleIn()) togetherWith (scaleOut() + fadeOut()) },
+        transitionSpec = { fadeIn() + scaleIn() togetherWith scaleOut() + fadeOut() },
         contentAlignment = Alignment.Center,
         contentKey = { it.contentKey() }
     ) {

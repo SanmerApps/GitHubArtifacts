@@ -16,6 +16,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.LabelText
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
+import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -77,11 +78,7 @@ private fun Values(
         color = MaterialTheme.colorScheme.outline
     )
 
-    LabelText(
-        text = run.headBranch.short()
+    if (run.event == WorkflowRunEvent.Push) LabelText(
+        text = run.headBranch
     )
-}
-
-private fun String.short(n: Int = 17) = substringBefore('/').let {
-    if (it.length <= n) it else it.take(n) + "..."
 }

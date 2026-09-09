@@ -14,22 +14,26 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,13 +45,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemKey
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.model.LoadData
-import dev.sanmer.github.artifacts.ui.component.AnimatedLinearWavy
-import dev.sanmer.github.artifacts.ui.component.Dot
-import dev.sanmer.github.artifacts.ui.component.StraightLine
-import dev.sanmer.github.artifacts.ui.component.X
-import dev.sanmer.github.artifacts.ui.ktx.items
+import dev.sanmer.github.artifacts.ui.component.AnimatedPoint
+import dev.sanmer.github.artifacts.ui.component.Loading
+import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.artifact.Artifact
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 
@@ -66,22 +69,49 @@ fun WorkflowRunList(
     contentPadding = contentPadding
 ) {
     items(
-        items = workflowRuns,
-        key = { it.id }
-    ) {
-        WorkflowRunItem(
-            run = it,
-            artifacts = artifacts(it),
-            onListArtifacts = onListArtifacts,
-            onDownloadArtifact = onDownloadArtifact
-        )
+        count = workflowRuns.itemCount,
+        key = workflowRuns.itemKey { it.id }
+    ) { index ->
+        workflowRuns[index]?.let {
+            WorkflowRunItem(
+                run = it,
+                artifacts = artifacts(it),
+                onListArtifacts = onListArtifacts,
+                onDownloadArtifact = onDownloadArtifact
+            )
+        }
     }
 
     item {
-        AppendIndicator(
-            state = workflowRuns.loadState.append,
-            onRetry = workflowRuns::retry
-        )
+        when (workflowRuns.loadState.append) {
+            LoadState.Loading -> Loading(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+            )
+
+            is LoadState.Error -> Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.link_break),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(45.dp)
+                        .clickable(
+                            onClick = { workflowRuns.retry() },
+                            indication = ripple(bounded = false, radius = 45.dp),
+                            interactionSource = remember { MutableInteractionSource() }
+                        )
+                )
+            }
+
+            else -> {}
+        }
     }
 }
 
@@ -101,14 +131,24 @@ private fun WorkflowRunItem(
     Row(
         modifier = Modifier
             .clip(shape = MaterialTheme.shapes.medium)
-            .clickable {
-                onListArtifacts(run)
-                expanded = !expanded
-            }
+            .clickable(
+                enabled = run.status == WorkflowRunStatus.Completed,
+                onClick = {
+                    onListArtifacts(run)
+                    expanded = !expanded
+                }
+            )
             .padding(all = 15.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        WorkflowRunStatusItem(
+            status = run.conclusion ?: run.status,
+            modifier = Modifier
+                .padding(end = 15.dp)
+                .align(Alignment.Top)
+        )
+
         WorkflowRunItem(
             run = run,
             modifier = Modifier.weight(1f)
@@ -116,7 +156,7 @@ private fun WorkflowRunItem(
 
         AnimatedContent(
             targetState = artifacts,
-            transitionSpec = { (fadeIn() + scaleIn()) togetherWith (scaleOut() + fadeOut()) },
+            transitionSpec = { fadeIn() + scaleIn() togetherWith scaleOut() + fadeOut() },
             contentAlignment = Alignment.Center
         ) {
             when (it) {
@@ -140,77 +180,49 @@ private fun WorkflowRunItem(
         exit = shrinkVertically() + fadeOut()
     ) {
         artifacts.onSuccess { list ->
-            if (list.isNotEmpty()) {
-                ArtifactList(
-                    artifacts = list,
-                    onDownload = onDownloadArtifact
-                )
-            }
+            if (list.isNotEmpty()) ArtifactList(
+                artifacts = list,
+                onDownload = onDownloadArtifact
+            )
         }
     }
 }
 
 @Composable
-private fun AppendIndicator(
-    state: LoadState,
-    onRetry: () -> Unit
-) = when (state) {
-    LoadState.Loading -> AnimatedLinearWavy(
-        modifier = Modifier
-            .padding(all = 15.dp)
-            .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.65f),
-        strokeWidth = 2.dp
+private fun WorkflowRunStatusItem(
+    status: WorkflowRunStatus?,
+    modifier: Modifier = Modifier
+) = when (status) {
+    WorkflowRunStatus.Pending, WorkflowRunStatus.InProgress -> AnimatedPoint(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        modifier = modifier.size(24.dp)
     )
 
-    is LoadState.NotLoading -> End(
-        color = MaterialTheme.colorScheme.outlineVariant
-    ) {
-        Dot(
-            modifier = Modifier.size(6.dp),
-            color = MaterialTheme.colorScheme.outlineVariant,
-        )
-    }
-
-    is LoadState.Error -> End(
-        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-        enabled = true,
-        onClick = onRetry
-    ) {
-        X(
-            modifier = Modifier.size(8.dp),
-            color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
-            strokeWidth = 2.dp
-        )
-    }
-}
-
-@Composable
-private fun End(
-    color: Color,
-    enabled: Boolean = false,
-    onClick: () -> Unit = {},
-    content: @Composable () -> Unit
-) = Row(
-    modifier = Modifier
-        .clip(shape = CircleShape)
-        .clickable(enabled = enabled, onClick = onClick)
-        .padding(horizontal = 15.dp, vertical = 10.dp)
-        .fillMaxWidth(),
-    horizontalArrangement = Arrangement.spacedBy(10.dp),
-    verticalAlignment = Alignment.CenterVertically
-) {
-    StraightLine(
-        modifier = Modifier.weight(1f),
-        color = color,
-        strokeWidth = 2.dp
+    WorkflowRunStatus.Cancelled -> Icon(
+        painter = painterResource(R.drawable.prohibit_inset),
+        contentDescription = null,
+        modifier = modifier
     )
 
-    content()
-
-    StraightLine(
-        modifier = Modifier.weight(1f),
-        color = color,
-        strokeWidth = 2.dp
+    WorkflowRunStatus.Success -> Icon(
+        painter = painterResource(R.drawable.check_circle_fill),
+        contentDescription = null,
+        modifier = modifier,
+        tint = when {
+            isSystemInDarkTheme() -> Color(0xFF1B5E20)
+            else -> Color(0xFF81C784)
+        }
     )
+
+    WorkflowRunStatus.Failure -> Icon(
+        painter = painterResource(R.drawable.x_circle_fill),
+        contentDescription = null,
+        modifier = modifier,
+        tint = when {
+            isSystemInDarkTheme() -> Color(0xFFB71C1C)
+            else -> Color(0xFFE57373)
+        }
+    )
+
+    else -> {}
 }

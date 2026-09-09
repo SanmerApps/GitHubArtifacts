@@ -16,8 +16,8 @@ import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.loadData
 import dev.sanmer.github.artifacts.paging.WorkflowPagingSource
 import dev.sanmer.github.artifacts.paging.WorkflowRunPagingSource
-import dev.sanmer.github.query.workflow.run.WorkflowRunEvent
-import dev.sanmer.github.query.workflow.run.WorkflowRunStatus
+import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.artifact.Artifact
 import dev.sanmer.github.response.workflow.Workflow
 import dev.sanmer.github.response.workflow.run.WorkflowRun

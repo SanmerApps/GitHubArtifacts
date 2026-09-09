@@ -17,18 +17,20 @@ data class WorkflowPagingSource(
 ) : PagingSource<Int, Workflow>() {
     override suspend fun load(params: LoadParams<Int>) = try {
         val page = params.key ?: 1
-        val workflows = github.listWorkflow(
+        val list = github.listWorkflow(
             auth = token.toBearerAuth(),
             owner = owner,
             repo = name,
             perPage = perPage,
-            page = page,
-        ).workflows
+            page = page
+        )
 
         LoadResult.Page(
-            data = workflows,
+            data = list.workflows,
             prevKey = if (page == 1) null else page - 1,
-            nextKey = if (workflows.size < perPage) null else page + 1,
+            nextKey = if (list.workflows.size < perPage) null else page + 1,
+            itemsBefore = (page - 1) * perPage,
+            itemsAfter = (list.totalCount - page * perPage).coerceAtLeast(0)
         )
     } catch (e: Throwable) {
         LoadResult.Error(e)
@@ -42,8 +44,7 @@ data class WorkflowPagingSource(
 
     fun asPager() = Pager(
         config = PagingConfig(
-            pageSize = perPage,
-            enablePlaceholders = false
+            pageSize = perPage
         ),
         pagingSourceFactory = ::copy
     )

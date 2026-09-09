@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemKey
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ui.ktx.items
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.response.workflow.Workflow
@@ -40,14 +40,16 @@ fun WorkflowList(
     verticalArrangement = Arrangement.spacedBy(15.dp)
 ) {
     items(
-        items = workflows,
-        key = { it.id }
-    ) {
-        WorkflowItem(
-            workflow = it,
-            selected = it == workflow,
-            onClick = { onWorkflowChange(if (it == workflow) null else it) }
-        )
+        count = workflows.itemCount,
+        key = workflows.itemKey { it.id }
+    ) { index ->
+        workflows[index]?.let {
+            WorkflowItem(
+                workflow = it,
+                selected = it == workflow,
+                onClick = { onWorkflowChange(if (it == workflow) null else it) }
+            )
+        }
     }
 }
 
