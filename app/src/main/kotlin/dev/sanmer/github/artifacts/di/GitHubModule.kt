@@ -15,7 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.create
 
-val GitHub = module {
+val GitHubModule = module {
     single {
         Json {
             ignoreUnknownKeys = true
@@ -29,16 +29,16 @@ val GitHub = module {
             .connectionSpecs(listOf(ConnectionSpec.MODERN_TLS))
             .addInterceptor(
                 HttpLoggingInterceptor {
-                    Log.d("GitHub", it)
+                    Log.d("OkHttp", it)
                 }.apply {
                     level = HttpLoggingInterceptor.Level.BASIC
                 }
             )
             .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                request.header("X-GitHub-Api-Version", GitHub.API_VERSION)
-                request.header("User-Agent", "GithubArtifacts/${BuildConfig.VERSION_CODE}")
-                chain.proceed(request.build())
+                val builder = chain.request().newBuilder()
+                builder.header("X-GitHub-Api-Version", GitHub.API_VERSION)
+                builder.header("User-Agent", "GithubArtifacts/${BuildConfig.VERSION_CODE}")
+                chain.proceed(builder.build())
             }
             .build()
     }
@@ -51,9 +51,6 @@ val GitHub = module {
             .client(get())
             .baseUrl(GitHub.BASE_URL)
             .build()
-    }
-
-    single {
-        get<Retrofit>().create<GitHub>()
+            .create<GitHub>()
     }
 }

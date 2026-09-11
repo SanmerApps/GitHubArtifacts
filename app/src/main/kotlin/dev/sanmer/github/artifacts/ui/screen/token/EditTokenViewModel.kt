@@ -22,13 +22,14 @@ import dev.sanmer.github.artifacts.repository.DbRepository
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
+import org.koin.core.annotation.InjectedParam
 import kotlin.time.Clock
 import kotlin.time.Instant
 
 class EditTokenViewModel(
+    @InjectedParam private val tokenId: Long,
     private val dbRepository: DbRepository,
-    private val github: GitHub,
-    private val tokenId: Long
+    private val github: GitHub
 ) : ViewModel() {
     val isEdit = tokenId > 0
 

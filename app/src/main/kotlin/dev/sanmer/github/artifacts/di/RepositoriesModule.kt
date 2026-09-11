@@ -2,10 +2,11 @@ package dev.sanmer.github.artifacts.di
 
 import dev.sanmer.github.artifacts.repository.DbRepository
 import dev.sanmer.github.artifacts.repository.DbRepositoryImpl
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
+import org.koin.plugin.module.dsl.single
 
-val Repositories = module {
-    singleOf(::DbRepositoryImpl) { bind<DbRepository>() }
+val RepositoriesModule = module {
+    includes(DatabaseModule)
+    single<DbRepositoryImpl>() bind DbRepository::class
 }
