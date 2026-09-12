@@ -19,6 +19,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -193,17 +194,6 @@ private fun WorkflowRunStatusItem(
     status: WorkflowRunStatus?,
     modifier: Modifier = Modifier
 ) = when (status) {
-    WorkflowRunStatus.Pending, WorkflowRunStatus.InProgress -> AnimatedPoint(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        modifier = modifier.size(24.dp)
-    )
-
-    WorkflowRunStatus.Cancelled -> Icon(
-        painter = painterResource(R.drawable.prohibit_inset),
-        contentDescription = null,
-        modifier = modifier
-    )
-
     WorkflowRunStatus.Success -> Icon(
         painter = painterResource(R.drawable.check_circle_fill),
         contentDescription = null,
@@ -224,5 +214,24 @@ private fun WorkflowRunStatusItem(
         }
     )
 
-    else -> {}
+    WorkflowRunStatus.Pending, WorkflowRunStatus.InProgress -> AnimatedPoint(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        modifier = modifier.size(24.dp)
+    )
+
+    WorkflowRunStatus.Cancelled, WorkflowRunStatus.Skipped -> Icon(
+        painter = painterResource(R.drawable.prohibit_inset),
+        contentDescription = null,
+        modifier = modifier
+    )
+
+    WorkflowRunStatus.ActionRequired -> Icon(
+        painter = painterResource(R.drawable.pause_circle),
+        contentDescription = null,
+        modifier = modifier
+    )
+
+    else -> Spacer(
+        modifier = Modifier.size(24.dp)
+    )
 }
