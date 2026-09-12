@@ -156,6 +156,7 @@ private fun WorkflowRunItem(
         )
 
         AnimatedContent(
+            modifier = Modifier.padding(start = 5.dp),
             targetState = artifacts,
             transitionSpec = { fadeIn() + scaleIn() togetherWith scaleOut() + fadeOut() },
             contentAlignment = Alignment.Center

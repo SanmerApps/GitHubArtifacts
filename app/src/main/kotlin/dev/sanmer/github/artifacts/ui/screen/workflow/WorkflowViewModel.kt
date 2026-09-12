@@ -86,7 +86,7 @@ class WorkflowViewModel(
                             owner = owner,
                             repo = name,
                             runId = run.id
-                        ).artifacts
+                        ).artifacts.sortedBy { it.name }
                     }
                 }
 

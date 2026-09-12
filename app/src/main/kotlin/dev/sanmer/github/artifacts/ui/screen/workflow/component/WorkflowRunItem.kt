@@ -3,12 +3,12 @@ package dev.sanmer.github.artifacts.ui.screen.workflow.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.Const.DATETIME_DISPLAY
@@ -17,6 +17,7 @@ import dev.sanmer.github.artifacts.ui.component.LabelText
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
 import dev.sanmer.github.response.workflow.run.WorkflowRun
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -27,29 +28,14 @@ fun WorkflowRunItem(
     run: WorkflowRun,
     modifier: Modifier = Modifier
 ) = Column(
-    modifier = modifier
+    modifier = modifier,
+    verticalArrangement = Arrangement.spacedBy(5.dp)
 ) {
-    val updatedAt by remember(run.id) {
-        derivedStateOf {
-            run.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
-                .format(DATETIME_DISPLAY)
-        }
-    }
+    Title(title = run.displayTitle)
 
-    Title(
-        title = run.displayTitle,
-        subtitle = run.headSha.take(7)
-    )
+    Values(run = run)
 
-    Values(
-        run = run,
-        modifier = Modifier.padding(vertical = 5.dp)
-    )
-
-    Value(
-        value = updatedAt,
-        color = MaterialTheme.colorScheme.outline
-    )
+    Timer(run = run)
 }
 
 @Composable
@@ -59,7 +45,7 @@ private fun Values(
 ) = FlowRow(
     modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(10.dp),
-    verticalArrangement = Arrangement.spacedBy(10.dp)
+    verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically)
 ) {
     Value(
         value = run.name,
@@ -80,5 +66,38 @@ private fun Values(
 
     if (run.event == WorkflowRunEvent.Push) LabelText(
         text = run.headBranch
+    )
+}
+
+@Composable
+private fun Timer(
+    run: WorkflowRun,
+    modifier: Modifier = Modifier
+) = FlowRow(
+    modifier = modifier,
+    horizontalArrangement = Arrangement.spacedBy(10.dp),
+    verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically)
+) {
+    val createdAt by remember(run.id) {
+        derivedStateOf {
+            run.createdAt.toLocalDateTime(TimeZone.currentSystemDefault())
+                .format(DATETIME_DISPLAY)
+        }
+    }
+    val duration by remember(run.id) {
+        derivedStateOf {
+            (run.updatedAt - run.runStartedAt).toString()
+        }
+    }
+
+    Value(
+        value = createdAt,
+        color = MaterialTheme.colorScheme.outline
+    )
+
+    if (run.status == WorkflowRunStatus.Completed) Value(
+        icon = R.drawable.timer,
+        value = duration,
+        color = MaterialTheme.colorScheme.outline
     )
 }

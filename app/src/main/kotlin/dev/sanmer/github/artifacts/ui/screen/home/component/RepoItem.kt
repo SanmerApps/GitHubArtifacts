@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -88,7 +89,7 @@ private fun Values(
 ) = FlowRow(
     modifier = modifier,
     horizontalArrangement = Arrangement.spacedBy(10.dp),
-    verticalArrangement = Arrangement.spacedBy(10.dp)
+    verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically)
 ) {
     if (repo.language.isNotBlank()) {
         Value(
