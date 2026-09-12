@@ -5,22 +5,20 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import dev.sanmer.github.artifacts.di.Database
-import dev.sanmer.github.artifacts.di.GitHub
-import dev.sanmer.github.artifacts.di.Navigation
-import dev.sanmer.github.artifacts.di.Repositories
+import dev.sanmer.github.artifacts.di.AppModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannels(applicationContext)
+        createNotificationChannels(this)
         startKoin {
-            androidLogger()
+            androidLogger(if (BuildConfig.DEBUG) Level.DEBUG else Level.INFO)
             androidContext(this@App)
-            modules(GitHub, Database, Repositories, Navigation)
+            modules(AppModule)
         }
     }
 
