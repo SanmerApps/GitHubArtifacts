@@ -233,6 +233,6 @@ private fun WorkflowRunStatusItem(
     )
 
     else -> Spacer(
-        modifier = Modifier.size(24.dp)
+        modifier = modifier.size(24.dp)
     )
 }

@@ -84,7 +84,7 @@ private fun Timer(
                 .format(DATETIME_DISPLAY)
         }
     }
-    val duration by remember(run.id) {
+    val duration by remember(run.id, run.updatedAt) {
         derivedStateOf {
             (run.updatedAt - run.runStartedAt).toString()
         }
