@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -53,7 +54,8 @@ inline fun <reified T : Enum<T>> EnumBottomSheet(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .padding(all = 15.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         enumEntries<T>().forEach {
             FilterItem(
@@ -71,6 +73,7 @@ fun FilterItem(
     onClick: () -> Unit,
     label: String,
 ) = FilterChip(
+    modifier = Modifier.height(FilterChipDefaults.Height),
     selected = selected,
     onClick = onClick,
     label = { Text(text = label) },
@@ -80,7 +83,9 @@ fun FilterItem(
         else -> {
             {
                 Dot(
-                    modifier = Modifier.size(8.dp),
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(8.dp),
                     color = LocalContentColor.current
                 )
             }
@@ -90,8 +95,9 @@ fun FilterItem(
         selected -> {
             {
                 Icon(
-                    painter = painterResource(R.drawable.check),
-                    contentDescription = null
+                    painter = painterResource(R.drawable.check_bold),
+                    contentDescription = null,
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
                 )
             }
         }
