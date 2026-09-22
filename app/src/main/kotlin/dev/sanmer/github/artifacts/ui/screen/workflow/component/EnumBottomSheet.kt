@@ -24,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.Dot
-import dev.sanmer.github.artifacts.ui.component.DragHandle
 import dev.sanmer.github.artifacts.ui.ktx.bottom
 import kotlin.enums.enumEntries
 
@@ -40,12 +39,12 @@ inline fun <reified T : Enum<T>> EnumBottomSheet(
     shape = MaterialTheme.shapes.large.bottom(0.dp),
     dragHandle = null
 ) {
-    DragHandle()
-
     Text(
         text = title,
         style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(top = 30.dp)
     )
 
     Spacer(modifier = Modifier.height(10.dp))

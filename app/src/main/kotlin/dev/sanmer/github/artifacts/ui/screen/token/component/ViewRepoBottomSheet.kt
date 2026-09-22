@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.database.model.Repo
-import dev.sanmer.github.artifacts.ui.component.DragHandle
 import dev.sanmer.github.artifacts.ui.ktx.bottom
 import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoItem
@@ -34,12 +33,12 @@ fun ViewRepoBottomSheet(
     shape = MaterialTheme.shapes.large.bottom(0.dp),
     dragHandle = null
 ) {
-    DragHandle()
-
     Text(
         text = stringResource(R.string.view_repo_title),
         style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(top = 30.dp)
     )
 
     RepoItem(

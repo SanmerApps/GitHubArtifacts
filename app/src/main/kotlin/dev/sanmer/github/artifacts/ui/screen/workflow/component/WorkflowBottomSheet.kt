@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import dev.sanmer.github.artifacts.R
-import dev.sanmer.github.artifacts.ui.component.DragHandle
 import dev.sanmer.github.artifacts.ui.component.Finished
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.ktx.bottom
@@ -35,12 +34,12 @@ fun WorkflowBottomSheet(
     shape = MaterialTheme.shapes.large.bottom(0.dp),
     dragHandle = null
 ) {
-    DragHandle()
-
     Text(
         text = stringResource(R.string.workflow_name),
         style = MaterialTheme.typography.headlineSmall,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(top = 30.dp)
     )
 
     Crossfade(
