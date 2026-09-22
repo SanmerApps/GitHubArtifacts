@@ -1,5 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.home
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -9,7 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.GitHub.Default.toBearerAuth
-import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.model.LoadData
@@ -30,10 +30,8 @@ class HomeViewModel(
 
     val listState = LazyListState()
 
-    private val logger = Logger.Android("HomeViewModel")
-
     init {
-        logger.d("init")
+        Log.d(TAG, "init")
         loadDb()
     }
 
@@ -88,7 +86,9 @@ class HomeViewModel(
                 repo = repo.name
             )
             dbRepository.upsertRepo(repo.copy(repo = new))
-        }.onFailure {
-            logger.e(it)
         }
+
+    private companion object Default {
+        const val TAG = "HomeViewModel"
+    }
 }

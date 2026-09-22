@@ -10,6 +10,7 @@ import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -17,7 +18,6 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dev.sanmer.github.GitHub.Default.toBearerAuth
 import dev.sanmer.github.artifacts.Const
-import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.PermissionCompat
@@ -50,8 +50,6 @@ class ArtifactJob : LifecycleService(), KoinComponent {
     private val runningMutex = Mutex()
     private val runningJob = mutableListOf<Long>()
 
-    private val logger = Logger.Android("ArtifactJob")
-
     private suspend inline fun autoStopSelf(artifact: Artifact, block: (Artifact) -> Unit) {
         if (!runningMutex.withLock {
                 runningJob.contains(artifact.id).also {
@@ -77,7 +75,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
     ) = notificationManager.notify(id, builder.block().build())
 
     override fun onCreate() {
-        logger.d("onCreate")
+        Log.d(TAG, "onCreate")
         super.onCreate()
 
         val builder = NotificationCompat.Builder(this, Const.CHANNEL_ID_ARTIFACT_JOB)
@@ -97,7 +95,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
 
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        logger.d("onDestroy")
+        Log.d(TAG, "onDestroy")
         super.onDestroy()
     }
 
@@ -153,7 +151,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
                         setGroup(null)
                     }
                 }.onFailure { error ->
-                    logger.e(error)
+                    Log.e(TAG, "download ${artifact.archiveDownloadUrl}", error)
                     contentResolver.delete(uri, null)
 
                     jobState.update { JobState.Failure(artifact.id, error) }
@@ -269,6 +267,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
     }
 
     companion object Default {
+        private const val TAG = "ArtifactJob"
         private const val GROUP_KEY = "dev.sanmer.github.artifacts.ARTIFACT_JOB_GROUP_KEY"
         private const val EXTRA_ARTIFACT = "dev.sanmer.github.artifacts.extra.ARTIFACT"
         private const val EXTRA_TOKEN = "dev.sanmer.github.artifacts.extra.TOKEN"

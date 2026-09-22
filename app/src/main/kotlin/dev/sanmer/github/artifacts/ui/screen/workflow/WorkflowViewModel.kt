@@ -1,6 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen.workflow
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +11,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.GitHub.Default.toBearerAuth
-import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.model.LoadData.Default.loadData
@@ -63,10 +63,8 @@ class WorkflowViewModel(
 
     var bottomSheet by mutableStateOf<BottomSheet>(BottomSheet.None)
 
-    private val logger = Logger.Android("WorkflowViewModel")
-
     init {
-        logger.d("init")
+        Log.d(TAG, "init")
     }
 
     fun updateQuery(block: (RunsQuery) -> RunsQuery) {
@@ -115,5 +113,9 @@ class WorkflowViewModel(
         data object Workflow : BottomSheet
         data object Event : BottomSheet
         data object Status : BottomSheet
+    }
+
+    private companion object Default {
+        const val TAG = "WorkflowViewModel"
     }
 }

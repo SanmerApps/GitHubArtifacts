@@ -1,5 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
+import android.util.Log
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -11,7 +12,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.GitHub.Default.toBearerAuth
-import dev.sanmer.github.artifacts.Logger
 import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.database.model.Token
 import dev.sanmer.github.artifacts.ktx.toInstant
@@ -44,10 +44,8 @@ class EditTokenViewModel(
 
     var bottomSheet by mutableStateOf<BottomSheet>(BottomSheet.None)
 
-    private val logger = Logger.Android("EditTokenViewModel")
-
     init {
-        logger.d("init")
+        Log.d(TAG, "init")
         loadData()
     }
 
@@ -75,7 +73,7 @@ class EditTokenViewModel(
                 dbRepository.upsertToken(token)
                 if (!isEdit) onBack()
             }.onFailure {
-                logger.e(it)
+                Log.e(TAG, "saveToken", it)
             }
         }
     }
@@ -86,7 +84,7 @@ class EditTokenViewModel(
                 dbRepository.deleteToken(tokenId)
                 onBack()
             }.onFailure {
-                logger.e(it)
+                Log.e(TAG, "deleteToken", it)
             }
         }
     }
@@ -189,5 +187,9 @@ class EditTokenViewModel(
 
         @JvmInline
         value class ViewRepo(val repo: Repo) : BottomSheet
+    }
+
+    private companion object Default {
+        const val TAG = "EditTokenViewModel"
     }
 }
