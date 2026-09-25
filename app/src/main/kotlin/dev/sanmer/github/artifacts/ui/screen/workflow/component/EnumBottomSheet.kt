@@ -2,7 +2,6 @@ package dev.sanmer.github.artifacts.ui.screen.workflow.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,7 +35,7 @@ inline fun <reified T : Enum<T>> EnumBottomSheet(
 ) = ModalBottomSheet(
     onDismissRequest = { onClose() },
     sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-    shape = MaterialTheme.shapes.large.bottom(0.dp),
+    shape = MaterialTheme.shapes.extraLarge.bottom(0.dp),
     dragHandle = null
 ) {
     Text(
@@ -44,10 +43,8 @@ inline fun <reified T : Enum<T>> EnumBottomSheet(
         style = MaterialTheme.typography.headlineSmall,
         modifier = Modifier
             .align(Alignment.CenterHorizontally)
-            .padding(top = 30.dp)
+            .padding(top = 30.dp, bottom = 10.dp)
     )
-
-    Spacer(modifier = Modifier.height(10.dp))
 
     FlowRow(
         modifier = Modifier
