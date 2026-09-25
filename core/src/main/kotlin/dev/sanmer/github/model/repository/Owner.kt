@@ -1,4 +1,4 @@
-package dev.sanmer.github.response.repository
+package dev.sanmer.github.model.repository
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

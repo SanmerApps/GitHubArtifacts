@@ -56,9 +56,9 @@ import dev.sanmer.github.artifacts.ui.screen.workflow.component.EnumBottomSheet
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.QueryItem
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowBottomSheet
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.WorkflowRunList
-import dev.sanmer.github.response.artifact.Artifact
-import dev.sanmer.github.response.workflow.Workflow
-import dev.sanmer.github.response.workflow.run.WorkflowRun
+import dev.sanmer.github.model.artifact.Artifact
+import dev.sanmer.github.model.workflow.Workflow
+import dev.sanmer.github.model.workflow.run.WorkflowRun
 
 @Composable
 fun WorkflowScreen(

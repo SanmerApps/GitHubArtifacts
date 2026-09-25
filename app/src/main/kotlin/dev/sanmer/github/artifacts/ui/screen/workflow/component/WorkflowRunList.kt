@@ -51,9 +51,9 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.component.AnimatedPoint
 import dev.sanmer.github.artifacts.ui.component.Loading
-import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
-import dev.sanmer.github.response.artifact.Artifact
-import dev.sanmer.github.response.workflow.run.WorkflowRun
+import dev.sanmer.github.model.artifact.Artifact
+import dev.sanmer.github.model.workflow.run.WorkflowRun
+import dev.sanmer.github.model.workflow.run.WorkflowRunStatus
 
 @Composable
 fun WorkflowRunList(

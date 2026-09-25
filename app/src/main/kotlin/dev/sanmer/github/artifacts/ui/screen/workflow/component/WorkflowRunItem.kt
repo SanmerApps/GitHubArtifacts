@@ -16,9 +16,9 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.LabelText
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
-import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
-import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
-import dev.sanmer.github.response.workflow.run.WorkflowRun
+import dev.sanmer.github.model.workflow.run.WorkflowRun
+import dev.sanmer.github.model.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.model.workflow.run.WorkflowRunStatus
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime

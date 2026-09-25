@@ -17,7 +17,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ktx.formatFileSize
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
-import dev.sanmer.github.response.artifact.Artifact
+import dev.sanmer.github.model.artifact.Artifact
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.toLocalDateTime

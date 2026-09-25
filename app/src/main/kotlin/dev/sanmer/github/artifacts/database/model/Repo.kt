@@ -4,7 +4,7 @@ import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 import androidx.room3.Relation
-import dev.sanmer.github.response.repository.Repository
+import dev.sanmer.github.model.repository.Repository
 import kotlin.time.Instant
 
 @Entity

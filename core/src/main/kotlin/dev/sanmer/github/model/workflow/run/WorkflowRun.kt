@@ -1,9 +1,7 @@
-package dev.sanmer.github.response.workflow.run
+package dev.sanmer.github.model.workflow.run
 
-import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
-import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
-import dev.sanmer.github.response.repository.Commit
-import dev.sanmer.github.response.repository.Owner
+import dev.sanmer.github.model.repository.Commit
+import dev.sanmer.github.model.repository.Owner
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

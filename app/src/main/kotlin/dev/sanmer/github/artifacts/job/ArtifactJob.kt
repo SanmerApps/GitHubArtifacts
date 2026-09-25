@@ -23,7 +23,7 @@ import dev.sanmer.github.artifacts.compat.BuildCompat
 import dev.sanmer.github.artifacts.compat.PermissionCompat
 import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
 import dev.sanmer.github.artifacts.ktx.formatFileSize
-import dev.sanmer.github.response.artifact.Artifact
+import dev.sanmer.github.model.artifact.Artifact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -23,7 +23,7 @@ import androidx.paging.compose.itemKey
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.ktx.surface
-import dev.sanmer.github.response.workflow.Workflow
+import dev.sanmer.github.model.workflow.Workflow
 
 @Composable
 fun WorkflowList(

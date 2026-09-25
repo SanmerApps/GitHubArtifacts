@@ -1,14 +1,14 @@
 package dev.sanmer.github
 
 import androidx.annotation.IntRange
-import dev.sanmer.github.request.repository.RepositorySort
-import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
-import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
-import dev.sanmer.github.response.artifact.ArtifactList
-import dev.sanmer.github.response.repository.Repository
-import dev.sanmer.github.response.repository.RepositoryList
-import dev.sanmer.github.response.workflow.WorkflowList
-import dev.sanmer.github.response.workflow.run.WorkflowRunList
+import dev.sanmer.github.model.artifact.ArtifactList
+import dev.sanmer.github.model.repository.Repository
+import dev.sanmer.github.model.repository.RepositoryList
+import dev.sanmer.github.model.repository.RepositorySort
+import dev.sanmer.github.model.workflow.WorkflowList
+import dev.sanmer.github.model.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.model.workflow.run.WorkflowRunList
+import dev.sanmer.github.model.workflow.run.WorkflowRunStatus
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers

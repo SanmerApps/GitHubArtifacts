@@ -1,4 +1,4 @@
-package dev.sanmer.github.response.workflow
+package dev.sanmer.github.model.workflow
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName

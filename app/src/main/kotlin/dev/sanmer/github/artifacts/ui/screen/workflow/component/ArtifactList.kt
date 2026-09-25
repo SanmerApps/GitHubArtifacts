@@ -31,7 +31,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.job.ArtifactJob
 import dev.sanmer.github.artifacts.job.ArtifactJob.JobState
 import dev.sanmer.github.artifacts.ui.ktx.surface
-import dev.sanmer.github.response.artifact.Artifact
+import dev.sanmer.github.model.artifact.Artifact
 
 @Composable
 fun ArtifactList(

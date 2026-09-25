@@ -20,7 +20,7 @@ import dev.sanmer.github.artifacts.ui.component.Finished
 import dev.sanmer.github.artifacts.ui.component.Loading
 import dev.sanmer.github.artifacts.ui.ktx.bottom
 import dev.sanmer.github.artifacts.ui.ktx.isEmpty
-import dev.sanmer.github.response.workflow.Workflow
+import dev.sanmer.github.model.workflow.Workflow
 
 @Composable
 fun WorkflowBottomSheet(

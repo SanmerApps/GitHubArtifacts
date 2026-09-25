@@ -8,8 +8,8 @@ import androidx.compose.ui.res.stringResource
 import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
-import dev.sanmer.github.response.workflow.Workflow
-import dev.sanmer.github.response.workflow.WorkflowState
+import dev.sanmer.github.model.workflow.Workflow
+import dev.sanmer.github.model.workflow.WorkflowState
 
 @Composable
 fun WorkflowItem(

@@ -6,9 +6,9 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import dev.sanmer.github.GitHub
 import dev.sanmer.github.GitHub.Default.toBearerAuth
-import dev.sanmer.github.request.workflow.run.WorkflowRunEvent
-import dev.sanmer.github.request.workflow.run.WorkflowRunStatus
-import dev.sanmer.github.response.workflow.run.WorkflowRun
+import dev.sanmer.github.model.workflow.run.WorkflowRun
+import dev.sanmer.github.model.workflow.run.WorkflowRunEvent
+import dev.sanmer.github.model.workflow.run.WorkflowRunStatus
 
 data class WorkflowRunPagingSource(
     private val github: GitHub,
@@ -65,7 +65,8 @@ data class WorkflowRunPagingSource(
 
     fun asPager() = Pager(
         config = PagingConfig(
-            pageSize = perPage
+            pageSize = perPage,
+            enablePlaceholders = false
         ),
         pagingSourceFactory = ::copy
     )
