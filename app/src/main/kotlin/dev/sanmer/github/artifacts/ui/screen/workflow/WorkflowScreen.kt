@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -49,7 +50,6 @@ import dev.sanmer.github.artifacts.ui.ktx.horizontal
 import dev.sanmer.github.artifacts.ui.ktx.isEmpty
 import dev.sanmer.github.artifacts.ui.ktx.isLoading
 import dev.sanmer.github.artifacts.ui.ktx.isNotEmpty
-import dev.sanmer.github.artifacts.ui.ktx.plus
 import dev.sanmer.github.artifacts.ui.ktx.vertical
 import dev.sanmer.github.artifacts.ui.screen.workflow.WorkflowViewModel.BottomSheet
 import dev.sanmer.github.artifacts.ui.screen.workflow.component.EnumBottomSheet
