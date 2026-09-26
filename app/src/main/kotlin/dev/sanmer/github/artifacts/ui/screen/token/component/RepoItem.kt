@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,13 +30,6 @@ fun RepoItem(
         .padding(horizontal = 15.dp, vertical = 10.dp)
         .fillMaxWidth()
 ) {
-    val pushedAt by remember(repo.id) {
-        derivedStateOf {
-            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
-                .format(DATETIME_DISPLAY)
-        }
-    }
-
     Title(
         title = repo.fullName,
         subtitle = repo.repoType(),
@@ -46,7 +37,9 @@ fun RepoItem(
     )
 
     Value(
-        value = pushedAt,
+        value = remember(repo.id, repo.pushedAt) {
+            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault()).format(DATETIME_DISPLAY)
+        },
         color = MaterialTheme.colorScheme.outline
     )
 }

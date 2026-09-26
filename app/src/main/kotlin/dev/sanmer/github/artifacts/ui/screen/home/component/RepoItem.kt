@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,13 +34,6 @@ fun RepoItem(
 ) = Column(
     modifier = modifier
 ) {
-    val pushedAt by remember(repo.id, repo.pushedAt) {
-        derivedStateOf {
-            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault())
-                .format(DATETIME_DISPLAY)
-        }
-    }
-
     Title(
         title = repo.fullName,
         subtitle = repo.repoType()
@@ -62,7 +53,9 @@ fun RepoItem(
     )
 
     Value(
-        value = pushedAt,
+        value = remember(repo.id, repo.pushedAt) {
+            repo.pushedAt.toLocalDateTime(TimeZone.currentSystemDefault()).format(DATETIME_DISPLAY)
+        },
         color = MaterialTheme.colorScheme.outline
     )
 }

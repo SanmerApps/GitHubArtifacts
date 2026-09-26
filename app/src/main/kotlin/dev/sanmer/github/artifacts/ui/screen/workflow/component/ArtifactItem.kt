@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,26 +47,19 @@ private fun Values(
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically)
 ) {
-    val size by remember(artifact.id) {
-        derivedStateOf {
-            artifact.sizeInBytes.formatFileSize()
-        }
-    }
-    val updatedAt by remember(artifact.id) {
-        derivedStateOf {
-            artifact.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
-                .format(DATETIME_DISPLAY)
-        }
-    }
-
     Value(
         icon = R.drawable.package_,
-        value = size,
+        value = remember(artifact.id) {
+            artifact.sizeInBytes.formatFileSize()
+        },
         color = MaterialTheme.colorScheme.outline
     )
 
     Value(
-        value = updatedAt,
+        value = remember(artifact.id) {
+            artifact.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault())
+                .format(DATETIME_DISPLAY)
+        },
         color = MaterialTheme.colorScheme.outline
     )
 }

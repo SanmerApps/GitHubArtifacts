@@ -11,8 +11,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +24,9 @@ import dev.sanmer.github.artifacts.ui.component.LabelText
 import dev.sanmer.github.artifacts.ui.component.Title
 import dev.sanmer.github.artifacts.ui.component.Value
 import dev.sanmer.github.artifacts.ui.ktx.surface
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 
 @Composable
 fun TokenItem(
@@ -44,10 +44,8 @@ fun TokenItem(
         .padding(all = 15.dp)
         .fillMaxWidth(),
 ) {
-    val expiredAt by remember(token.id) {
-        derivedStateOf {
-            token.expiredAt.toLocalDate(TimeZone.currentSystemDefault())
-        }
+    val expiredAt = remember(token.id) {
+        token.expiredAt.toLocalDate(TimeZone.currentSystemDefault()).format(LocalDate.Formats.ISO)
     }
 
     Row(

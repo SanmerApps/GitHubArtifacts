@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,26 +76,18 @@ private fun Timer(
     horizontalArrangement = Arrangement.spacedBy(10.dp),
     verticalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterVertically)
 ) {
-    val createdAt by remember(run.id) {
-        derivedStateOf {
-            run.createdAt.toLocalDateTime(TimeZone.currentSystemDefault())
-                .format(DATETIME_DISPLAY)
-        }
-    }
-    val duration by remember(run.id, run.updatedAt) {
-        derivedStateOf {
-            (run.updatedAt - run.runStartedAt).toString()
-        }
-    }
-
     Value(
-        value = createdAt,
+        value = remember(run.id) {
+            run.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).format(DATETIME_DISPLAY)
+        },
         color = MaterialTheme.colorScheme.outline
     )
 
     if (run.status == WorkflowRunStatus.Completed) Value(
         icon = R.drawable.timer,
-        value = duration,
+        value = remember(run.id) {
+            (run.updatedAt - run.runStartedAt).toString()
+        },
         color = MaterialTheme.colorScheme.outline
     )
 }
