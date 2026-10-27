@@ -1,8 +1,6 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -76,7 +74,7 @@ fun EditTokenScreen(
             TopBar(
                 isEdit = viewModel.isEdit,
                 onBack = goBack,
-                isRepoEmpty = viewModel.isRepoEmpty,
+                isRepoEmpty = viewModel.repos.isEmpty(),
                 onDelete = { viewModel.deleteToken(goBack) },
                 scrollBehavior = scrollBehavior
             )
@@ -146,28 +144,14 @@ private fun TopBar(
         }
     },
     actions = {
-        AnimatedVisibility(
-            visible = isEdit && isRepoEmpty,
-            enter = fadeIn() + scaleIn(
-                animationSpec = spring(stiffness = Spring.StiffnessLow)
-            ),
-            exit = scaleOut(
-                animationSpec = spring(stiffness = Spring.StiffnessLow)
-            ) + fadeOut()
+        if (isEdit) IconButton(
+            onClick = onDelete,
+            enabled = isRepoEmpty
         ) {
-            IconButton(
-                onClick = {
-                    when {
-                        transition.isRunning -> {}
-                        else -> onDelete()
-                    }
-                }
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.trash),
-                    contentDescription = null
-                )
-            }
+            Icon(
+                painter = painterResource(R.drawable.trash),
+                contentDescription = null
+            )
         }
     },
     scrollBehavior = scrollBehavior

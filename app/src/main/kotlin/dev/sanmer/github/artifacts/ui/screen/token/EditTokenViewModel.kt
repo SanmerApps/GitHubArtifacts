@@ -38,7 +38,6 @@ class EditTokenViewModel(
 
     var repos by mutableStateOf(emptyList<Repo>())
         private set
-    val isRepoEmpty inline get() = isEdit && repos.isEmpty()
 
     val repoInput = RepoInput()
 
