@@ -1,6 +1,8 @@
 package dev.sanmer.github.artifacts.ui.screen.token
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -144,10 +146,22 @@ private fun TopBar(
         }
     },
     actions = {
-        if (isEdit) {
+        AnimatedVisibility(
+            visible = isEdit && isRepoEmpty,
+            enter = fadeIn() + scaleIn(
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            ),
+            exit = scaleOut(
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            ) + fadeOut()
+        ) {
             IconButton(
-                onClick = onDelete,
-                enabled = isRepoEmpty
+                onClick = {
+                    when {
+                        transition.isRunning -> {}
+                        else -> onDelete()
+                    }
+                }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.trash),
