@@ -8,9 +8,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,19 +22,23 @@ import dev.sanmer.github.artifacts.database.model.Repo
 import dev.sanmer.github.artifacts.ui.ktx.bottom
 import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoItem
+import kotlinx.coroutines.launch
 
 @Composable
 fun ViewRepoBottomSheet(
     onClose: () -> Unit,
     repo: Repo,
     onWorkflow: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) = ModalBottomSheet(
     onDismissRequest = onClose,
-    sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    sheetState = sheetState,
     shape = MaterialTheme.shapes.extraLarge.bottom(0.dp),
     dragHandle = null
 ) {
+    val scope = rememberCoroutineScope()
+
     Text(
         text = stringResource(R.string.view_repo_title),
         style = MaterialTheme.typography.headlineSmall,
@@ -53,8 +59,11 @@ fun ViewRepoBottomSheet(
             )
             .clickable(
                 onClick = {
-                    onWorkflow()
-                    onClose()
+                    scope.launch { sheetState.hide() }
+                        .invokeOnCompletion {
+                            onWorkflow()
+                            onClose()
+                        }
                 }
             )
             .padding(all = 15.dp)
@@ -62,8 +71,11 @@ fun ViewRepoBottomSheet(
 
     Button(
         onClick = {
-            onDelete()
-            onClose()
+            scope.launch { sheetState.hide() }
+                .invokeOnCompletion {
+                    onDelete()
+                    onClose()
+                }
         },
         colors = ButtonDefaults.buttonColors(
             contentColor = MaterialTheme.colorScheme.onErrorContainer,
