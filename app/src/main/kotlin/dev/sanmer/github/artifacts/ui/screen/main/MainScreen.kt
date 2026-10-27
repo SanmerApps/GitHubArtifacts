@@ -1,7 +1,7 @@
 package dev.sanmer.github.artifacts.ui.screen.main
 
-import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
@@ -29,36 +29,27 @@ fun MainScreen(
             rememberViewModelStoreNavEntryDecorator()
         ),
         transitionSpec = {
-            slideIntoContainer(
-                towards = SlideDirection.Start,
-                animationSpec = tween(300)
+            fadeIn(
+                animationSpec = tween(600),
+                initialAlpha = 0.75f
             ) togetherWith fadeOut(
-                animationSpec = tween(300)
-            ) + slideOutOfContainer(
-                towards = SlideDirection.Start,
-                animationSpec = tween(300)
+                animationSpec = tween(150)
             )
         },
         popTransitionSpec = {
-            slideIntoContainer(
-                towards = SlideDirection.End,
-                animationSpec = tween(300)
+            fadeIn(
+                animationSpec = tween(600),
+                initialAlpha = 0.75f
             ) togetherWith fadeOut(
-                animationSpec = tween(300)
-            ) + slideOutOfContainer(
-                towards = SlideDirection.End,
-                animationSpec = tween(300)
+                animationSpec = tween(150)
             )
         },
         predictivePopTransitionSpec = {
-            slideIntoContainer(
-                towards = SlideDirection.End,
-                animationSpec = tween(300)
+            fadeIn(
+                animationSpec = tween(600),
+                initialAlpha = 0.75f
             ) togetherWith fadeOut(
-                animationSpec = tween(300)
-            ) + slideOutOfContainer(
-                towards = SlideDirection.End,
-                animationSpec = tween(300)
+                animationSpec = tween(150)
             )
         },
         entryProvider = entryProvider
