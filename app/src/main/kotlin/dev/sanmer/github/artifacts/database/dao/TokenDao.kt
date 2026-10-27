@@ -42,4 +42,13 @@ interface TokenDao {
 
     @Query("DELETE FROM Token WHERE id = :id")
     suspend fun delete(id: Long)
+
+    @Query("DELETE FROM Repo WHERE tokenId = :id")
+    suspend fun deleteRepos(id: Long)
+
+    @Transaction
+    suspend fun deleteAndRepos(id: Long) {
+        deleteRepos(id)
+        delete(id)
+    }
 }

@@ -74,8 +74,7 @@ fun EditTokenScreen(
             TopBar(
                 isEdit = viewModel.isEdit,
                 onBack = goBack,
-                isRepoEmpty = viewModel.repos.isEmpty(),
-                onDelete = { viewModel.deleteToken(goBack) },
+                onDelete = { viewModel.deleteTokenAndRepos(goBack) },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -117,7 +116,6 @@ fun EditTokenScreen(
 private fun TopBar(
     isEdit: Boolean,
     onBack: () -> Unit,
-    isRepoEmpty: Boolean,
     onDelete: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) = TopAppBar(
@@ -145,8 +143,7 @@ private fun TopBar(
     },
     actions = {
         if (isEdit) IconButton(
-            onClick = onDelete,
-            enabled = isRepoEmpty
+            onClick = onDelete
         ) {
             Icon(
                 painter = painterResource(R.drawable.trash),

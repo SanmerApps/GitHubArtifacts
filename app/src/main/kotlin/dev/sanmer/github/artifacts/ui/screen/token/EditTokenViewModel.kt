@@ -77,10 +77,10 @@ class EditTokenViewModel(
         }
     }
 
-    fun deleteToken(onBack: () -> Unit = {}) {
+    fun deleteTokenAndRepos(onBack: () -> Unit = {}) {
         viewModelScope.launch {
             runCatching {
-                dbRepository.deleteToken(tokenId)
+                dbRepository.deleteTokenAndRepos(tokenId)
                 onBack()
             }.onFailure {
                 Log.e(TAG, "deleteToken", it)

@@ -40,8 +40,8 @@ class DbRepositoryImpl(
         tokenDao.upsert(*token)
     }
 
-    override suspend fun deleteToken(id: Long) = withContext(Dispatchers.IO) {
-        tokenDao.delete(id)
+    override suspend fun deleteTokenAndRepos(id: Long) = withContext(Dispatchers.IO) {
+        tokenDao.deleteAndRepos(id)
     }
 
     override fun getReposAsFlow() = repoDao.getAllAsFlow()

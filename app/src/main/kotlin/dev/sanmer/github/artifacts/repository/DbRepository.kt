@@ -14,7 +14,7 @@ interface DbRepository {
     fun getTokenAndReposAsFlow(id: Long): Flow<Token.AndRepos>
     suspend fun getTokenAndRepos(id: Long): Token.AndRepos
     suspend fun upsertToken(vararg token: Token)
-    suspend fun deleteToken(id: Long)
+    suspend fun deleteTokenAndRepos(id: Long)
 
     fun getReposAsFlow(): Flow<List<Repo>>
     suspend fun getRepos(): List<Repo>
