@@ -25,10 +25,13 @@ import dev.sanmer.github.artifacts.ktx.copyToWithSHA256
 import dev.sanmer.github.artifacts.ktx.formatFileSize
 import dev.sanmer.github.model.artifact.Artifact
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -41,7 +44,6 @@ import okhttp3.Request
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeSource
 
 class ArtifactJob : LifecycleService(), KoinComponent {
     private val okhttp by inject<OkHttpClient>()
@@ -184,34 +186,37 @@ class ArtifactJob : LifecycleService(), KoinComponent {
             headers = Headers.headersOf("Authorization", token.toBearerAuth())
         )
         val response = okhttp.newCall(request).execute()
-        require(response.code == 200) { "Expect code = 200" }
-        val body = requireNotNull(response.body) { "Expect body" }
-        val output = requireNotNull(contentResolver.openOutputStream(uri)) { "Expect output" }
+        check(response.code == 200) { "Expect code = 200, but ${response.code}" }
+        val output = requireNotNull(contentResolver.openOutputStream(uri)) { "Expect $uri" }
 
-        val period = 1.seconds
-        var lastNotify = TimeSource.Monotonic.markNow()
-        val sizeBytesF = artifact.sizeInBytes.toFloat()
-        val sizeBytesI = artifact.sizeInBytes.toInt()
-        val onProgress: (Long) -> Unit = { copied ->
-            jobState.tryEmit(JobState.Running(artifact.id, copied / sizeBytesF))
-            if (lastNotify.elapsedNow() >= period) {
+        val channel = Channel<Long>(Channel.CONFLATED)
+        val consumer = launch {
+            val sizeBytes = artifact.sizeInBytes.toInt()
+            while (isActive) {
+                val copied = channel.receive()
                 notify(startId, builder) {
-                    setProgress(sizeBytesI, copied.toInt(), false)
+                    setProgress(sizeBytes, copied.toInt(), false)
                 }
-                lastNotify = TimeSource.Monotonic.markNow()
+                delay(1.seconds)
             }
         }
-        val digest = body.byteStream().buffered().use { input ->
-            input.copyToWithSHA256(output, onProgress).toHexString()
+
+        val sizeBytes = artifact.sizeInBytes.toFloat()
+        val digest = response.body.byteStream().buffered().use { input ->
+            input.copyToWithSHA256(output) { copied ->
+                jobState.tryEmit(JobState.Running(artifact.id, copied / sizeBytes))
+                channel.trySend(copied)
+            }.toHexString()
         }
         output.close()
+        consumer.cancelAndJoin()
 
         val target = artifact.digest.removePrefix("sha256:")
         if (target != artifact.digest) {
             check(digest == target) { "Expect SHA-256 = $target, but $digest" }
         }
 
-        val contentType = when (val type = body.contentType().toString()) {
+        val contentType = when (val type = response.body.contentType().toString()) {
             "application/octet-stream" -> when (artifact.name.substringAfterLast('.', "")) {
                 "apk" -> "application/vnd.android.package-archive"
                 else -> type
