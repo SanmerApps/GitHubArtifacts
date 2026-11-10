@@ -202,7 +202,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         }
 
         val sizeBytes = artifact.sizeInBytes.toFloat()
-        val digest = response.body.byteStream().buffered().use { input ->
+        val digest = response.body.byteStream().use { input ->
             input.copyToWithSHA256(output) { copied ->
                 jobState.tryEmit(JobState.Running(artifact.id, copied / sizeBytes))
                 channel.trySend(copied)
@@ -289,7 +289,7 @@ class ArtifactJob : LifecycleService(), KoinComponent {
         }
 
         private val Intent.token: String
-            inline get() = checkNotNull(getStringExtra(EXTRA_TOKEN))
+            inline get() = requireNotNull(getStringExtra(EXTRA_TOKEN))
 
         private val jobState = MutableStateFlow<JobState>(JobState.Empty)
         fun getJobState(artifactId: Long) = jobState.filter { it.id == artifactId }
