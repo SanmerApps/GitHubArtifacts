@@ -20,8 +20,8 @@ data class WorkflowRun(
     @SerialName("run_number")
     val runNumber: Int,
     val event: WorkflowRunEvent,
-    val status: WorkflowRunStatus?,
-    val conclusion: WorkflowRunStatus?,
+    val status: WorkflowRunStatus? = null,
+    val conclusion: WorkflowRunStatus? = null,
     @SerialName("html_url")
     val htmlUrl: String,
     @SerialName("created_at")

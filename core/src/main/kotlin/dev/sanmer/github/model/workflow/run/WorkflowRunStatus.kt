@@ -38,6 +38,9 @@ enum class WorkflowRunStatus {
     @SerialName("stale")
     Stale,
 
+    @SerialName("startup_failure")
+    StartupFailure,
+
     @SerialName("success")
     Success,
 

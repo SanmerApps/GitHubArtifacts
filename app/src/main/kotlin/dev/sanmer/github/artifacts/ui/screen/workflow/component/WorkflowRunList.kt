@@ -205,7 +205,7 @@ private fun WorkflowRunStatusItem(
         }
     )
 
-    WorkflowRunStatus.Failure -> Icon(
+    WorkflowRunStatus.Failure, WorkflowRunStatus.StartupFailure -> Icon(
         painter = painterResource(R.drawable.x_circle_fill),
         contentDescription = null,
         modifier = modifier,
