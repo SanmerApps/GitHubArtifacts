@@ -51,6 +51,7 @@ import dev.sanmer.github.artifacts.R
 import dev.sanmer.github.artifacts.model.LoadData
 import dev.sanmer.github.artifacts.ui.component.AnimatedPoint
 import dev.sanmer.github.artifacts.ui.component.Loading
+import dev.sanmer.github.artifacts.ui.component.Point
 import dev.sanmer.github.model.artifact.Artifact
 import dev.sanmer.github.model.workflow.run.WorkflowRun
 import dev.sanmer.github.model.workflow.run.WorkflowRunStatus
@@ -215,7 +216,12 @@ private fun WorkflowRunStatusItem(
         }
     )
 
-    WorkflowRunStatus.Pending, WorkflowRunStatus.InProgress -> AnimatedPoint(
+    WorkflowRunStatus.InProgress -> AnimatedPoint(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        modifier = modifier.size(24.dp)
+    )
+
+    WorkflowRunStatus.Pending, WorkflowRunStatus.Queued -> Point(
         color = MaterialTheme.colorScheme.secondaryContainer,
         modifier = modifier.size(24.dp)
     )
