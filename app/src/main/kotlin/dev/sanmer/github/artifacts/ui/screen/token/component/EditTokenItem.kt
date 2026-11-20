@@ -8,7 +8,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.maxLengthReject
 import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -67,7 +67,7 @@ fun EditTokenItem(
 
     OutlinedTextField(
         state = input.expiredAt,
-        inputTransformation = InputTransformation.maxLength(8).then {
+        inputTransformation = InputTransformation.maxLengthReject(8).then {
             if (!asCharSequence().isDigitsOnly()) {
                 revertAllChanges()
             }
