@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
-class ApplicationConventionPlugin : Plugin<Project> {
+class ApplicationPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         apply(plugin = "com.android.application")
 
@@ -45,7 +45,6 @@ class ApplicationConventionPlugin : Plugin<Project> {
         extensions.configure<KotlinAndroidProjectExtension> {
             compilerOptions {
                 languageVersion.set(kotlinVersion)
-                optIn.add("kotlinx.serialization.ExperimentalSerializationApi")
             }
         }
     }

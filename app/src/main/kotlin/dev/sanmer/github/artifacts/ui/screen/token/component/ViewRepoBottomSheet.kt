@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -25,6 +26,7 @@ import dev.sanmer.github.artifacts.ui.ktx.surface
 import dev.sanmer.github.artifacts.ui.screen.home.component.RepoItem
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterial3Api
 @Composable
 fun ViewRepoBottomSheet(
     onClose: () -> Unit,

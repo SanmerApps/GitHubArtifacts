@@ -4,6 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
@@ -23,6 +24,7 @@ import dev.sanmer.github.artifacts.ui.ktx.bottom
 import dev.sanmer.github.artifacts.ui.ktx.isEmpty
 import dev.sanmer.github.model.workflow.Workflow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkflowBottomSheet(
     onClose: () -> Unit,

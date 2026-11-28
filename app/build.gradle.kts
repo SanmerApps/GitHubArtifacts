@@ -3,9 +3,9 @@ import java.time.Instant
 
 plugins {
     alias(libs.plugins.self.application)
-    alias(libs.plugins.self.compose)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.koin)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
