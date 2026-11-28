@@ -25,6 +25,11 @@ android {
         ndk.abiFilters += listOf("arm64-v8a", "x86_64")
     }
 
+    buildFeatures {
+        buildConfig = true
+        compose = true
+    }
+
     androidResources {
         generateLocaleConfig = true
         localeFilters += listOf("en", "zh-rCN")

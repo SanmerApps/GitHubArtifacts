@@ -32,10 +32,6 @@ class ApplicationPlugin : Plugin<Project> {
                 this.minSdk = minSdk.toInt()
             }
 
-            buildFeatures {
-                buildConfig = true
-            }
-
             compileOptions {
                 sourceCompatibility = JavaVersion.current()
                 targetCompatibility = JavaVersion.current()
